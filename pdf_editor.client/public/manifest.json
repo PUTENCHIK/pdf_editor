@@ -1,0 +1,9 @@
+{
+    "short_name": "PDF Editor",
+    "name": "Web PDF Editor as IT Academy project",
+    "icons": [],
+    "start_url": ".",
+    "display": "standalone",
+    "theme_color": "#000000",
+    "background_color": "#ff0000"
+}

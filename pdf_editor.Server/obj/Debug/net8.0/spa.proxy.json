@@ -1,0 +1,10 @@
+{
+"SpaProxyServer": {
+"ServerUrl": "https://localhost:59404",
+"RedirectUrl": "",
+"LaunchCommand": "npm run dev",
+"WorkingDirectory": "C:\\Users\\admin\\Desktop\\only_ascii\\pdf_editor\\pdf_editor.Server\\..\\pdf_editor.client",
+"MaxTimeoutInSeconds": "120",
+"KeepRunning": "false"
+}
+}

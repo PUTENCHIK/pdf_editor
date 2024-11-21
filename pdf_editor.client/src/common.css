@@ -1,0 +1,15 @@
+@font-face {
+    font-family: "Inter";
+    src: url("/public/fonts/Inter/Inter-VariableFont_opsz\,wght.ttf");
+}
+
+@font-face {
+    font-family: "Montserrat";
+    src: url("/public/fonts/Montserrat/Montserrat-VariableFont_wght.ttf");
+}
+
+h1 {
+    font-family: "Inter";
+    font-size: 60px;
+    font-weight: 400;
+}

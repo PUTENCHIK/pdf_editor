@@ -1,0 +1,24 @@
+{
+  "Version": 1,
+  "Hash": "s5eGOOssFmVXfqAp+K5HS8FtUKlxzkP67LRHUcuGQDk=",
+  "Source": "pdf_editor.Server",
+  "BasePath": "_content/pdf_editor.Server",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [
+    {
+      "Identity": "C:\\Users\\admin\\Desktop\\only_ascii\\pdf_editor\\pdf_editor.client\\pdf_editor.client.esproj",
+      "Version": 2,
+      "Source": "pdf_editor.client",
+      "GetPublishAssetsTargets": "GetCurrentProjectPublishStaticWebAssetItems",
+      "AdditionalPublishProperties": "Configuration=Debug;Platform=AnyCPU",
+      "AdditionalPublishPropertiesToRemove": "WebPublishProfileFile;TargetFramework",
+      "GetBuildAssetsTargets": "GetCurrentProjectBuildStaticWebAssetItems",
+      "AdditionalBuildProperties": "Configuration=Debug;Platform=AnyCPU",
+      "AdditionalBuildPropertiesToRemove": "WebPublishProfileFile;TargetFramework"
+    }
+  ],
+  "DiscoveryPatterns": [],
+  "Assets": [],
+  "Endpoints": []
+}
