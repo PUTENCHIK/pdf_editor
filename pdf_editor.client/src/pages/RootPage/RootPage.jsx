@@ -1,10 +1,11 @@
 import Header from "../../components/Header/Header";
+import DescriptionBlock from "./components/DescriptionBlock/DescriptionBlock";
 
 function RootPage() {
     return (
         <>
             <Header />
-            <h1>Root page</h1>
+            <DescriptionBlock />
         </>
     );
 }
