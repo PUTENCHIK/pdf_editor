@@ -1,0 +1,29 @@
+.advantage-element {
+    display: inline-flex;
+    flex-wrap: wrap;
+    flex-direction: column;
+    row-gap: 15px;
+}
+
+.icon-box {
+    display: flex;
+    width: 100%;
+}
+
+img.icon {
+    width: 50px;
+    height: 50px;
+}
+
+.icon-box > img.icon {
+    margin: 0 auto;
+}
+
+.advantage-element > h3,
+.advantage-element > span.label {
+    text-align: center;
+}
+
+span.label {
+    font-size: 16px;
+}

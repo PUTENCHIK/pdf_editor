@@ -19,6 +19,7 @@
 
 .links-list {
     display: inline-flex;
+    column-gap: 30px;
     position: absolute;
     top: 78px;
     padding: 30px;
@@ -32,6 +33,15 @@
     display: inline-flex;
     flex-direction: column;
     row-gap: 30px;
+    margin: 0;
+}
+
+.links-list li::marker {
+    color: #F14925CC;
+}
+
+.links-list a:hover {
+    color: #808080;
 }
 
 .hidden {

@@ -1,0 +1,23 @@
+.container {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    padding: 70px 0;
+
+    background-color: #f6f6f6;
+}
+
+.advantages-block {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    row-gap: 30px;
+    column-gap: 30px;
+
+    width: 1280px;
+    margin: auto;
+}
+
+.advantages-block > * {
+    flex: 1 0 26%;
+}

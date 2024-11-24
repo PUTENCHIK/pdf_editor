@@ -57,3 +57,8 @@
 .add-files-block:hover .choose-files-button {
     box-shadow: 0 4px 6px #53000040;
 }
+
+.choose-files-button img.icon.local {
+    width: 35px;
+    height: 35px;
+}

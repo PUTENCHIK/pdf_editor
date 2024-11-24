@@ -3,6 +3,8 @@ import { useState } from 'react';
 
 import ArrowDown from '../ArrowDown/ArrowDown';
 
+import {Link} from 'react-router-dom';
+
 function DropdownList(props) {
     
     let [isShown, setShown] = useState(false);
@@ -18,11 +20,19 @@ function DropdownList(props) {
                 <ArrowDown isShown={!isShown} />
             </div>
             <div className={'links-list' + (!isShown ? ' hidden' : '')}>
-                <ul>
-                    <li>Вариант 1</li>
-                    <li>Вариант 2</li>
-                    <li>Вариант 3</li>
-                </ul>
+                {props.tools.map((tools_list) => {
+                    return (
+                        <ul>
+                            {tools_list.map((tool) => {
+                                return (
+                                    <li>
+                                        <Link to={tool.link}>{tool.title}</Link>
+                                    </li>
+                                );
+                            })}
+                        </ul>
+                    );
+                })}
             </div>
         </div>
     );
