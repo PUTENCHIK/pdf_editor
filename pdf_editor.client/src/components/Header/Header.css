@@ -4,6 +4,7 @@ header {
     height: 78px;
 
     border-bottom: 2px solid #2D4727;
+    background-color: #F4F4F4;
 }
 
 .header-content {
