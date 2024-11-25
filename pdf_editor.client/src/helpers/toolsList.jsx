@@ -14,7 +14,7 @@ const tools = [
         },
         {
             title: 'Конвертировать PDF',
-            link: '/covert'
+            link: '/convert'
         },
         {
             title: 'Редактировать PDF',
