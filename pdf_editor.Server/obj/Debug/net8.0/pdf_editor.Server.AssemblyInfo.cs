@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("pdf_editor.Server")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f4d50ae4dbb0644426b7cdeff39d92dd60d5f48a")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+958e750367232fe5b528fd7ced8eec336b58805f")]
 [assembly: System.Reflection.AssemblyProductAttribute("pdf_editor.Server")]
 [assembly: System.Reflection.AssemblyTitleAttribute("pdf_editor.Server")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -75,6 +75,10 @@ namespace PDF_API.Models {
             countUploadedDocuments = 2;
         }
 
+        ~MyPDF() {
+            Clear();
+        }
+
         public string getOutputFilePath() {
             return outputFilePath;
         }
