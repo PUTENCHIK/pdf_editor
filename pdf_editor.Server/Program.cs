@@ -1,4 +1,12 @@
+
+
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddLogging();
+builder.Logging.AddConsole();
+builder.Logging.AddDebug();
+builder.Logging.AddFilter("Microsoft", LogLevel.Warning);
+builder.Logging.AddFilter("System", LogLevel.Warning);
 
 builder.Services.AddCors(options => {
     options.AddPolicy("AllowAllOrigins", policyBuilder => {
@@ -9,19 +17,19 @@ builder.Services.AddCors(options => {
     });
 });
 
-// Add services to the container.
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
 
 var app = builder.Build();
 
 app.UseDefaultFiles();
 app.UseStaticFiles();
+app.UseMiddleware<RequestIdMiddleware>();
 
-// Configure the HTTP request pipeline.
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -33,6 +41,8 @@ app.UseHttpsRedirection();
 app.UseCors("AllowAllOrigins");
 
 app.UseAuthorization();
+
+
 
 app.MapControllers();
 

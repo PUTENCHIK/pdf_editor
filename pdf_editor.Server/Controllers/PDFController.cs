@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Org.BouncyCastle.Asn1.Ocsp;
 using PDF_API.Models;
 
 
@@ -9,22 +10,34 @@ namespace PDF_API.Controllers {
     [ApiController]
     public class PDFController : ControllerBase {
 
+        private readonly ILogger<PDFController> _logger;
+
+        public PDFController(ILogger<PDFController> logger) {
+            _logger = logger;
+        }
+
         [HttpPost("CanFileBeUploaded")]
         public IActionResult CanFileBeUploaded(IFormFile file) {
+            string? requestId = HttpContext.Items["RequestId"]?.ToString();
+
             try {
                 MyPDF.CanBeUpload(file);
                 return Ok("Success");
             }
             catch (PDFException e) {
+                _logger.LogInformation($"RequestId: {requestId}. The user received an error: {e.Message}");
                 return BadRequest(e.Message);
             }
             catch (Exception e) {
+                _logger.LogCritical($"RequestId: {requestId}. {e.Message}");
                 return StatusCode(500, "Internal Server Error");
             }
         }
         [HttpPost("DeletePage")]
         public ActionResult DeletePage(IFormFile fileToUpload, int pageNumber) {
+            string? requestId = HttpContext.Items["RequestId"]?.ToString();
             MyPDF? mypdf = null;
+
             try {
                 mypdf = new MyPDF(fileToUpload);
 
@@ -40,12 +53,15 @@ namespace PDF_API.Controllers {
                     mypdf.Clear();
                 }
 
+                _logger.LogInformation($"RequestId: {requestId}. The user received an error: {e.Message}");
                 return BadRequest(e.Message);
             }
             catch (Exception e) {
                 if (mypdf != null) {
                     mypdf.Clear();
                 }
+
+                _logger.LogCritical($"RequestId: {requestId}. {e.Message}");
                 return StatusCode(500, "Internal Server Error");
             }
         }
@@ -53,6 +69,8 @@ namespace PDF_API.Controllers {
         [HttpPost("SwapPages")]
         public ActionResult SwapPages(IFormFile fileToUpload, int pageFromSwap, int pageToSwap) {
             MyPDF? mypdf = null;
+            string? requestId = HttpContext.Items["RequestId"]?.ToString();
+
             try {
                 mypdf = new MyPDF(fileToUpload);
 
@@ -68,12 +86,15 @@ namespace PDF_API.Controllers {
                     mypdf.Clear();
                 }
 
+                _logger.LogInformation($"RequestId: {requestId}. The user received an error: {e.Message}");
                 return BadRequest(e.Message);
             }
             catch (Exception e) {
                 if (mypdf != null) {
                     mypdf.Clear();
                 }
+
+                _logger.LogCritical($"RequestId: {requestId}. {e.Message}");
                 return StatusCode(500, "Internal Server Error");
             }
         }
@@ -81,6 +102,8 @@ namespace PDF_API.Controllers {
         [HttpPost("CombinePdfFiles")]
         public ActionResult CombinePdfFiles(IFormFile fileToUpload1, IFormFile fileToUpload2) {
             MyPDF? mypdf = null;
+            string? requestId = HttpContext.Items["RequestId"]?.ToString();
+
             try {
                 mypdf = new MyPDF(fileToUpload1, fileToUpload2);
 
@@ -96,12 +119,15 @@ namespace PDF_API.Controllers {
                     mypdf.Clear();
                 }
 
+                _logger.LogInformation($"RequestId: {requestId}. The user received an error: {e.Message}");
                 return BadRequest(e.Message);
             }
             catch (Exception e) {
                 if (mypdf != null) {
                     mypdf.Clear();
                 }
+
+                _logger.LogCritical($"RequestId: {requestId}. {e.Message}");
                 return StatusCode(500, "Internal Server Error");
             }
         }
@@ -109,6 +135,8 @@ namespace PDF_API.Controllers {
         [HttpPost("SplitFile")]
         public ActionResult SplitFile(IFormFile fileToUpload, int breakPage) {
             MyPDF? mypdf = null;
+            string? requestId = HttpContext.Items["RequestId"]?.ToString();
+
             try {
                 mypdf = new MyPDF(fileToUpload);
 
@@ -127,12 +155,15 @@ namespace PDF_API.Controllers {
                     mypdf.Clear();
                 }
 
+                _logger.LogInformation($"RequestId: {requestId}. The user received an error: {e.Message}");
                 return BadRequest(e.Message);
             }
             catch (Exception e) {
                 if (mypdf != null) {
                     mypdf.Clear();
                 }
+
+                _logger.LogCritical($"RequestId: {requestId}. {e.Message}");
                 return StatusCode(500, "Internal Server Error");
             }
         }
@@ -141,6 +172,7 @@ namespace PDF_API.Controllers {
         public ActionResult InsertImage(IFormFile pdfFileToUpload, IFormFile imageFileToUpload, int pageNumberToInsert, float width, float height, int x, int y) {
             MyPDF? mypdf = null;
             MyImage? myimage = null;
+            string? requestId = HttpContext.Items["RequestId"]?.ToString();
 
             try {
                 mypdf = new MyPDF(pdfFileToUpload);
@@ -162,6 +194,7 @@ namespace PDF_API.Controllers {
                     myimage.Clear();
                 }
 
+                _logger.LogInformation($"RequestId: {requestId}. The user received an error: {e.Message}");
                 return BadRequest(e.Message);
             }
             catch (Exception e) {
@@ -172,6 +205,7 @@ namespace PDF_API.Controllers {
                     myimage.Clear();
                 }
 
+                _logger.LogCritical($"RequestId: {requestId}. {e.Message}");
                 return StatusCode(500, "Internal Server Error");
             }
         }
@@ -179,6 +213,7 @@ namespace PDF_API.Controllers {
         [HttpPost("RotatePages")]
         public ActionResult RotatePages(IFormFile fileToUpload, int degrees) {
             MyPDF? mypdf = null;
+            string? requestId = HttpContext.Items["RequestId"]?.ToString();
 
             try {
                 mypdf = new MyPDF(fileToUpload);
@@ -195,12 +230,15 @@ namespace PDF_API.Controllers {
                     mypdf.Clear();
                 }
 
+                _logger.LogInformation($"RequestId: {requestId}. The user received an error: {e.Message}");
                 return BadRequest(e.Message);
             }
             catch (Exception e) {
                 if (mypdf != null) {
                     mypdf.Clear();
                 }
+
+                _logger.LogCritical($"RequestId: {requestId}. {e.Message}");
                 return StatusCode(500, "Internal Server Error");
             }
         }
@@ -209,6 +247,7 @@ namespace PDF_API.Controllers {
         [HttpPost("AddText")]
         public ActionResult AddText(IFormFile fileToUpload, string text, int pageNumber, int x, int y, float FontSize = 12, string font = "Helvetica", bool isBold = false, string fontColor = "Black") {
             MyPDF? mypdf = null;
+            string? requestId = HttpContext.Items["RequestId"]?.ToString();
 
             try {
                 mypdf = new MyPDF(fileToUpload);
@@ -225,12 +264,15 @@ namespace PDF_API.Controllers {
                     mypdf.Clear();
                 }
 
+                _logger.LogInformation($"RequestId: {requestId}. The user received an error: {e.Message}");
                 return BadRequest(e.Message);
             }
             catch (Exception e) {
                 if (mypdf != null) {
                     mypdf.Clear();
                 }
+
+                _logger.LogCritical($"RequestId: {requestId}. {e.Message}");
                 return StatusCode(500, "Internal Server Error");
             }
         }
@@ -238,6 +280,7 @@ namespace PDF_API.Controllers {
         [HttpPost("CropPage")]
         public ActionResult CropPage(IFormFile fileToUpload, int pageNumber, int x, int y, float width, float height) {
             MyPDF? mypdf = null;
+            string? requestId = HttpContext.Items["RequestId"]?.ToString();
 
             try {
                 mypdf = new MyPDF(fileToUpload);
@@ -254,12 +297,15 @@ namespace PDF_API.Controllers {
                     mypdf.Clear();
                 }
 
+                _logger.LogInformation($"RequestId: {requestId}. The user received an error: {e.Message}");
                 return BadRequest(e.Message);
             }
             catch (Exception e) {
                 if (mypdf != null) {
                     mypdf.Clear();
                 }
+
+                _logger.LogCritical($"RequestId: {requestId}. {e.Message}");
                 return StatusCode(500, "Internal Server Error");
             }
         }
