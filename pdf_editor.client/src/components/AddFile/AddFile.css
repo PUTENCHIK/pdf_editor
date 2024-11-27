@@ -1,0 +1,17 @@
+.add-file-button {
+    display: flex;
+    width: 400px;
+    height: 60px;
+    /* padding: 0 40px; */
+
+    border-radius: 10px;
+    background-color: #D3D3D3;
+}
+
+.add-file-button:hover {
+    background-color: #E1E1E1;
+}
+
+.add-file-button > span {
+    margin: auto;
+}
