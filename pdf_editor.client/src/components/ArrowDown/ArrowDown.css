@@ -4,6 +4,11 @@
     height: 20px;
 }
 
+.arrow-box > .__content {
+    display: inline-flex;
+    margin: auto;
+}
+
 .arrow {
     width: 9px;
     height: 9px;
@@ -16,4 +21,10 @@
 
 .hidden {
     display: none;
+}
+
+.arrow-box.up .__content {
+    position: relative;
+    transform: rotate(180deg);
+    top: 3px;
 }

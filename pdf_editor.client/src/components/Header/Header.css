@@ -15,3 +15,8 @@ header {
 
     margin: auto;
 }
+
+header nav {
+    display: flex;
+    column-gap: 40px;
+}
