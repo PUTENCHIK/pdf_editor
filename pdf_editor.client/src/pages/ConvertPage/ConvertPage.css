@@ -31,6 +31,10 @@ main.section > .__content {
     width: 100%;
 }
 
-.add-files-block {
+.choose-files-container {
     margin-top: 100px;
 }
+
+/* .add-files-block.id-convert-page .background {
+    left: 35%;
+} */

@@ -15,7 +15,7 @@ function DescriptionBlock() {
                     </p>
                 </div>
                 <Link to='/editor' className='add-files-link'>
-                    <ChooseFilesBlock />
+                    <ChooseFilesBlock id='id-root-page' />
                 </Link>
             </div>
         </div>

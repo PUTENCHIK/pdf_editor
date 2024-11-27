@@ -1,13 +1,13 @@
 {
   "Version": 1,
-  "Hash": "jugqXHJl5XAQ5uo3MbzRCDOvC8KBH338AAhK/HxKAO0=",
+  "Hash": "s5eGOOssFmVXfqAp+K5HS8FtUKlxzkP67LRHUcuGQDk=",
   "Source": "pdf_editor.Server",
   "BasePath": "_content/pdf_editor.Server",
   "Mode": "Default",
   "ManifestType": "Build",
   "ReferencedProjectsConfiguration": [
     {
-      "Identity": "D:\\ReactAndServer\\pdf_editor\\pdf_editor.client\\pdf_editor.client.esproj",
+      "Identity": "C:\\Users\\admin\\Desktop\\only_ascii\\pdf_editor\\pdf_editor.client\\pdf_editor.client.esproj",
       "Version": 2,
       "Source": "pdf_editor.client",
       "GetPublishAssetsTargets": "GetCurrentProjectPublishStaticWebAssetItems",
@@ -19,5 +19,6 @@
     }
   ],
   "DiscoveryPatterns": [],
-  "Assets": []
+  "Assets": [],
+  "Endpoints": []
 }

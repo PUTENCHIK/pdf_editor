@@ -10,7 +10,7 @@
 
 .add-files-block > .background {
     position: absolute;
-    left: calc(50%);
+    left: 50%;
 }
 
 .choose-files-button {
