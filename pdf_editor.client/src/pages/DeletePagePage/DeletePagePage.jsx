@@ -15,7 +15,10 @@ function DeletePagePage() {
                     Описание Описание Описание Описание Описание
                     </p>
                     <div className="add-file-container">
-                        <AddFile />
+                        <form>
+                            <AddFile />
+                            {/* <Upload></Upload> */}
+                        </form>
                     </div>
                 </div>
             </main>

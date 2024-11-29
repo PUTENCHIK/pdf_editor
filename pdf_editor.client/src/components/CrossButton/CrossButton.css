@@ -1,0 +1,22 @@
+.cross-button {
+    display: flex;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+
+    border-radius: 20px;
+}
+
+.cross-button::before {
+    display: block;
+    margin: auto;
+    
+    content: "\00d7";
+    font-size: 32px;
+    color: black;
+}
+
+.cross-button:hover {
+    cursor: pointer;
+    outline: 1px solid black;
+}
