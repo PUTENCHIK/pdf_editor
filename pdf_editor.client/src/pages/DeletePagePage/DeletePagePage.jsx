@@ -30,7 +30,10 @@ function DeletePagePage() {
 
 
                     <div className="add-file-container">
-                        <AddFile />
+                        <form>
+                            <AddFile />
+                            {/* <Upload></Upload> */}
+                        </form>
                     </div>
                 </div>
             </main>
