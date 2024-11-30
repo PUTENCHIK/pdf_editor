@@ -7,6 +7,10 @@
         public string fileName;
 
         public MyImage(IFormFile image, float width, float height) {
+            if (!Directory.Exists(uploadFolder)) {
+                Directory.CreateDirectory(uploadFolder);
+            }
+
             this.width = width;
             this.height = height;
             CanBeUpload(image);

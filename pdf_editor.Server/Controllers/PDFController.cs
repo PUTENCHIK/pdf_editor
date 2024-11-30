@@ -19,6 +19,11 @@ namespace PDF_API.Controllers {
 
         public PDFController(ILogger<PDFController> logger) {
             _logger = logger;
+
+            string directoryPath = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "Uploads");
+            if (!Directory.Exists(directoryPath)) {
+                Directory.CreateDirectory(directoryPath);
+            }
         }
 
         [HttpPost("CanFileBeUploaded")]
@@ -28,6 +33,29 @@ namespace PDF_API.Controllers {
             try {
                 MyPDF.CanBeUpload(data.file);
                 return Ok("Success");
+            }
+            catch (PDFException e) {
+                _logger.LogInformation($"RequestId: {requestId}. The user received an error: {e.Message}");
+                return BadRequest(e.Message);
+            }
+            catch (Exception e) {
+                _logger.LogCritical($"RequestId: {requestId}. {e.Message}");
+                return StatusCode(500, "Internal Server Error");
+            }
+        }
+
+        [HttpPost("GetPageCount")]
+        public IActionResult GetPageCount(GetPageCountRequest data) {
+            string? requestId = HttpContext.Items["RequestId"]?.ToString();
+            MyPDF? mypdf = null;
+
+            try {
+                mypdf = new MyPDF(data.file);
+
+                int pageCount = mypdf.GetPageCount();
+                mypdf.Clear();
+
+                return Ok(pageCount);
             }
             catch (PDFException e) {
                 _logger.LogInformation($"RequestId: {requestId}. The user received an error: {e.Message}");

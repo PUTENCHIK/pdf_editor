@@ -56,6 +56,10 @@ namespace PDF_API.Models {
         };
 
         public MyPDF(IFormFile fileToUpload1) {
+            if (!Directory.Exists(uploadFolder)) {
+                Directory.CreateDirectory(uploadFolder);
+            }
+
             CanBeUpload(fileToUpload1);
             fileName1 = Upload(fileToUpload1);
             inputFilePath1 = GetUploadPath(fileName1);
@@ -64,6 +68,10 @@ namespace PDF_API.Models {
         }
 
         public MyPDF(IFormFile fileToUpload1, IFormFile fileToUpload2) {
+            if (!Directory.Exists(uploadFolder)) {
+                Directory.CreateDirectory(uploadFolder);
+            }
+
             CanBeUpload(fileToUpload1);
             CanBeUpload(fileToUpload2);
 
@@ -77,6 +85,12 @@ namespace PDF_API.Models {
 
         ~MyPDF() {
             Clear();
+        }
+
+        public int GetPageCount() {
+            using (var pdfDocument = new PdfDocument(new PdfReader(inputFilePath1), new PdfWriter(outputFilePath))) {
+                return pdfDocument.GetNumberOfPages();
+            }
         }
 
         public string getOutputFilePath() {

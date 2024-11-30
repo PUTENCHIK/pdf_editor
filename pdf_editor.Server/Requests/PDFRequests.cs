@@ -8,6 +8,10 @@
         public IFormFile file { get; set; }
     }
 
+    public class GetPageCountRequest {
+        public IFormFile file { get; set; }
+    }
+
     public class SwapPagesRequest {
         public IFormFile file { get; set; }
         public int pageFrom { get; set; }
