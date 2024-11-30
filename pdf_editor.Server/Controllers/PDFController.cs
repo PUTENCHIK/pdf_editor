@@ -1,11 +1,16 @@
-﻿using Microsoft.AspNetCore.Cors;
+﻿using iText.Kernel.Pdf.Canvas.Wmf;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Org.BouncyCastle.Asn1.Ocsp;
 using PDF_API.Models;
+using pdf_editor.Server.Requests;
+using System.Data;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 
 namespace PDF_API.Controllers {
+
     [Route("api/[controller]")]
     [ApiController]
     public class PDFController : ControllerBase {
@@ -17,11 +22,11 @@ namespace PDF_API.Controllers {
         }
 
         [HttpPost("CanFileBeUploaded")]
-        public IActionResult CanFileBeUploaded(IFormFile file) {
+        public IActionResult CanFileBeUploaded(CanFileBeUploadedRequest data) {
             string? requestId = HttpContext.Items["RequestId"]?.ToString();
 
             try {
-                MyPDF.CanBeUpload(file);
+                MyPDF.CanBeUpload(data.file);
                 return Ok("Success");
             }
             catch (PDFException e) {
@@ -33,15 +38,16 @@ namespace PDF_API.Controllers {
                 return StatusCode(500, "Internal Server Error");
             }
         }
+
         [HttpPost("DeletePage")]
-        public ActionResult DeletePage(IFormFile fileToUpload, int pageNumber) {
+        public ActionResult DeletePage(DeletePageRequest data) {
             string? requestId = HttpContext.Items["RequestId"]?.ToString();
             MyPDF? mypdf = null;
 
             try {
-                mypdf = new MyPDF(fileToUpload);
+                mypdf = new MyPDF(data.file);
 
-                mypdf.DeletePage(pageNumber);
+                mypdf.DeletePage(data.pageNumber);
 
                 byte[] fileBytes = System.IO.File.ReadAllBytes(mypdf.getOutputFilePath());
                 mypdf.Clear();
@@ -67,14 +73,14 @@ namespace PDF_API.Controllers {
         }
 
         [HttpPost("SwapPages")]
-        public ActionResult SwapPages(IFormFile fileToUpload, int pageFromSwap, int pageToSwap) {
+        public ActionResult SwapPages(SwapPagesRequest data) {
             MyPDF? mypdf = null;
             string? requestId = HttpContext.Items["RequestId"]?.ToString();
 
             try {
-                mypdf = new MyPDF(fileToUpload);
+                mypdf = new MyPDF(data.file);
 
-                mypdf.SwapPages(pageFromSwap, pageToSwap);
+                mypdf.SwapPages(data.pageFrom, data.pageTo);
 
                 byte[] fileBytes = System.IO.File.ReadAllBytes(mypdf.getOutputFilePath());
                 mypdf.Clear();
@@ -100,12 +106,12 @@ namespace PDF_API.Controllers {
         }
 
         [HttpPost("CombinePdfFiles")]
-        public ActionResult CombinePdfFiles(IFormFile fileToUpload1, IFormFile fileToUpload2) {
+        public ActionResult CombinePdfFiles(CombinePdfFilesRequest data) {
             MyPDF? mypdf = null;
             string? requestId = HttpContext.Items["RequestId"]?.ToString();
 
             try {
-                mypdf = new MyPDF(fileToUpload1, fileToUpload2);
+                mypdf = new MyPDF(data.file, data.file2);
 
                 mypdf.CombineFiles();
 
@@ -169,16 +175,16 @@ namespace PDF_API.Controllers {
         }
 
         [HttpPost("InsertImage")]
-        public ActionResult InsertImage(IFormFile pdfFileToUpload, IFormFile imageFileToUpload, int pageNumberToInsert, float width, float height, int x, int y) {
+        public ActionResult InsertImage(InsertImageRequest data) {
             MyPDF? mypdf = null;
             MyImage? myimage = null;
             string? requestId = HttpContext.Items["RequestId"]?.ToString();
 
             try {
-                mypdf = new MyPDF(pdfFileToUpload);
-                myimage = new MyImage(imageFileToUpload, width, height);
+                mypdf = new MyPDF(data.file);
+                myimage = new MyImage(data.imageFile, data.width, data.height);
 
-                mypdf.InsertImage(myimage, pageNumberToInsert, x, y);
+                mypdf.InsertImage(myimage, data.pageNumber, data.x, data.y);
 
                 byte[] fileBytes = System.IO.File.ReadAllBytes(mypdf.getOutputFilePath());
                 mypdf.Clear();
@@ -211,14 +217,14 @@ namespace PDF_API.Controllers {
         }
 
         [HttpPost("RotatePages")]
-        public ActionResult RotatePages(IFormFile fileToUpload, int degrees) {
+        public ActionResult RotatePages(RotatePagesRequest data) {
             MyPDF? mypdf = null;
             string? requestId = HttpContext.Items["RequestId"]?.ToString();
 
             try {
-                mypdf = new MyPDF(fileToUpload);
+                mypdf = new MyPDF(data.file);
 
-                mypdf.RotatePages(degrees);
+                mypdf.RotatePages(data.degrees);
 
                 byte[] fileBytes = System.IO.File.ReadAllBytes(mypdf.getOutputFilePath());
                 mypdf.Clear();
@@ -245,14 +251,13 @@ namespace PDF_API.Controllers {
 
 
         [HttpPost("AddText")]
-        public ActionResult AddText(IFormFile fileToUpload, string text, int pageNumber, int x, int y, float FontSize = 12, string font = "Helvetica", bool isBold = false, string fontColor = "Black") {
+        public ActionResult AddText(AddTextRequest data) {
             MyPDF? mypdf = null;
             string? requestId = HttpContext.Items["RequestId"]?.ToString();
-
             try {
-                mypdf = new MyPDF(fileToUpload);
+                mypdf = new MyPDF(data.file);
 
-                mypdf.AddText(text, pageNumber, x, y, FontSize, font, isBold, fontColor);
+                mypdf.AddText(data.text, data.pageNumber, data.x, data.y, data.fontSize, data.font, data.isBold, data.fontColor);
 
                 byte[] fileBytes = System.IO.File.ReadAllBytes(mypdf.getOutputFilePath());
                 mypdf.Clear();
@@ -278,14 +283,14 @@ namespace PDF_API.Controllers {
         }
 
         [HttpPost("CropPage")]
-        public ActionResult CropPage(IFormFile fileToUpload, int pageNumber, int x, int y, float width, float height) {
+        public ActionResult CropPage(CropPageRequest data) {
             MyPDF? mypdf = null;
             string? requestId = HttpContext.Items["RequestId"]?.ToString();
 
             try {
-                mypdf = new MyPDF(fileToUpload);
+                mypdf = new MyPDF(data.file);
 
-                mypdf.CropPage(pageNumber, x, y, width, height);
+                mypdf.CropPage(data.pageNumber, data.x, data.y, data.width, data.height);
 
                 byte[] fileBytes = System.IO.File.ReadAllBytes(mypdf.getOutputFilePath());
                 mypdf.Clear();

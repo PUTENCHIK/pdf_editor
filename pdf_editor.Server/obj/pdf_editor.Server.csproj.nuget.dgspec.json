@@ -1,24 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\admin\\Desktop\\only_ascii\\pdf_editor\\pdf_editor.Server\\pdf_editor.Server.csproj": {}
+    "D:\\ReactAndServer\\pdf_editor\\pdf_editor.Server\\pdf_editor.Server.csproj": {}
   },
   "projects": {
-    "C:\\Users\\admin\\Desktop\\only_ascii\\pdf_editor\\pdf_editor.Server\\pdf_editor.Server.csproj": {
+    "D:\\ReactAndServer\\pdf_editor\\pdf_editor.Server\\pdf_editor.Server.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\admin\\Desktop\\only_ascii\\pdf_editor\\pdf_editor.Server\\pdf_editor.Server.csproj",
+        "projectUniqueName": "D:\\ReactAndServer\\pdf_editor\\pdf_editor.Server\\pdf_editor.Server.csproj",
         "projectName": "pdf_editor.Server",
-        "projectPath": "C:\\Users\\admin\\Desktop\\only_ascii\\pdf_editor\\pdf_editor.Server\\pdf_editor.Server.csproj",
-        "packagesPath": "C:\\Users\\admin\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\admin\\Desktop\\only_ascii\\pdf_editor\\pdf_editor.Server\\obj\\",
+        "projectPath": "D:\\ReactAndServer\\pdf_editor\\pdf_editor.Server\\pdf_editor.Server.csproj",
+        "packagesPath": "C:\\Users\\valee\\.nuget\\packages\\",
+        "outputPath": "D:\\ReactAndServer\\pdf_editor\\pdf_editor.Server\\obj\\",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-        ],
         "configFilePaths": [
-          "C:\\Users\\admin\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Users\\valee\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -26,6 +22,7 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -42,9 +39,8 @@
         "restoreAuditProperties": {
           "enableAudit": "true",
           "auditLevel": "low",
-          "auditMode": "all"
-        },
-        "SdkAnalysisLevel": "9.0.100"
+          "auditMode": "direct"
+        }
       },
       "frameworks": {
         "net8.0": {
@@ -86,7 +82,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.100/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.401/PortableRuntimeIdentifierGraph.json"
         }
       }
     }
