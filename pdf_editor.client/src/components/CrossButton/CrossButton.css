@@ -1,7 +1,5 @@
 .cross-button {
     display: flex;
-    width: 40px;
-    height: 40px;
     padding: 0;
 
     border-radius: 20px;
@@ -12,11 +10,48 @@
     margin: auto;
     
     content: "\00d7";
-    font-size: 32px;
-    color: black;
 }
 
 .cross-button:hover {
     cursor: pointer;
+}
+
+
+/* Размеры: normal | minor */
+.cross-button.normal {
+    width: 40px;
+    height: 40px;
+}
+
+.cross-button.normal::before {
+    font-size: 32px;
+}
+
+.cross-button.minor {
+    width: 30px;
+    height: 30px;
+}
+
+.cross-button.minor::before {
+    font-size: 26px;
+}
+/* ========================== */
+
+
+/* Цвета кнопки: black | white */
+.cross-button.black::before {
+    color: black;
+}
+
+.cross-button.black:hover {
     outline: 1px solid black;
 }
+
+.cross-button.white::before {
+    color: white;
+}
+
+.cross-button.white:hover {
+    outline: 1px solid white;
+}
+/* ========================== */

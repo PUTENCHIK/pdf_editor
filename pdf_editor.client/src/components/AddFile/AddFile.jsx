@@ -55,7 +55,7 @@ function AddFile() {
                             </div>
                             <span className="file-size">{getSize(inputFile.current.files[0].size)}</span>
                         </div>
-                        <CrossButton onClick={resetFile} />
+                        <CrossButton size="normal" color="black" onClick={resetFile} />
                     </>
                 }
                 {state == 3 &&

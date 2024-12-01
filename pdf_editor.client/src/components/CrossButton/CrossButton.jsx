@@ -2,7 +2,13 @@ import './CrossButton.css'
 
 function CrossButton(props) {
     return (
-        <div className="cross-button" onClick={props.onClick}></div>
+        <div 
+            className={"cross-button" + 
+                (props.color == "white" ? " white" : " black") +
+                (" " + props.size)} 
+            onClick={props.onClick}
+        >
+        </div>
     );
 }
 
