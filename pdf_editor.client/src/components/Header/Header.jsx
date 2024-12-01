@@ -1,12 +1,13 @@
 import './Header.css'
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 import HeaderLink from '../HeaderLink/HeaderLink';
 import DropdownList from '../DropdownList/DropdownList';
 
 import tools from '../../helpers/toolsList';
 
-function Header() {
+function Header(props) {
     let [currentList, setCurrentList] = useState(0);
 
     function updateCurrentList(number) {
@@ -17,20 +18,22 @@ function Header() {
         <header>
             <div className='header-content'>
                 <nav>
-                    <div onClick={() => {updateCurrentList(1);}}>
-                        <DropdownList
-                            title="Работа со страницами"
-                            tools={tools.with_pages}
-                            isShown={currentList == 1}
-                        />
-                    </div>
-                    <div onClick={() => {updateCurrentList(2);}}>
-                        <DropdownList
-                            title="Работа с документами"
-                            tools={tools.with_documents}
-                            isShown={currentList == 2}
-                        />
-                    </div>
+                    {
+                        props.linkRootExists || props.linkRootExists == null && 
+                        <Link to={"/"}>
+                            <div className="site-logo"></div>
+                        </Link>
+                    }
+                    <DropdownList
+                        title="Работа со страницами"
+                        tools={tools.with_pages}
+                        isShown={currentList == 1}
+                    />
+                    <DropdownList
+                        title="Работа с документами"
+                        tools={tools.with_documents}
+                        isShown={currentList == 2}
+                    />
                 </nav>
                 <HeaderLink href="about" text="О проекте" />
             </div>

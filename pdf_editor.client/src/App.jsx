@@ -1,5 +1,5 @@
 import './App.css';
-import {BrowserRouter, Routes, Route} from 'react-router-dom'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
 
 import RootPage from './pages/RootPage/RootPage';
 import EditorPage from './pages/EditorPage/EditorPage';
@@ -13,7 +13,11 @@ function App() {
                 <Route path="/" element={<RootPage/>}></Route>
                 <Route path="/editor" element={<EditorPage/>}/>
                 <Route path="/convert" element={<ConvertPage/>}/>
-                <Route path='/delete_page' element={<DeletePagePage/>}/>
+                <Route path='/delete_page/:id' element={<DeletePagePage/>}/>
+
+                {/* <Switch>
+                    <Route path='/delete_page/:tool' element={<h2>tool</h2>}/>
+                </Switch> */}
 
                 <Route path='*' element={<h2>Ресурс не найден</h2>}></Route>
             </Routes>

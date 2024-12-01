@@ -1,0 +1,24 @@
+.tool-button,
+.tool-button > a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 35px;
+    height: 35px;
+
+    border-radius: 5px;
+}
+
+.tool-button:hover {
+    background-color: #d6d3be;
+}
+
+.tool-button.active,
+.tool-button:hover:hover {
+    background-color: #D6D1B1;
+}
+
+.tool-button img.icon {
+    color: white;
+}
