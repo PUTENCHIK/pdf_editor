@@ -1,14 +1,22 @@
 import './AddFile.css'
 
-import { useRef, useState } from 'react';
+import { useRef, useState, forwardRef, useImperativeHandle } from 'react';
 import { Link } from 'react-router-dom';
 
 import file_image from '../../images/common/file.png'
 import CrossButton from '../CrossButton/CrossButton';
 
-function AddFile() {
+const AddFile = forwardRef((props, ref) =>{
     const inputFile = useRef(null);
     const [state, changeState] = useState(1);
+
+    useImperativeHandle(ref, () => {
+        return {
+            getFile() {
+                return inputFile.current.files[0];
+            }
+        }
+    });
 
     function buttonOnClick() {
         if (state == 1) {
@@ -38,7 +46,15 @@ function AddFile() {
 
     return (
         <div className={'add-file-block' + (state == 1 ? ' clickable' : '')} onClick={buttonOnClick}>
-            <input type="file" ref={inputFile} className='hidden' name="file" onChange={inputFileOnChange} />
+            <input
+                type="file"
+                accept=".pdf"
+                ref={inputFile}
+                className='hidden'
+                name="file" 
+                // onChange={inputFileOnChange}
+                onChange={props.onChange}
+            />
 
             <div className="__content">
                 {state == 1 &&
@@ -64,6 +80,6 @@ function AddFile() {
             </div>
         </div>
     );
-}
+});
 
 export default AddFile;

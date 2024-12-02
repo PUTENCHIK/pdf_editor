@@ -1,9 +1,58 @@
 .page-content {
-    /* position: absolute;
-    right: 0; */
     display: flex;
     flex-direction: column;
     width: calc(100% - 90px);
 
     padding-left: 90px;
+}
+
+.start-state {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+}
+
+.start-state > .__content {
+    display: inline-flex;
+    flex-direction: column;
+    row-gap: 20px;
+    align-items: center;
+}
+
+main.section.editor-page {
+    display: flex;
+    justify-content: space-between;
+}
+
+.document-segment {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    height: 750px;
+
+    flex-grow: 1;
+}
+
+.document-container {
+    display: inline-flex;
+    flex-direction: column;
+    row-gap: 30px;
+}
+
+.document-display {
+    display: flex;
+    overflow-y: auto;
+}
+
+.interaction-segment {
+    /* position: absolute; */
+    /* top: 0;
+    right: 40px; */
+
+    width: 250px;
+    height: 500px;
+
+    margin-right: 40px;
+
+    background-color: white;
 }
