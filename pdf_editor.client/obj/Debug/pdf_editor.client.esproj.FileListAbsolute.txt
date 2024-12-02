@@ -1,2 +1,3 @@
 C:\Users\admin\Desktop\only_ascii\pdf_editor\pdf_editor.client\obj\Debug\pdf_editor.client.esproj.CoreCompileInputs.cache
 D:\ReactAndServer\pdf_editor\pdf_editor.client\obj\Debug\pdf_editor.client.esproj.CoreCompileInputs.cache
+C:\Users\user\Downloads\haha\pdf_editor\pdf_editor.client\obj\Debug\pdf_editor.client.esproj.CoreCompileInputs.cache

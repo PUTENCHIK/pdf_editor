@@ -13,7 +13,7 @@ function App() {
                 <Route path="/" element={<RootPage/>}></Route>
                 <Route path="/editor" element={<EditorPage/>}/>
                 <Route path="/convert" element={<ConvertPage/>}/>
-                <Route path='/delete_page/:id' element={<DeletePagePage/>}/>
+                <Route path='/delete_page' element={<DeletePagePage/>}/>
 
                 {/* <Switch>
                     <Route path='/delete_page/:tool' element={<h2>tool</h2>}/>
