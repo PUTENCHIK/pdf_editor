@@ -5,11 +5,9 @@ import { Link } from 'react-router-dom';
 import ToolButton from '../ToolButton/ToolButton';
 import rightMenuTools from '../../../../helpers/rightMenuTools'
 
-function RightMenu() {
+function RightMenu(props) {
 
     const [activeTool, setActiveTool] = useState("");
-
-
 
     return (
         <div className="right-menu">
@@ -18,21 +16,24 @@ function RightMenu() {
                     <div className="link-root"></div>
                 </Link>
             </div>
-            <div className="__content">
-                {rightMenuTools.map((tool) => {
-                    return (
-                        <div className="tool-button-container" onClick={() => {setActiveTool(tool.name)}}>
-                            <ToolButton
-                                href={"/editor/" + tool.name}
-                                icon={activeTool == tool.name ? tool.icon_active : tool.icon}
-                                icon_active={tool.icon_active}
-                                name={tool.name}
-                                isActive={activeTool == tool.name}
-                            />
-                        </div>
-                    )
-                })}
-            </div>
+
+            {props.showTools &&
+                <div className="__content">
+                    {rightMenuTools.map((tool) => {
+                        return (
+                            <div className="tool-button-container" onClick={() => {setActiveTool(tool.name)}}>
+                                <ToolButton
+                                    href={"/editor/" + tool.name}
+                                    icon={activeTool == tool.name ? tool.icon_active : tool.icon}
+                                    icon_active={tool.icon_active}
+                                    name={tool.name}
+                                    isActive={activeTool == tool.name}
+                                />
+                            </div>
+                        )
+                    })}
+                </div>
+            }
         </div>
     );
 }

@@ -13,19 +13,17 @@ const EditorPage = () => {
     // start - начальный выбор файла
     // display - отображение файла
     const [pageState, setPageState] = useState("start");
-
     const inputFileButton = useRef(null);
 
+    const [documentPages, setDocumentPages] = useState([]);
     const [pdf, setPdf] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
     const [zoom, setZoom] = useState(0.6);
-    const [error, setError] = useState(null);
     const canvasRef = useRef(null);
 
-    // Обработка изменения файла
+    // Обработка загрузки файла
     function handleFileChange() {
         const file = inputFileButton.current.getFile();
-        console.log(file);        
         
         if (file) {
             setPageState("display");
@@ -43,33 +41,33 @@ const EditorPage = () => {
         // console.log('Количество страниц:', pdfDocument.numPages);
     };
 
+    async function renderPage (pageNumber) {
+        if (!pdf || currentPage < 1 || currentPage > pdf.numPages) {
+            return;
+        }
+        let flag = false;
+        let count = 1;
+
+        while (flag == false && count < 10){
+            try {
+                flag=true
+                const page = await pdf.getPage(currentPage);
+                const viewport = page.getViewport({ scale: zoom });
+                const canvas = canvasRef.current;
+                const ctx = canvas.getContext('2d');
+                canvas.width = viewport.width;
+                canvas.height = viewport.height;
+                await page.render({ canvasContext: ctx, viewport: viewport }).promise;
+            } catch (error) {
+                flag=false
+                console.error('Ошибка рендеринга:', error);
+                setError("Ошибка при рендеринге страницы.");
+                count += 1;
+            }
+        }
+    };
+
     useEffect(() => {
-        const renderPage = async () => {
-            if (!pdf || currentPage < 1 || currentPage > pdf.numPages) {
-                return;
-            }
-            let flag = false;
-            let count = 1;
-
-            while (flag == false && count < 10){
-                try {
-                    flag=true
-                    const page = await pdf.getPage(currentPage);
-                    const viewport = page.getViewport({ scale: zoom });
-                    const canvas = canvasRef.current;
-                    const ctx = canvas.getContext('2d');
-                    canvas.width = viewport.width;
-                    canvas.height = viewport.height;
-                    await page.render({ canvasContext: ctx, viewport: viewport }).promise;
-                } catch (error) {
-                    flag=false
-                    console.error('Ошибка рендеринга:', error);
-                    setError("Ошибка при рендеринге страницы.");
-                    count += 1;
-                }
-            }
-        };
-
         renderPage();
     }, [pdf, currentPage, zoom]);
 
@@ -90,6 +88,8 @@ const EditorPage = () => {
     const zoomOut = () => setZoom(zoom / 1.2);
 
     const handlePageChange = (event) => {
+        console.log("handlePageChange");
+        
         const pageNumber = parseInt(event.target.value, 10);
         if (pdf && pageNumber > 0 && pageNumber <= pdf.numPages) {
             setCurrentPage(pageNumber);
@@ -100,10 +100,10 @@ const EditorPage = () => {
 
     return (
         <>
-            <RightMenu />
+            <RightMenu showTools={pageState == "display"} />
             <div className="page-content">
                 <Header linkRootExists={false} />
-                <main className="section editor-page">
+                <main className={"section editor-page" + (pageState == "display" ? " full" : "")}>
 
                     {pageState == "start" &&
                         <div className='start-state'>
@@ -122,31 +122,32 @@ const EditorPage = () => {
                             <div className="document-segment">
                                 <div className="document-container">
                                     <div className="buttons-container">
-                                        <button onClick={goToPreviousPage} disabled={currentPage <= 1}>Previous</button>
-                                        <input
-                                            type="number"
-                                            value={currentPage}
-                                            onChange={handlePageChange}
-                                            min="1"
-                                            max={pdf ? pdf.numPages : 1}
-                                        />
-                                        <button onClick={goToNextPage} disabled={!pdf || currentPage >= pdf.numPages}>Next</button>
-
-                                        <div style={{ textAlign: 'center', margin: '10px 0' }}>
+                                        <div className="group-left">
+                                            <button onClick={goToPreviousPage} disabled={currentPage <= 1}>Previous</button>
+                                            <input
+                                                type="number"
+                                                value={currentPage}
+                                                onChange={handlePageChange}
+                                                min="1"
+                                                max={pdf ? pdf.numPages : 1}
+                                            />
+                                            <button onClick={goToNextPage} disabled={!pdf || currentPage >= pdf.numPages}>Next</button>
+                                        </div>
+                                        <div className="group-right">
                                             <button onClick={zoomIn}>Zoom In</button>
                                             <button onClick={zoomOut}>Zoom Out</button>
                                         </div>
                                     </div>
                                     <div className="document-display">
-                                        <div id="canvas_container" style={{ border: '1px solid black', margin: '20px auto', textAlign: 'center' }}>
+                                        <div id="canvas_container" style={{ border: '1px solid black', textAlign: 'center' }}>
                                             <canvas id="pdf_renderer" ref={canvasRef}></canvas>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <div className="interaction-segment">
+                            {/* <div className="interaction-segment">
 
-                            </div>
+                            </div> */}
                         </>
                     }                    
                 </main>

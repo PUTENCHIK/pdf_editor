@@ -2,8 +2,10 @@
     display: flex;
     flex-direction: column;
     width: calc(100% - 90px);
-
+    height: 100%;
+    
     padding-left: 90px;
+    overflow: hidden;
 }
 
 .start-state {
@@ -21,6 +23,8 @@
 
 main.section.editor-page {
     display: flex;
+    flex-direction: column;
+    height: 100%;
     justify-content: space-between;
 }
 
@@ -28,31 +32,40 @@ main.section.editor-page {
     display: flex;
     justify-content: center;
     width: 100%;
-    height: 750px;
+    height: 100%;
+    padding-top: 40px;
 
+    overflow: auto;
     flex-grow: 1;
 }
 
 .document-container {
     display: inline-flex;
     flex-direction: column;
-    row-gap: 30px;
+}
+
+.buttons-container {
+    position: absolute;
+    display: flex;
+    justify-content: space-between;
 }
 
 .document-display {
     display: flex;
-    overflow-y: auto;
+    flex-direction: column;
+    row-gap: 40px;
+
+    padding-bottom: 120px;
 }
 
 .interaction-segment {
-    /* position: absolute; */
-    /* top: 0;
-    right: 40px; */
+    position: absolute;
+    top: calc(40px + 78px);
+    right: 40px;
+    bottom: 40px;
 
     width: 250px;
-    height: 500px;
-
-    margin-right: 40px;
+    /* height: 500px; */
 
     background-color: white;
 }
