@@ -6,6 +6,7 @@
     
     padding-left: 90px;
     overflow: hidden;
+    background-color: #DDEED9;
 }
 
 .start-state {
@@ -30,7 +31,10 @@ main.section.editor-page {
 
 .document-segment {
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    row-gap: 40px;
     width: 100%;
     height: 100%;
     padding-top: 40px;
@@ -45,8 +49,10 @@ main.section.editor-page {
 }
 
 .buttons-container {
-    position: absolute;
+    position: sticky;
+    top: 0;
     display: flex;
+    column-gap: 20px;
     justify-content: space-between;
 }
 

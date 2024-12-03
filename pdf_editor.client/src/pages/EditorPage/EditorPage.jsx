@@ -1,5 +1,5 @@
 import './EditorPage.css'
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useState, useRef } from 'react'
 import { getDocument, GlobalWorkerOptions } from 'pdfjs-dist/build/pdf'
 import * as pdfjs from 'pdfjs-dist/build/pdf';
 
@@ -7,6 +7,7 @@ import Header from '../../components/Header/Header'
 import RightMenu from './components/RightMenu/RightMenu'
 import AddFile from '../../components/AddFile/AddFile'
 import DocumentDisplay from '../../components/DocumentDisplay/DocumentDisplay'
+import ZoomButton from './components/ZoomButton/ZoomButton';
 
 GlobalWorkerOptions.workerSrc = './node_modules/pdfjs-dist/build/pdf.worker.mjs';
 const EditorPage = () => {
@@ -18,12 +19,10 @@ const EditorPage = () => {
 
     const documentDisplay = useRef(null);
     const [pdf, setPdf] = useState(null);
-    const [currentPage, setCurrentPage] = useState(1);
 
     // Обработка загрузки файла
     function handleFileChange() {
         const file = inputFileButton.current.getFile();
-        
         if (file) {
             setPageState("display");
             loadPdf(file);
@@ -66,13 +65,17 @@ const EditorPage = () => {
                     {pageState == "display" &&
                         <>
                             <div className="document-segment">
-                                <div className="document-container">
                                     <div className="buttons-container">
-                                        <div className="group-right">
-                                            <button onClick={zoomIn}>Zoom In</button>
-                                            <button onClick={zoomOut}>Zoom Out</button>
-                                        </div>
+                                        <ZoomButton
+                                            type="increase"
+                                            onClick={zoomIn}
+                                        />
+                                        <ZoomButton
+                                            type="decrease"
+                                            onClick={zoomOut}
+                                        />
                                     </div>
+                                <div className="document-container">
                                     {pdf &&
                                         <DocumentDisplay
                                             document={pdf}
@@ -81,9 +84,9 @@ const EditorPage = () => {
                                     }
                                 </div>
                             </div>
-                            {/* <div className="interaction-segment">
+                            <div className="interaction-segment">
 
-                            </div> */}
+                            </div>
                         </>
                     }                    
                 </main>

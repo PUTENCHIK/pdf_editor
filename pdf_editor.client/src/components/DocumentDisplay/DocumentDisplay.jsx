@@ -5,7 +5,7 @@ import DocumentPage from '../DocumentPage/DocumentPage';
 
 const DocumentDisplay = forwardRef((props, ref) => {
 
-    let [zoom, setZoom] = useState(0.6);
+    let [zoom, setZoom] = useState(1);
     let [children, setChildren] = useState([]);
 
     useEffect(() => {
