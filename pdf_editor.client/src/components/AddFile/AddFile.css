@@ -24,9 +24,10 @@
 
 .add-file-block > .__content {
     display: flex;
-    column-gap: 70px;
+    justify-content: space-between;
     
     width: 100%;
+    max-width: 100%;
     padding: 0 20px;
 }
 
@@ -40,7 +41,7 @@
 .file-info-box {
     display: flex;
     align-items: center;
-    column-gap: 40px;
+    column-gap: 20px;
 }
 
 img.icon {
@@ -52,6 +53,14 @@ img.icon {
     display: flex;
     align-items: center;
     column-gap: 10px;
+}
+
+span.file-name {
+    width: 60px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    font-size: 18px;
 }
 
 span.file-size {

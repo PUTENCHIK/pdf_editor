@@ -32,6 +32,10 @@ h3 {
     font-weight: 700;
 }
 
+p {
+    margin: 0;
+}
+
 img.icon {
     width: 35px;
     height: 35px;

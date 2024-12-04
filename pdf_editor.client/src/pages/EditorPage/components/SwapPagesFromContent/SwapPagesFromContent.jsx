@@ -1,20 +1,28 @@
 import InputWithLabel from '../../../../components/InputWithLabel/InputWithLabel';
 import Button from '../../../../components/Button/Button';
 
-function DeletePageFormContent(props) {
+function SwapPagesFromContent(props) {
     return (
         <>
-            <h3>Удаление страницы</h3>
+            <h3>Поменять страницы местами</h3>
 
             <form
-                    name='delete-page'
+                    name='swap-pages'
                     method='POST'
                     onSubmit={props.formOnSubmit}
             >
                 <InputWithLabel
-                    title="Номер страницы:"
+                    title="Номер первой страницы:"
                     type="number"
-                    name="page_number"
+                    name="page_1"
+                    min={1}
+                    max={props.pageCount}
+                    placeholder={`От 1 до ${props.pageCount}`}
+                />
+                <InputWithLabel
+                    title="Номер второй страницы:"
+                    type="number"
+                    name="page_2"
                     min={1}
                     max={props.pageCount}
                     placeholder={`От 1 до ${props.pageCount}`}
@@ -23,7 +31,7 @@ function DeletePageFormContent(props) {
                     <Button
                         type="submit"
                         class="primory"
-                        text="Удалить"
+                        text="Поменять"
                     />
                 </div>
             </form>
@@ -31,4 +39,4 @@ function DeletePageFormContent(props) {
     );
 }
 
-export default DeletePageFormContent;
+export default SwapPagesFromContent;

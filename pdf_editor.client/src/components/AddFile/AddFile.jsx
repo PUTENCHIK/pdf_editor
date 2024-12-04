@@ -24,9 +24,11 @@ const AddFile = forwardRef((props, ref) =>{
         }
     }
 
-    function inputFileOnChange() {
-        if (inputFile.current.value != "") {
+    function inputFileOnChange() {        
+        if (inputFile.current.value) {
             changeState(2);
+        } else {
+            changeState(1);
         }
     }
 
@@ -42,18 +44,19 @@ const AddFile = forwardRef((props, ref) =>{
 
     function resetFile() {
         changeState(1);
+        inputFile.current.value = "";
     }
 
     return (
         <div className={'add-file-block' + (state == 1 ? ' clickable' : '')} onClick={buttonOnClick}>
             <input
                 type="file"
-                accept=".pdf"
+                accept={props.accept_types == "images" ? ".png,.jpg,.jpeg" : ".pdf"}
                 ref={inputFile}
                 className='hidden'
-                name="file" 
+                name={props.inputName ? props.inputName : "file"}
                 // onChange={inputFileOnChange}
-                onChange={props.onChange}
+                onChange={props.onChange ? props.onChange : inputFileOnChange}
             />
 
             <div className="__content">
@@ -74,9 +77,6 @@ const AddFile = forwardRef((props, ref) =>{
                         <CrossButton size="normal" color="black" onClick={resetFile} />
                     </>
                 }
-                {state == 3 &&
-                    <span className='choose-file-span'>Файл выбран</span>
-                }                
             </div>
         </div>
     );

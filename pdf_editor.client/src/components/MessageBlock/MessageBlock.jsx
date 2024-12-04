@@ -20,7 +20,7 @@ function MessageBlock(props) {
 
     return (
         <div 
-                className={"message-block" + (props.type == "error" ? " error" : "")}
+                className={"message-block " + props.type}
                 ref={messageBlock}
         >
             <div className="__content">

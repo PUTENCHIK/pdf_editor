@@ -4,12 +4,19 @@
     min-width: 300px;
     max-width: 500px;
     padding: 20px 20px 40px 20px;
+
     border-radius: 10px;
+    box-shadow: 5px 5px 6px #C0C0C0;
+    /* outline: 2px solid black; */
+    color: white;
 }
 
 .message-block.error {
     background-color: #FE5F55;
-    color: white;
+}
+
+.message-block.message {
+    background-color: #61A0FF;
 }
 
 .message-block > .__content {

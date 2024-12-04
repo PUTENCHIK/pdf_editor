@@ -22,10 +22,20 @@ const MessageBlocksContainer = forwardRef((props, ref) => {
                 setIndex(uniqueIndex + 1);
                 
                 // if (children.length >= BLOCKS_LIMIT) {
-                //     setChildren([...children.slice(-BLOCKS_LIMIT)]);
+                //     setChildren([children.slice(-BLOCKS_LIMIT)]);
                 //     console.log(children);
                     
                 // }
+                setChildren([...children, block]);
+            },
+            addMessage(title, text) {
+                let block = <MessageBlock
+                    key={uniqueIndex}
+                    type="message"
+                    title={title}
+                    text={text}
+                />
+                setIndex(uniqueIndex + 1);
                 setChildren([...children, block]);
             }
         }

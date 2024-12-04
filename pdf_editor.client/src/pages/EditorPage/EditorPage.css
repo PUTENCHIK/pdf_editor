@@ -80,6 +80,8 @@ main.section.editor-page {
     width: 300px;
     height: 100%;
     padding: 30px;
+    
+    overflow-y: auto;
 
     background-color: white;
     border-radius: 10px;
@@ -91,4 +93,32 @@ main.section.editor-page {
     flex-direction: column;
     row-gap: 20px;
     width: 100%;
+}
+
+.interaction-field form {
+    display: flex;
+    flex-direction: column;
+    row-gap: 40px;
+}
+
+.interaction-field form > .button-container {
+    display: flex;
+    justify-content: center;
+}
+
+form[name="crop-page"], 
+form[name="insert-image"] {
+    row-gap: 20px;
+}
+
+form[name="crop-page"] > div,
+form[name="insert-image"] > div {
+    display: flex;
+    width: 100%;
+    column-gap: 10px;
+}
+
+form[name="crop-page"] > div > label,
+form[name="insert-image"] > div > label {
+    width: calc(50% - 5px);
 }

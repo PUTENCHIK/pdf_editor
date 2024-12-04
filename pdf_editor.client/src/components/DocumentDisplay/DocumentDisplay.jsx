@@ -5,33 +5,48 @@ import DocumentPage from '../DocumentPage/DocumentPage';
 
 const DocumentDisplay = forwardRef((props, ref) => {
 
-    let [zoom, setZoom] = useState(1);
-    let [children, setChildren] = useState([]);
+    const [zoom, setZoom] = useState(1);
+    const [children, setChildren] = useState([]);
+    const [document, setDocument] = useState(props.document);
 
     useEffect(() => {
-        if (!props.document) {
-            return;
+        console.log("Initial effect");
+        if (document) {
+            createPages();
         }
-        createPages();
     }, []);
 
     useEffect(() => {
-        if (!props.document) {
-            return;
+        console.log("Zoom effect");
+        if (document) {
+            createPages();
         }
-        createPages();
     }, [zoom]);
 
+    useEffect(() => {
+        console.log("Document effect");
+        if (document) {
+            createPages();
+            // =================================================================
+            setZoom(zoom * 1.1);
+            setZoom(zoom / 1.1);
+            // =================================================================
+        }
+    }, [document]);
+
     async function createPages() {
+        console.log("Creatin pages: ", document.numPages);
+        console.log("Document:", document);
+        
         let pages = [];
 
-        for (let index = 1; index <= props.document.numPages; index++) {            
+        for (let index = 1; index <= document.numPages; index++) {            
             let flag = false;
             let count = 1;
             try {
                 while (!flag && count < 10) {
                     flag = true;
-                    let page = await props.document.getPage(index);
+                    let page = await document.getPage(index);
 
                     let newPage = <DocumentPage
                         key={`page-${index}`}
@@ -59,6 +74,9 @@ const DocumentDisplay = forwardRef((props, ref) => {
             },
             zoomOut() {
                 setZoom(zoom / 1.2 > 0.2 ? zoom / 1.2 : zoom);
+            },
+            updateDocument(newDocument) {           
+                setDocument(newDocument);
             }
         }
     });
