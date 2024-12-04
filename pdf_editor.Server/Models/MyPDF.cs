@@ -9,6 +9,7 @@ using iText.Layout.Properties;
 using System.Drawing;
 using iText.Kernel.Geom;
 using static System.Net.Mime.MediaTypeNames;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace PDF_API.Models {
     public class MyPDF {
@@ -36,23 +37,14 @@ namespace PDF_API.Models {
             {"White", ColorConstants.WHITE},
             {"Yellow", ColorConstants.YELLOW},
         };
-
-        public List<string> fonts = new List<string>()
+        public Dictionary<string, string> fonts = new Dictionary<string, string>()
         {
-            "Courier",
-            "Courier-Bold",
-            "Courier-BoldOblique",
-            "Courier-Oblique",
-            "Helvetica",
-            "Helvetica-Bold",
-            "Helvetica-BoldOblique",
-            "Helvetica-Oblique",
-            "Symbol",
-            "Times-Roman",
-            "Times-Bold",
-            "Times-BoldItalic",
-            "Times-Italic",
-            "ZapfDingbats"
+            {"Roboto", System.IO.Path.Combine(Directory.GetCurrentDirectory(), "Fonts", "Roboto-Regular.ttf")},
+            {"Inter", System.IO.Path.Combine(Directory.GetCurrentDirectory(), "Fonts", "Inter-VariableFont_opsz,wght.ttf")},
+            {"Lora", System.IO.Path.Combine(Directory.GetCurrentDirectory(), "Fonts", "Lora-VariableFont_wght.ttf")},
+            {"OpenSans", System.IO.Path.Combine(Directory.GetCurrentDirectory(), "Fonts", "OpenSans-VariableFont_wdth,wght.ttf")},
+            {"Raleway", System.IO.Path.Combine(Directory.GetCurrentDirectory(), "Fonts", "Raleway-VariableFont_wght.ttf")},
+            {"Ubuntu", System.IO.Path.Combine(Directory.GetCurrentDirectory(), "Fonts", "Ubuntu-Regular.ttf")},
         };
 
         public MyPDF(IFormFile fileToUpload1) {
@@ -282,13 +274,13 @@ namespace PDF_API.Models {
                 }
 
 
-
                 PdfFont code;
-                if (fonts.Contains(font)) {
-                    code = PdfFontFactory.CreateFont(font);
+                if (fonts.ContainsKey(font)) {
+                    code = PdfFontFactory.CreateFont(fonts[font]);
                 }
                 else {
-                    throw new PDFException("The specified font was not found.");
+                    code = PdfFontFactory.CreateFont(fonts["Roboto"]);
+                    //throw new PDFException("The specified font was not found.");
                 }
 
                 iText.Kernel.Colors.Color color;

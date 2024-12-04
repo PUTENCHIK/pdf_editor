@@ -282,6 +282,7 @@ namespace PDF_API.Controllers {
         public ActionResult AddText(AddTextRequest data) {
             MyPDF? mypdf = null;
             string? requestId = HttpContext.Items["RequestId"]?.ToString();
+
             try {
                 mypdf = new MyPDF(data.file);
 

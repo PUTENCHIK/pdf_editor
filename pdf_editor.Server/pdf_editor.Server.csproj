@@ -27,6 +27,7 @@
   <ItemGroup>
     <Folder Include="Uploads\images\" />
     <Folder Include="Uploads\pdf\" />
+    <Folder Include="Fonts\" />
   </ItemGroup>
 
 </Project>
