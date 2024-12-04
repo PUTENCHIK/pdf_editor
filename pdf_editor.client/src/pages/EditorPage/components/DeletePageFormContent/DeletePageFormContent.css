@@ -1,0 +1,10 @@
+form[name="delete-page"] {
+    display: flex;
+    flex-direction: column;
+    row-gap: 40px;
+}
+
+form[name="delete-page"] > .button-container {
+    display: flex;
+    justify-content: center;
+}

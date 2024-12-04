@@ -1,5 +1,4 @@
-.tool-button,
-.tool-button > a {
+.tool-button {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -10,12 +9,12 @@
     border-radius: 5px;
 }
 
-.tool-button:hover {
+.tool-button:not(.active):hover {
     background-color: #d6d3be;
+    cursor: pointer;
 }
 
-.tool-button.active,
-.tool-button:hover:hover {
+.tool-button.active {
     background-color: #D6D1B1;
 }
 

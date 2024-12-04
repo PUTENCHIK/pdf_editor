@@ -17,7 +17,7 @@ const MessageBlocksContainer = forwardRef((props, ref) => {
                     key={uniqueIndex}
                     type="error"
                     title={title}
-                    text={text + " " + uniqueIndex}
+                    text={text}
                 />
                 setIndex(uniqueIndex + 1);
                 

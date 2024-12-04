@@ -1,0 +1,23 @@
+input {
+    height: 60px;
+
+    padding: 0 20px;
+    outline: 0;
+    border: 0;
+
+    background-color: #D3D3D3;
+    color: #232323;
+    border-radius: 10px;
+    font-family: "Inter";
+    font-size: 20px;
+}
+
+input:hover,
+input:focus {
+    background-color: #E1E1E1;
+    color: black;
+}
+
+input:focus {
+    outline: 1px solid #808080;
+}

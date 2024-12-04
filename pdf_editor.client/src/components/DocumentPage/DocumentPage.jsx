@@ -26,7 +26,7 @@ function DocumentPage(props) {
 
     return (
         <>
-            <div id={`page-container-${props.pageNumber}`} style={{ border: '1px solid black', textAlign: 'center' }}>
+            <div id={`page-container-${props.pageNumber}`}>
                 <canvas id={`canvas-${props.pageNumber}`} ref={canvas}></canvas>
             </div>
         </>

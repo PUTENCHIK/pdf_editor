@@ -5,7 +5,7 @@
     height: 100%;
     
     padding-left: 90px;
-    overflow: hidden;
+    overflow-y: hidden;
     background-color: #DDEED9;
 }
 
@@ -39,7 +39,7 @@ main.section.editor-page {
     height: 100%;
     padding-top: 40px;
 
-    overflow: auto;
+    overflow-y: auto;
     flex-grow: 1;
 }
 
@@ -70,8 +70,25 @@ main.section.editor-page {
     right: 40px;
     bottom: 40px;
 
-    width: 250px;
-    /* height: 500px; */
+    display: inline-flex;
+    flex-direction: column;
+    row-gap: 30px;
+}
+
+.interaction-field {
+    display: flex;
+    width: 300px;
+    height: 100%;
+    padding: 30px;
 
     background-color: white;
+    border-radius: 10px;
+    box-shadow: 2px 2px 5px rgba(173, 173, 173, 0.5);
+}
+
+.interaction-field > .__content {
+    display: flex;
+    flex-direction: column;
+    row-gap: 20px;
+    width: 100%;
 }

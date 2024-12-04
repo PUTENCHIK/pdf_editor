@@ -1,13 +1,27 @@
 import './RightMenu.css'
-import { useState } from 'react';
+import { useState, forwardRef, useImperativeHandle, useEffect, act } from 'react';
 import { Link } from 'react-router-dom';
 
 import ToolButton from '../ToolButton/ToolButton';
 import rightMenuTools from '../../../../helpers/rightMenuTools'
 
-function RightMenu(props) {
+const RightMenu = forwardRef((props, ref) => {
 
-    const [activeTool, setActiveTool] = useState("");
+    const [activeTool, setActiveTool] = useState(props.activeTool);
+
+    useEffect(() => {
+        if (activeTool) {
+            props.onClick();
+        }
+    }, [activeTool]);
+
+    useImperativeHandle(ref, () => {
+        return {
+            getActiveTool() {
+                return activeTool;
+            }
+        }
+    });
 
     return (
         <div className="right-menu">
@@ -23,11 +37,11 @@ function RightMenu(props) {
                         return (
                             <div className="tool-button-container" onClick={() => {setActiveTool(tool.name)}}>
                                 <ToolButton
-                                    href={"/editor/" + tool.name}
                                     icon={activeTool == tool.name ? tool.icon_active : tool.icon}
                                     icon_active={tool.icon_active}
                                     name={tool.name}
-                                    isActive={activeTool == tool.name}
+                                    title={tool.title}
+                                    isActive={activeTool == tool.name || props.activeTool == tool.name }
                                 />
                             </div>
                         )
@@ -36,6 +50,6 @@ function RightMenu(props) {
             }
         </div>
     );
-}
+});
 
 export default RightMenu;

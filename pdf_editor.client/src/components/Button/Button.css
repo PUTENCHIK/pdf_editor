@@ -1,0 +1,48 @@
+button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-width: 150px;
+    height: 60px;
+
+    padding: 0 50px;
+    border: 0;
+    outline: 0;
+    border-radius: 10px;
+    color: black;
+}
+
+button:focus {
+    outline: 1px solid #808080;
+}
+
+button.gray {
+    background-color: #D3D3D3;
+}
+
+button.gray:hover {
+    background-color: #E1E1E1;
+}
+
+button.primory {
+    background-color: #8FC39A;
+}
+
+button.primory:hover {
+    background-color: #C2E5C9;
+}
+
+button.danger {
+    background-color: #FE5F55;
+    color: white;
+}
+
+button.danger:hover {
+    background-color: #FF756C;
+    color: white;
+}
+
+span.button-text {
+    font-family: "Inter";
+    font-size: 20px;
+}
