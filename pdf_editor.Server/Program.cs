@@ -1,6 +1,11 @@
 
 
+using Microsoft.EntityFrameworkCore;
+using PDF_API.Data;
+
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("pdf_editor")));
 
 builder.Services.AddLogging();
 builder.Logging.AddConsole();

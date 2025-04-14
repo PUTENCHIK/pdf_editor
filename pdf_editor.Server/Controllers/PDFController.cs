@@ -1,12 +1,8 @@
-﻿using iText.Kernel.Pdf.Canvas.Wmf;
-using Microsoft.AspNetCore.Cors;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Org.BouncyCastle.Asn1.Ocsp;
+﻿using Microsoft.AspNetCore.Mvc;
+using PDF_API.Data;
 using PDF_API.Models;
+using pdf_editor.Server.Models;
 using pdf_editor.Server.Requests;
-using System.Data;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 
 namespace PDF_API.Controllers {
@@ -14,25 +10,35 @@ namespace PDF_API.Controllers {
     [Route("api/[controller]")]
     [ApiController]
     public class PDFController : ControllerBase {
-
+        
         private readonly ILogger<PDFController> _logger;
+        private readonly AppDbContext _context;
 
-        public PDFController(ILogger<PDFController> logger) {
+        public PDFController(ILogger<PDFController> logger, AppDbContext context) {
             _logger = logger;
+            _context = context;
 
-            string directoryPath = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "Uploads");
+            string directoryPath = Path.Combine(Directory.GetCurrentDirectory(), "Uploads");
             if (!Directory.Exists(directoryPath)) {
                 Directory.CreateDirectory(directoryPath);
             }
+
+            string uploadFolder = Path.Combine(Directory.GetCurrentDirectory(), "Uploads", "pdf");
+            if (!Directory.Exists(uploadFolder)) {
+                Directory.CreateDirectory(uploadFolder);
+            }
         }
 
-        [HttpPost("CanFileBeUploaded")]
-        public IActionResult CanFileBeUploaded(CanFileBeUploadedRequest data) {
+        [HttpPost("start-editing")]
+        public IActionResult StartEditing(StartEditing data) {
             string? requestId = HttpContext.Items["RequestId"]?.ToString();
 
             try {
                 MyPDF.CanBeUpload(data.file);
-                return Ok("Success");
+                string filePath = MyPDF.Upload(data.file);
+                string securedFileId = DbPDF.Add(_context, filePath);
+
+                return Ok(new { fileId = securedFileId });
             }
             catch (PDFException e) {
                 _logger.LogInformation($"RequestId: {requestId}. The user received an error: {e.Message}");
@@ -44,16 +50,13 @@ namespace PDF_API.Controllers {
             }
         }
 
-        [HttpPost("GetPageCount")]
+        [HttpPost("get-page-count")]
         public IActionResult GetPageCount(GetPageCountRequest data) {
             string? requestId = HttpContext.Items["RequestId"]?.ToString();
-            MyPDF? mypdf = null;
 
             try {
-                mypdf = new MyPDF(data.file);
-
-                int pageCount = mypdf.GetPageCount();
-                mypdf.Clear();
+                string pdfPath = DbPDF.GetPdfPath(_context, data.fileId);
+                int pageCount = MyPDF.GetPageCount(pdfPath);
 
                 return Ok(pageCount);
             }
@@ -67,98 +70,101 @@ namespace PDF_API.Controllers {
             }
         }
 
-        [HttpPost("DeletePage")]
+        [HttpPost("delete-page")]
         public ActionResult DeletePage(DeletePageRequest data) {
             string? requestId = HttpContext.Items["RequestId"]?.ToString();
-            MyPDF? mypdf = null;
 
             try {
-                mypdf = new MyPDF(data.file);
+                string pdfPath = DbPDF.GetPdfPath(_context, data.fileId);
+                string newPdfPath = MyPDF.DeletePage(pdfPath, data.pageNumber);
 
-                mypdf.DeletePage(data.pageNumber);
-
-                byte[] fileBytes = System.IO.File.ReadAllBytes(mypdf.getOutputFilePath());
-                mypdf.Clear();
-
+                DbPDF.UpdatePath(_context, data.fileId, newPdfPath);
+                byte[] fileBytes = System.IO.File.ReadAllBytes(newPdfPath);
                 return File(fileBytes, "application/pdf", "returned.pdf");
             }
             catch (PDFException e) {
-                if (mypdf != null) {
-                    mypdf.Clear();
-                }
 
                 _logger.LogInformation($"RequestId: {requestId}. The user received an error: {e.Message}");
                 return BadRequest(e.Message);
             }
             catch (Exception e) {
-                if (mypdf != null) {
-                    mypdf.Clear();
-                }
 
                 _logger.LogCritical($"RequestId: {requestId}. {e.Message}");
                 return StatusCode(500, "Internal Server Error");
             }
         }
 
-        [HttpPost("SwapPages")]
+        [HttpPost("swap-pages")]
         public ActionResult SwapPages(SwapPagesRequest data) {
-            MyPDF? mypdf = null;
             string? requestId = HttpContext.Items["RequestId"]?.ToString();
 
             try {
-                mypdf = new MyPDF(data.file);
+                string pdfPath = DbPDF.GetPdfPath(_context, data.fileId);
+                string newPdfPath = MyPDF.SwapPages(pdfPath, data.pageFrom, data.pageTo);
 
-                mypdf.SwapPages(data.pageFrom, data.pageTo);
-
-                byte[] fileBytes = System.IO.File.ReadAllBytes(mypdf.getOutputFilePath());
-                mypdf.Clear();
-
+                DbPDF.UpdatePath(_context, data.fileId, newPdfPath);
+                byte[] fileBytes = System.IO.File.ReadAllBytes(newPdfPath);
                 return File(fileBytes, "application/pdf", "returned.pdf");
             }
             catch (PDFException e) {
-                if (mypdf != null) {
-                    mypdf.Clear();
-                }
 
                 _logger.LogInformation($"RequestId: {requestId}. The user received an error: {e.Message}");
                 return BadRequest(e.Message);
             }
             catch (Exception e) {
-                if (mypdf != null) {
-                    mypdf.Clear();
-                }
 
                 _logger.LogCritical($"RequestId: {requestId}. {e.Message}");
                 return StatusCode(500, "Internal Server Error");
             }
         }
 
-        [HttpPost("CombinePdfFiles")]
+        [HttpPost("combine-pdf-files")]
         public ActionResult CombinePdfFiles(CombinePdfFilesRequest data) {
-            MyPDF? mypdf = null;
             string? requestId = HttpContext.Items["RequestId"]?.ToString();
 
+            string? filePath = null;
+            string? filePath2 = null;
+            string? newPdfPath = null;
+
             try {
-                mypdf = new MyPDF(data.file, data.file2);
+                MyPDF.CanBeUpload(data.file);
+                filePath = MyPDF.Upload(data.file);
+                MyPDF.CanBeUpload(data.file2);
+                filePath2 = MyPDF.Upload(data.file);
 
-                mypdf.CombineFiles();
+                newPdfPath = MyPDF.CombineFiles(filePath, filePath2);
 
-                byte[] fileBytes = System.IO.File.ReadAllBytes(mypdf.getOutputFilePath());
-                mypdf.Clear();
+
+                byte[] fileBytes = System.IO.File.ReadAllBytes(newPdfPath);
+                MyPDF.DeleteFile(filePath);
+                MyPDF.DeleteFile(filePath2);
+                MyPDF.DeleteFile(newPdfPath);
 
                 return File(fileBytes, "application/pdf", "returned.pdf");
             }
             catch (PDFException e) {
-                if (mypdf != null) {
-                    mypdf.Clear();
+                if (filePath != null) {
+                    MyPDF.DeleteFile(filePath);
+                }
+                if (filePath2 != null) {
+                    MyPDF.DeleteFile(filePath2);
+                }
+                if (newPdfPath != null) {
+                    MyPDF.DeleteFile(newPdfPath);
                 }
 
                 _logger.LogInformation($"RequestId: {requestId}. The user received an error: {e.Message}");
                 return BadRequest(e.Message);
             }
             catch (Exception e) {
-                if (mypdf != null) {
-                    mypdf.Clear();
+                if (filePath != null) {
+                    MyPDF.DeleteFile(filePath);
+                }
+                if (filePath2 != null) {
+                    MyPDF.DeleteFile(filePath2);
+                }
+                if (newPdfPath != null) {
+                    MyPDF.DeleteFile(newPdfPath);
                 }
 
                 _logger.LogCritical($"RequestId: {requestId}. {e.Message}");
@@ -166,79 +172,57 @@ namespace PDF_API.Controllers {
             }
         }
 
-        [HttpPost("SplitFile")]
-        public ActionResult SplitFile(IFormFile fileToUpload, int breakPage) {
-            MyPDF? mypdf = null;
-            string? requestId = HttpContext.Items["RequestId"]?.ToString();
+        //[HttpPost("split-file")]
+        //public ActionResult SplitFile(IFormFile fileToUpload, int breakPage) {
+        //    string? requestId = HttpContext.Items["RequestId"]?.ToString();
 
-            try {
-                mypdf = new MyPDF(fileToUpload);
+        //    try {
 
-                mypdf.SplitFile(breakPage);
+        //        byte[] fileBytes = System.IO.File.ReadAllBytes(mypdf.getOutputFilePath());
 
-                byte[] fileBytes = System.IO.File.ReadAllBytes(mypdf.getOutputFilePath());
-                mypdf.Clear();
+        //        // Два варианта для отправки нескольких pdf файлов.
+        //        // 1) zip файлом отправить.
+        //        // 2) отправить пути до файла, и потом клиент несколько раз отправляет запрос.
+        //        return File(fileBytes, "application/pdf", "returned.pdf");
+        //    }
+        //    catch (PDFException e) {
+        //        if (mypdf != null) {
+        //            mypdf.Clear();
+        //        }
 
-                // Два варианта для отправки нескольких pdf файлов.
-                // 1) zip файлом отправить.
-                // 2) отправить пути до файла, и потом клиент несколько раз отправляет запрос.
-                return File(fileBytes, "application/pdf", "returned.pdf");
-            }
-            catch (PDFException e) {
-                if (mypdf != null) {
-                    mypdf.Clear();
-                }
+        //        _logger.LogInformation($"RequestId: {requestId}. The user received an error: {e.Message}");
+        //        return BadRequest(e.Message);
+        //    }
+        //    catch (Exception e) {
+        //        if (mypdf != null) {
+        //            mypdf.Clear();
+        //        }
 
-                _logger.LogInformation($"RequestId: {requestId}. The user received an error: {e.Message}");
-                return BadRequest(e.Message);
-            }
-            catch (Exception e) {
-                if (mypdf != null) {
-                    mypdf.Clear();
-                }
-
-                _logger.LogCritical($"RequestId: {requestId}. {e.Message}");
-                return StatusCode(500, "Internal Server Error");
-            }
-        }
+        //        _logger.LogCritical($"RequestId: {requestId}. {e.Message}");
+        //        return StatusCode(500, "Internal Server Error");
+        //    }
+        //}
 
         [HttpPost("InsertImage")]
         public ActionResult InsertImage(InsertImageRequest data) {
-            MyPDF? mypdf = null;
-            MyImage? myimage = null;
             string? requestId = HttpContext.Items["RequestId"]?.ToString();
 
             try {
-                mypdf = new MyPDF(data.file);
-                myimage = new MyImage(data.imageFile, data.width, data.height);
+                string pdfPath = DbPDF.GetPdfPath(_context, data.fileId);
+                var image = new MyImage(data.imageFile, data.width, data.height);
 
-                mypdf.InsertImage(myimage, data.pageNumber, data.x, data.y);
+                string newPdfPath = MyPDF.InsertImage(pdfPath, image, data.pageNumber, data.x, data.y);
 
-                byte[] fileBytes = System.IO.File.ReadAllBytes(mypdf.getOutputFilePath());
-                mypdf.Clear();
-                myimage.Clear();
+                DbPDF.UpdatePath(_context, data.fileId, newPdfPath);
+                byte[] fileBytes = System.IO.File.ReadAllBytes(newPdfPath);
 
                 return File(fileBytes, "application/pdf", "returned.pdf");
             }
             catch (PDFException e) {
-                if (mypdf != null) {
-                    mypdf.Clear();
-                }
-                if (myimage != null) {
-                    myimage.Clear();
-                }
-
                 _logger.LogInformation($"RequestId: {requestId}. The user received an error: {e.Message}");
                 return BadRequest(e.Message);
             }
             catch (Exception e) {
-                if (mypdf != null) {
-                    mypdf.Clear();
-                }
-                if (myimage != null) {
-                    myimage.Clear();
-                }
-
                 _logger.LogCritical($"RequestId: {requestId}. {e.Message}");
                 return StatusCode(500, "Internal Server Error");
             }
@@ -246,66 +230,43 @@ namespace PDF_API.Controllers {
 
         [HttpPost("RotatePages")]
         public ActionResult RotatePages(RotatePagesRequest data) {
-            MyPDF? mypdf = null;
             string? requestId = HttpContext.Items["RequestId"]?.ToString();
 
             try {
-                mypdf = new MyPDF(data.file);
+                string pdfPath = DbPDF.GetPdfPath(_context, data.fileId);
+                string newPdfPath = MyPDF.RotatePages(pdfPath, data.degrees);
 
-                mypdf.RotatePages(data.degrees);
-
-                byte[] fileBytes = System.IO.File.ReadAllBytes(mypdf.getOutputFilePath());
-                mypdf.Clear();
-
+                DbPDF.UpdatePath(_context, data.fileId, newPdfPath);
+                byte[] fileBytes = System.IO.File.ReadAllBytes(newPdfPath);
                 return File(fileBytes, "application/pdf", "returned.pdf");
             }
             catch (PDFException e) {
-                if (mypdf != null) {
-                    mypdf.Clear();
-                }
-
                 _logger.LogInformation($"RequestId: {requestId}. The user received an error: {e.Message}");
                 return BadRequest(e.Message);
             }
             catch (Exception e) {
-                if (mypdf != null) {
-                    mypdf.Clear();
-                }
-
                 _logger.LogCritical($"RequestId: {requestId}. {e.Message}");
                 return StatusCode(500, "Internal Server Error");
             }
         }
 
-
         [HttpPost("AddText")]
         public ActionResult AddText(AddTextRequest data) {
-            MyPDF? mypdf = null;
             string? requestId = HttpContext.Items["RequestId"]?.ToString();
 
             try {
-                mypdf = new MyPDF(data.file);
+                string pdfPath = DbPDF.GetPdfPath(_context, data.fileId);
+                string newPdfPath = MyPDF.AddText(pdfPath, data.text, data.pageNumber, data.x, data.y, data.fontSize, data.font, data.isBold, data.fontColor); 
 
-                mypdf.AddText(data.text, data.pageNumber, data.x, data.y, data.fontSize, data.font, data.isBold, data.fontColor);
-
-                byte[] fileBytes = System.IO.File.ReadAllBytes(mypdf.getOutputFilePath());
-                mypdf.Clear();
-
+                DbPDF.UpdatePath(_context, data.fileId, newPdfPath);
+                byte[] fileBytes = System.IO.File.ReadAllBytes(newPdfPath);
                 return File(fileBytes, "application/pdf", "returned.pdf");
             }
             catch (PDFException e) {
-                if (mypdf != null) {
-                    mypdf.Clear();
-                }
-
                 _logger.LogInformation($"RequestId: {requestId}. The user received an error: {e.Message}");
                 return BadRequest(e.Message);
             }
             catch (Exception e) {
-                if (mypdf != null) {
-                    mypdf.Clear();
-                }
-
                 _logger.LogCritical($"RequestId: {requestId}. {e.Message}");
                 return StatusCode(500, "Internal Server Error");
             }
@@ -313,32 +274,21 @@ namespace PDF_API.Controllers {
 
         [HttpPost("CropPage")]
         public ActionResult CropPage(CropPageRequest data) {
-            MyPDF? mypdf = null;
             string? requestId = HttpContext.Items["RequestId"]?.ToString();
 
             try {
-                mypdf = new MyPDF(data.file);
+                string pdfPath = DbPDF.GetPdfPath(_context, data.fileId);
+                string newPdfPath = MyPDF.CropPage(pdfPath,data.pageNumber, data.x, data.y, data.width, data.height);
 
-                mypdf.CropPage(data.pageNumber, data.x, data.y, data.width, data.height);
-
-                byte[] fileBytes = System.IO.File.ReadAllBytes(mypdf.getOutputFilePath());
-                mypdf.Clear();
-
+                DbPDF.UpdatePath(_context, data.fileId, newPdfPath);
+                byte[] fileBytes = System.IO.File.ReadAllBytes(newPdfPath);
                 return File(fileBytes, "application/pdf", "returned.pdf");
             }
             catch (PDFException e) {
-                if (mypdf != null) {
-                    mypdf.Clear();
-                }
-
                 _logger.LogInformation($"RequestId: {requestId}. The user received an error: {e.Message}");
                 return BadRequest(e.Message);
             }
             catch (Exception e) {
-                if (mypdf != null) {
-                    mypdf.Clear();
-                }
-
                 _logger.LogCritical($"RequestId: {requestId}. {e.Message}");
                 return StatusCode(500, "Internal Server Error");
             }

@@ -10,6 +10,8 @@ using System.Drawing;
 using iText.Kernel.Geom;
 using static System.Net.Mime.MediaTypeNames;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using PDF_API.Data;
+using System.IO;
 
 namespace PDF_API.Models {
     public class MyPDF {
@@ -21,7 +23,7 @@ namespace PDF_API.Models {
         public string outputFilePath;
         public int countUploadedDocuments;
         public static string uploadFolder = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "Uploads", "pdf");
-        public Dictionary<string, iText.Kernel.Colors.Color> colors = new Dictionary<string, iText.Kernel.Colors.Color>()
+        public static Dictionary<string, iText.Kernel.Colors.Color> colors = new Dictionary<string, iText.Kernel.Colors.Color>()
         {
             {"Black", ColorConstants.BLACK},
             {"Blue", ColorConstants.BLUE},
@@ -37,7 +39,7 @@ namespace PDF_API.Models {
             {"White", ColorConstants.WHITE},
             {"Yellow", ColorConstants.YELLOW},
         };
-        public Dictionary<string, string> fonts = new Dictionary<string, string>()
+        public static Dictionary<string, string> fonts = new Dictionary<string, string>()
         {
             {"Roboto", System.IO.Path.Combine(Directory.GetCurrentDirectory(), "Fonts", "Roboto-Regular.ttf")},
             {"Inter", System.IO.Path.Combine(Directory.GetCurrentDirectory(), "Fonts", "Inter-VariableFont_opsz,wght.ttf")},
@@ -46,41 +48,39 @@ namespace PDF_API.Models {
             {"Raleway", System.IO.Path.Combine(Directory.GetCurrentDirectory(), "Fonts", "Raleway-VariableFont_wght.ttf")},
             {"Ubuntu", System.IO.Path.Combine(Directory.GetCurrentDirectory(), "Fonts", "Ubuntu-Regular.ttf")},
         };
+        private readonly AppDbContext _context;
 
-        public MyPDF(IFormFile fileToUpload1) {
-            if (!Directory.Exists(uploadFolder)) {
-                Directory.CreateDirectory(uploadFolder);
-            }
 
-            CanBeUpload(fileToUpload1);
-            fileName1 = Upload(fileToUpload1);
-            inputFilePath1 = GetUploadPath(fileName1);
-            outputFilePath = GetEditPath(fileName1);
-            countUploadedDocuments = 1;
+        public MyPDF(IFormFile fileToUpload1, AppDbContext context) {
+            //_context = context;
+
+            //CanBeUpload(fileToUpload1);
+            //fileName1 = Upload(fileToUpload1);
+            //inputFilePath1 = GetUploadPath(fileName1);
+            //outputFilePath = GetEditPath(fileName1);
+            //countUploadedDocuments = 1;
         }
 
-        public MyPDF(IFormFile fileToUpload1, IFormFile fileToUpload2) {
-            if (!Directory.Exists(uploadFolder)) {
-                Directory.CreateDirectory(uploadFolder);
-            }
+        public MyPDF(IFormFile fileToUpload1, IFormFile fileToUpload2, AppDbContext context) {
+            //_context = context;
 
-            CanBeUpload(fileToUpload1);
-            CanBeUpload(fileToUpload2);
+            //if (!Directory.Exists(uploadFolder)) {
+            //    Directory.CreateDirectory(uploadFolder);
+            //}
 
-            fileName1 = Upload(fileToUpload1);
-            fileName2 = Upload(fileToUpload2);
-            inputFilePath1 = GetUploadPath(fileName1);
-            inputFilePath2 = GetUploadPath(fileName2);
-            outputFilePath = GetEditPath(fileName1);
-            countUploadedDocuments = 2;
+            //CanBeUpload(fileToUpload1);
+            //CanBeUpload(fileToUpload2);
+
+            //fileName1 = Upload(fileToUpload1);
+            //fileName2 = Upload(fileToUpload2);
+            //inputFilePath1 = GetUploadPath(fileName1);
+            //inputFilePath2 = GetUploadPath(fileName2);
+            //outputFilePath = GenerateNewPath(fileName1);
+            //countUploadedDocuments = 2;
         }
 
-        ~MyPDF() {
-            Clear();
-        }
-
-        public int GetPageCount() {
-            using (var pdfDocument = new PdfDocument(new PdfReader(inputFilePath1), new PdfWriter(outputFilePath))) {
+        public static int GetPageCount(string inputFilePath) {
+            using (var pdfDocument = new PdfDocument(new PdfReader(inputFilePath))) {
                 return pdfDocument.GetNumberOfPages();
             }
         }
@@ -99,22 +99,23 @@ namespace PDF_API.Models {
             long size = file.Length;
 
             if (size > (100 * 1024 * 1024)) {
-                throw new PDFException("Incorrect number of documents uploaded.");
+                throw new PDFException("Uploaded file too large");
             }
 
             return true;
         }
 
-        public string Upload(IFormFile file) {
+        public static string Upload(IFormFile file) {
             string extention = System.IO.Path.GetExtension(file.FileName);
 
             string fileName = Guid.NewGuid().ToString() + extention;
+            string fullFilePath = System.IO.Path.Combine(uploadFolder, fileName);
 
-            using FileStream stream = new FileStream(System.IO.Path.Combine(uploadFolder, fileName), FileMode.Create);
+            using FileStream stream = new FileStream(fullFilePath, FileMode.Create);
 
             file.CopyTo(stream);
 
-            return fileName;
+            return fullFilePath;
         }
 
         public static void DeleteFile(string filePath) {
@@ -127,8 +128,16 @@ namespace PDF_API.Models {
             return System.IO.Path.Combine(uploadFolder, fileName);
         }
 
-        public string GetEditPath(string fileName) {
-            return System.IO.Path.Combine(uploadFolder, "Edited" + fileName);
+        public static string GenerateNewPath(string fullFilePath) {
+            var fileDirectory = System.IO.Path.GetDirectoryName(fullFilePath);
+            var fileNewName = Guid.NewGuid().ToString();
+            var fileExtension = System.IO.Path.GetExtension(fullFilePath);
+
+            if (fileDirectory == null) {
+                return System.IO.Path.Combine(fileNewName, fileExtension);
+            }
+
+            return System.IO.Path.Combine(fileDirectory, fileNewName + fileExtension);
         }
 
         public void Clear() {
@@ -143,10 +152,11 @@ namespace PDF_API.Models {
             }
         }
 
-        public void DeletePage(int pageNumber) {
+        public static string DeletePage(string inputFilePath, int pageNumber) {
             int[] pagesToDelete = { pageNumber };
+            string outputFilePath = GenerateNewPath(inputFilePath);
 
-            using (var pdfDocument = new PdfDocument(new PdfReader(inputFilePath1), new PdfWriter(outputFilePath))) {
+            using (var pdfDocument = new PdfDocument(new PdfReader(inputFilePath), new PdfWriter(outputFilePath))) {
                 if (pageNumber < 1 || pageNumber > pdfDocument.GetNumberOfPages()) {
                     throw new PDFException("The page specified is outside the scope of the document.");
                 }
@@ -157,12 +167,15 @@ namespace PDF_API.Models {
                     deleted++;
                 }
             }
+
+            return outputFilePath;
         }
 
-        public void SwapPages(int pageFromSwap, int pageToSwap) {
+        public static string SwapPages(string inputFilePath, int pageFromSwap, int pageToSwap) {
             List<int> pages = new List<int>();
+            string outputFilePath = GenerateNewPath(inputFilePath);
 
-            using (var inputPdfDocument = new PdfDocument(new PdfReader(inputFilePath1))) {
+            using (var inputPdfDocument = new PdfDocument(new PdfReader(inputFilePath))) {
                 using (var outputPdfDocument = new PdfDocument(new PdfWriter(outputFilePath))) {
                     if (pageFromSwap < 1 || pageToSwap < 1 || pageFromSwap > inputPdfDocument.GetNumberOfPages()
                         || pageToSwap > inputPdfDocument.GetNumberOfPages()) {
@@ -179,13 +192,12 @@ namespace PDF_API.Models {
                     inputPdfDocument.CopyPagesTo(pages, outputPdfDocument);
                 }
             }
+
+            return outputFilePath;
         }
 
-        public void CombineFiles() {
-
-            if (countUploadedDocuments != 2) {
-                throw new PDFException("Incorrect number of documents uploaded.");
-            }
+        public static string CombineFiles(string inputFilePath1, string inputFilePath2) {
+            string outputFilePath = GenerateNewPath(inputFilePath1);
 
             using (var inputPdfDocument2 = new PdfDocument(new PdfReader(inputFilePath2))) {
                 using (var outputPdfDocument = new PdfDocument(new PdfReader(inputFilePath1), new PdfWriter(outputFilePath))) {
@@ -198,35 +210,39 @@ namespace PDF_API.Models {
                     inputPdfDocument2.CopyPagesTo(pages, outputPdfDocument);
                 }
             }
+
+            return outputFilePath;
         }
 
-        public void SplitFile(int breakPage) {
-            using (var inputPdfDocument = new PdfDocument(new PdfReader(inputFilePath1), new PdfWriter(inputFilePath1))) {
-                using (var outputPdfDocument = new PdfDocument(new PdfWriter(outputFilePath))) {
+        //public static void SplitFile(int breakPage) {
+        //    using (var inputPdfDocument = new PdfDocument(new PdfReader(inputFilePath1), new PdfWriter(inputFilePath1))) {
+        //        using (var outputPdfDocument = new PdfDocument(new PdfWriter(outputFilePath))) {
 
-                    if (breakPage < 1 || breakPage > inputPdfDocument.GetNumberOfPages()) {
-                        throw new PDFException("The page specified is outside the scope of the document.");
-                    }
+        //            if (breakPage < 1 || breakPage > inputPdfDocument.GetNumberOfPages()) {
+        //                throw new PDFException("The page specified is outside the scope of the document.");
+        //            }
 
-                    List<int> pages = new List<int>();
-                    for (int i = breakPage; i <= inputPdfDocument.GetNumberOfPages(); i++) {
-                        pages.Add(i);
-                    }
+        //            List<int> pages = new List<int>();
+        //            for (int i = breakPage; i <= inputPdfDocument.GetNumberOfPages(); i++) {
+        //                pages.Add(i);
+        //            }
 
 
-                    inputPdfDocument.CopyPagesTo(pages, outputPdfDocument);
+        //            inputPdfDocument.CopyPagesTo(pages, outputPdfDocument);
 
-                    int deleted = 0;
-                    foreach (var i in pages) {
-                        inputPdfDocument.RemovePage(i - deleted);
-                        deleted++;
-                    }
-                }
-            }
-        }
+        //            int deleted = 0;
+        //            foreach (var i in pages) {
+        //                inputPdfDocument.RemovePage(i - deleted);
+        //                deleted++;
+        //            }
+        //        }
+        //    }
+        //}
 
-        public void InsertImage(MyImage image, int pageNumberToInsert, int x, int y) {
-            using (var inputPdfDocument = new PdfDocument(new PdfReader(inputFilePath1), new PdfWriter(outputFilePath))) {
+        public static string InsertImage(string inputFilePath, MyImage image, int pageNumberToInsert, int x, int y) {
+            string outputFilePath = GenerateNewPath(inputFilePath);
+
+            using (var inputPdfDocument = new PdfDocument(new PdfReader(inputFilePath), new PdfWriter(outputFilePath))) {
                 using (var document = new Document(inputPdfDocument)) {
                     if (pageNumberToInsert < 1 || pageNumberToInsert > inputPdfDocument.GetNumberOfPages()) {
                         throw new PDFException("The page specified is outside the scope of the document.");
@@ -243,26 +259,33 @@ namespace PDF_API.Models {
                     }
 
 
-
                     ImageData imageData = ImageDataFactory.Create(image.GetPath());
 
                     var newImage = new iText.Layout.Element.Image(imageData).ScaleAbsolute(image.width, image.height).SetFixedPosition(pageNumberToInsert, x, pagePageSize.GetHeight() - image.height - y);
                     document.Add(newImage);
                 }
             }
+
+            return outputFilePath;
         }
 
-        public void RotatePages(int degrees) {
-            using (var pdfDocument = new PdfDocument(new PdfReader(inputFilePath1), new PdfWriter(outputFilePath))) {
+        public static string RotatePages(string inputFilePath, int degrees) {
+            string outputFilePath = GenerateNewPath(inputFilePath);
+
+            using (var pdfDocument = new PdfDocument(new PdfReader(inputFilePath), new PdfWriter(outputFilePath))) {
                 for (int i = 1; i <= pdfDocument.GetNumberOfPages(); i++) {
                     var page = pdfDocument.GetPage(i);
                     page.SetRotation(degrees);
                 }
             }
+
+            return outputFilePath;
         }
 
-        public void AddText(string text, int pageNumber, int x, int y, float FontSize, string font, bool isBold, string fontColor) {
-            using (var pdfDocument = new PdfDocument(new PdfReader(inputFilePath1), new PdfWriter(outputFilePath))) {
+        public static string AddText(string inputFilePath, string text, int pageNumber, int x, int y, float FontSize, string font, bool isBold, string fontColor) {
+            string outputFilePath = GenerateNewPath(inputFilePath);
+
+            using (var pdfDocument = new PdfDocument(new PdfReader(inputFilePath), new PdfWriter(outputFilePath))) {
                 if (pageNumber < 1 || pageNumber > pdfDocument.GetNumberOfPages()) {
                     throw new PDFException("The page specified is outside the scope of the document.");
                 }
@@ -307,10 +330,14 @@ namespace PDF_API.Models {
                     document.ShowTextAligned(paragraph, x, pagePageSize.GetHeight() - y, pageNumber, TextAlignment.LEFT, VerticalAlignment.TOP, 0);
                 }
             }
+
+            return outputFilePath;
         }
 
-        public void CropPage(int pageNumber, int x, int y, float width, float height) {
-            using (var pdfDocument = new PdfDocument(new PdfReader(inputFilePath1), new PdfWriter(outputFilePath))) {
+        public static string CropPage(string inputFilePath, int pageNumber, int x, int y, float width, float height) {
+            string outputFilePath = GenerateNewPath(inputFilePath);
+
+            using (var pdfDocument = new PdfDocument(new PdfReader(inputFilePath), new PdfWriter(outputFilePath))) {
                 if (pageNumber < 1 || pageNumber > pdfDocument.GetNumberOfPages()) {
                     throw new PDFException("The page specified is outside the scope of the document.");
                 }
@@ -330,8 +357,8 @@ namespace PDF_API.Models {
 
                 page.SetCropBox(cropBox);
             }
+
+            return outputFilePath;
         }
-
-
     }
 }
