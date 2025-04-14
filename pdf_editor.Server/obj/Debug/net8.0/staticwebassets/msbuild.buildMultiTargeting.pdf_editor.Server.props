@@ -1,3 +1,0 @@
-﻿<Project>
-  <Import Project="..\build\pdf_editor.Server.props" />
-</Project>
