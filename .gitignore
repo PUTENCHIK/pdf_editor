@@ -1,4 +1,4 @@
 .vs/
 node_modules/
-pdf_editor.Server/bin/*
-pdf_editor.Server/obj/*
+pdf_editor.Server/bin/
+pdf_editor.Server/obj/
