@@ -3,6 +3,7 @@ using PDF_API.Data;
 using PDF_API.Models;
 using pdf_editor.Server.Models;
 using pdf_editor.Server.Requests;
+using System.IO.Compression;
 
 
 namespace PDF_API.Controllers {
@@ -172,36 +173,69 @@ namespace PDF_API.Controllers {
             }
         }
 
-        //[HttpPost("split-file")]
-        //public ActionResult SplitFile(IFormFile fileToUpload, int breakPage) {
-        //    string? requestId = HttpContext.Items["RequestId"]?.ToString();
+        [HttpPost("split-file")]
+        public ActionResult SplitFile(SplitPdfFileRequest data) {
+            string? requestId = HttpContext.Items["RequestId"]?.ToString();
 
-        //    try {
+            string? filePath = null;
+            string? newPdfPath = null;
 
-        //        byte[] fileBytes = System.IO.File.ReadAllBytes(mypdf.getOutputFilePath());
+            try {
+                MyPDF.CanBeUpload(data.file);
+                filePath = MyPDF.Upload(data.file);
 
-        //        // Два варианта для отправки нескольких pdf файлов.
-        //        // 1) zip файлом отправить.
-        //        // 2) отправить пути до файла, и потом клиент несколько раз отправляет запрос.
-        //        return File(fileBytes, "application/pdf", "returned.pdf");
-        //    }
-        //    catch (PDFException e) {
-        //        if (mypdf != null) {
-        //            mypdf.Clear();
-        //        }
+                newPdfPath = MyPDF.SplitFile(filePath, data.breakPageNumber);
 
-        //        _logger.LogInformation($"RequestId: {requestId}. The user received an error: {e.Message}");
-        //        return BadRequest(e.Message);
-        //    }
-        //    catch (Exception e) {
-        //        if (mypdf != null) {
-        //            mypdf.Clear();
-        //        }
+                using (var memoryStream = new MemoryStream()) {
+                    using (var archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, true)) {
+                        var firstFileInZip = archive.CreateEntry("file1.pdf");
+                        using (var entryStream = firstFileInZip.Open())
+                        using (var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read)) {
+                            fileStream.CopyTo(entryStream);
+                        }
 
-        //        _logger.LogCritical($"RequestId: {requestId}. {e.Message}");
-        //        return StatusCode(500, "Internal Server Error");
-        //    }
-        //}
+                        var secondFileInZip = archive.CreateEntry("file2.pdf");
+                        using (var entryStream = secondFileInZip.Open())
+                        using (var fileStream = new FileStream(newPdfPath, FileMode.Open, FileAccess.Read)) {
+                            fileStream.CopyTo(entryStream);
+                        }
+                    }
+
+                    memoryStream.Seek(0, SeekOrigin.Begin);
+
+                    string contentType = "application/zip";
+                    string fileName = "files.zip";
+
+                    MyPDF.DeleteFile(filePath);
+                    MyPDF.DeleteFile(newPdfPath);
+
+                    return File(memoryStream.ToArray(), contentType, fileName);
+                }
+
+            }
+            catch (PDFException e) {
+                if (filePath != null) {
+                    MyPDF.DeleteFile(filePath);
+                }
+                if (newPdfPath != null) {
+                    MyPDF.DeleteFile(newPdfPath);
+                }
+
+                _logger.LogInformation($"RequestId: {requestId}. The user received an error: {e.Message}");
+                return BadRequest(e.Message);
+            }
+            catch (Exception e) {
+                if (filePath != null) {
+                    MyPDF.DeleteFile(filePath);
+                }
+                if (newPdfPath != null) {
+                    MyPDF.DeleteFile(newPdfPath);
+                }
+
+                _logger.LogCritical($"RequestId: {requestId}. {e.Message}");
+                return StatusCode(500, "Internal Server Error");
+            }
+        }
 
         [HttpPost("InsertImage")]
         public ActionResult InsertImage(InsertImageRequest data) {

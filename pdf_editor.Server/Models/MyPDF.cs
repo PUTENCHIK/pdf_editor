@@ -16,11 +16,6 @@ using System.IO;
 namespace PDF_API.Models {
     public class MyPDF {
         public static List<string> validExtensions = new List<string>() { ".pdf" };
-        public string fileName1;
-        public string fileName2 = "";
-        public string inputFilePath1;
-        public string inputFilePath2 = "";
-        public string outputFilePath;
         public int countUploadedDocuments;
         public static string uploadFolder = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "Uploads", "pdf");
         public static Dictionary<string, iText.Kernel.Colors.Color> colors = new Dictionary<string, iText.Kernel.Colors.Color>()
@@ -50,43 +45,10 @@ namespace PDF_API.Models {
         };
         private readonly AppDbContext _context;
 
-
-        public MyPDF(IFormFile fileToUpload1, AppDbContext context) {
-            //_context = context;
-
-            //CanBeUpload(fileToUpload1);
-            //fileName1 = Upload(fileToUpload1);
-            //inputFilePath1 = GetUploadPath(fileName1);
-            //outputFilePath = GetEditPath(fileName1);
-            //countUploadedDocuments = 1;
-        }
-
-        public MyPDF(IFormFile fileToUpload1, IFormFile fileToUpload2, AppDbContext context) {
-            //_context = context;
-
-            //if (!Directory.Exists(uploadFolder)) {
-            //    Directory.CreateDirectory(uploadFolder);
-            //}
-
-            //CanBeUpload(fileToUpload1);
-            //CanBeUpload(fileToUpload2);
-
-            //fileName1 = Upload(fileToUpload1);
-            //fileName2 = Upload(fileToUpload2);
-            //inputFilePath1 = GetUploadPath(fileName1);
-            //inputFilePath2 = GetUploadPath(fileName2);
-            //outputFilePath = GenerateNewPath(fileName1);
-            //countUploadedDocuments = 2;
-        }
-
         public static int GetPageCount(string inputFilePath) {
             using (var pdfDocument = new PdfDocument(new PdfReader(inputFilePath))) {
                 return pdfDocument.GetNumberOfPages();
             }
-        }
-
-        public string getOutputFilePath() {
-            return outputFilePath;
         }
 
         public static bool CanBeUpload(IFormFile file) {
@@ -138,18 +100,6 @@ namespace PDF_API.Models {
             }
 
             return System.IO.Path.Combine(fileDirectory, fileNewName + fileExtension);
-        }
-
-        public void Clear() {
-            if (countUploadedDocuments == 1) {
-                DeleteFile(inputFilePath1);
-                DeleteFile(outputFilePath);
-            }
-            else if (countUploadedDocuments == 2) {
-                DeleteFile(inputFilePath1);
-                DeleteFile(inputFilePath2);
-                DeleteFile(outputFilePath);
-            }
         }
 
         public static string DeletePage(string inputFilePath, int pageNumber) {
@@ -214,30 +164,50 @@ namespace PDF_API.Models {
             return outputFilePath;
         }
 
-        //public static void SplitFile(int breakPage) {
-        //    using (var inputPdfDocument = new PdfDocument(new PdfReader(inputFilePath1), new PdfWriter(inputFilePath1))) {
-        //        using (var outputPdfDocument = new PdfDocument(new PdfWriter(outputFilePath))) {
+        public static string SplitFile(string inputFilePath, int breakPage) {
+            string outputFilePath = GenerateNewPath(inputFilePath);
+            List<int> pagesToDelete = new List<int>();
+            int countPages;
 
-        //            if (breakPage < 1 || breakPage > inputPdfDocument.GetNumberOfPages()) {
-        //                throw new PDFException("The page specified is outside the scope of the document.");
-        //            }
+            byte[] pdfBytes = File.ReadAllBytes(inputFilePath);
+            using (MemoryStream inputStream = new MemoryStream(pdfBytes)) {
+                using (var inputPdfDocument = new PdfDocument(new PdfReader(inputStream))) {
+                    countPages = inputPdfDocument.GetNumberOfPages();
+                    if (breakPage < 1 || breakPage > countPages) {
+                        throw new PDFException("The page specified is outside the scope of the document.");
+                    }
 
-        //            List<int> pages = new List<int>();
-        //            for (int i = breakPage; i <= inputPdfDocument.GetNumberOfPages(); i++) {
-        //                pages.Add(i);
-        //            }
+                    List<int> pagesToCopy = new List<int>();
+                    for (int i = breakPage; i <= countPages; i++) {
+                        pagesToCopy.Add(i);
+                    }
+
+                    using (var outputPdfDocument = new PdfDocument(new PdfWriter(outputFilePath))) {
+                        inputPdfDocument.CopyPagesTo(pagesToCopy, outputPdfDocument);
+                    }
+
+                    for (int i = breakPage; i <= countPages; i++) {
+                        pagesToDelete.Add(i);
+                    }
+                }
+            }
+
+            using (MemoryStream inputStream = new MemoryStream(pdfBytes))
+            using (MemoryStream outputStream = new MemoryStream()) {
+                using (var inputPdfDocument = new PdfDocument(new PdfReader(inputStream), new PdfWriter(outputStream))) {
+                    int deleted = 0;
+                    foreach (var i in pagesToDelete) {
+                        inputPdfDocument.RemovePage(i - deleted);
+                        deleted++;
+                    }
+                }
+
+                File.WriteAllBytes(inputFilePath, outputStream.ToArray());
+            }
 
 
-        //            inputPdfDocument.CopyPagesTo(pages, outputPdfDocument);
-
-        //            int deleted = 0;
-        //            foreach (var i in pages) {
-        //                inputPdfDocument.RemovePage(i - deleted);
-        //                deleted++;
-        //            }
-        //        }
-        //    }
-        //}
+            return outputFilePath;
+        }
 
         public static string InsertImage(string inputFilePath, MyImage image, int pageNumberToInsert, int x, int y) {
             string outputFilePath = GenerateNewPath(inputFilePath);

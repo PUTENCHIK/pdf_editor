@@ -23,6 +23,12 @@
         public IFormFile file2 { get; set; }
     }
 
+    public class SplitPdfFileRequest {
+        public IFormFile file { get; set; }
+
+        public int breakPageNumber { get; set; }
+    }
+
     public class InsertImageRequest {
         public string fileId { get; set; }
         public IFormFile imageFile { get; set; }
