@@ -1,6 +1,7 @@
 ﻿using iText.StyledXmlParser.Jsoup.Nodes;
 using PDF_API;
 using PDF_API.Data;
+using PDF_API.Models;
 using System.Security.Cryptography;
 
 namespace pdf_editor.Server.Models {
@@ -17,19 +18,37 @@ namespace pdf_editor.Server.Models {
         }
 
         public static string GetPdfPath(AppDbContext context, string fileId) {
-            var result = context.Files.Where(p => p.SecuredId == fileId).First();
+            try {
+                var result = context.Files.Where(p => p.SecuredId == fileId).First();
 
-            result.LastActivityTime = DateTime.Now;
-            context.SaveChanges();
+                result.LastActivityTime = DateTime.Now;
+                context.SaveChanges();
 
-            return result.Path;
+                return result.Path;
+            }
+            catch (Exception ex) {
+                if (ex.Message == "Sequence contains no elements") {
+                    throw new PDFException("File not found");
+                }
+
+                throw new Exception(ex.Message);
+            }
         }
 
         public static void UpdatePath(AppDbContext context, string fileId, string newPath) {
-            var result = context.Files.Where(p => p.SecuredId == fileId).First();
+            try {
+                var result = context.Files.Where(p => p.SecuredId == fileId).First();
+                result.Path = newPath;
+                context.SaveChanges();
 
-            result.Path = newPath;
-            context.SaveChanges();
+            }
+            catch (Exception ex) {
+                if (ex.Message == "Sequence contains no elements") {
+                    throw new PDFException("File not found");
+                }
+
+                throw new Exception(ex.Message);
+            }
         }
 
         public static string Add(AppDbContext context, string Path) {

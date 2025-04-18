@@ -23,6 +23,11 @@
         public IFormFile file2 { get; set; }
     }
 
+    public class CompressPdfFileRequest {
+        public IFormFile file { get; set; }
+        public int compressionRatio { get; set; }
+    }
+
     public class SplitPdfFileRequest {
         public IFormFile file { get; set; }
 

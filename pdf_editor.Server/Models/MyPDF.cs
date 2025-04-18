@@ -330,5 +330,20 @@ namespace PDF_API.Models {
 
             return outputFilePath;
         }
+
+        public static string CompressFile(string inputFilePath, int compressionRatio) {
+            if (compressionRatio < 0 || compressionRatio > 9) {
+                throw new PDFException("The compression ratio specified is outside the scope.");
+            }
+
+
+            string outputFilePath = GenerateNewPath(inputFilePath);
+
+            using (var pdfDocument = new PdfDocument(new PdfReader(inputFilePath), new PdfWriter(outputFilePath))) {
+                pdfDocument.GetWriter().SetCompressionLevel(compressionRatio);
+            }
+
+            return outputFilePath;
+        }
     }
 }

@@ -2,8 +2,11 @@
 
 using Microsoft.EntityFrameworkCore;
 using PDF_API.Data;
+using pdf_editor.Server.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddHostedService<FileCleanupService>();
+
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("pdf_editor")));
 

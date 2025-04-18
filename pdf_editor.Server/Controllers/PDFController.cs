@@ -72,7 +72,7 @@ namespace PDF_API.Controllers {
         }
 
         [HttpPost("delete-page")]
-        public ActionResult DeletePage(DeletePageRequest data) {
+        public async Task<ActionResult> DeletePage(DeletePageRequest data) {
             string? requestId = HttpContext.Items["RequestId"]?.ToString();
 
             try {
@@ -80,7 +80,7 @@ namespace PDF_API.Controllers {
                 string newPdfPath = MyPDF.DeletePage(pdfPath, data.pageNumber);
 
                 DbPDF.UpdatePath(_context, data.fileId, newPdfPath);
-                byte[] fileBytes = System.IO.File.ReadAllBytes(newPdfPath);
+                byte[] fileBytes = await System.IO.File.ReadAllBytesAsync(newPdfPath);
                 return File(fileBytes, "application/pdf", "returned.pdf");
             }
             catch (PDFException e) {
@@ -96,7 +96,7 @@ namespace PDF_API.Controllers {
         }
 
         [HttpPost("swap-pages")]
-        public ActionResult SwapPages(SwapPagesRequest data) {
+        public async Task<ActionResult> SwapPages(SwapPagesRequest data) {
             string? requestId = HttpContext.Items["RequestId"]?.ToString();
 
             try {
@@ -104,7 +104,7 @@ namespace PDF_API.Controllers {
                 string newPdfPath = MyPDF.SwapPages(pdfPath, data.pageFrom, data.pageTo);
 
                 DbPDF.UpdatePath(_context, data.fileId, newPdfPath);
-                byte[] fileBytes = System.IO.File.ReadAllBytes(newPdfPath);
+                byte[] fileBytes = await System.IO.File.ReadAllBytesAsync(newPdfPath);
                 return File(fileBytes, "application/pdf", "returned.pdf");
             }
             catch (PDFException e) {
@@ -120,7 +120,7 @@ namespace PDF_API.Controllers {
         }
 
         [HttpPost("combine-pdf-files")]
-        public ActionResult CombinePdfFiles(CombinePdfFilesRequest data) {
+        public async Task<ActionResult> CombinePdfFiles(CombinePdfFilesRequest data) {
             string? requestId = HttpContext.Items["RequestId"]?.ToString();
 
             string? filePath = null;
@@ -136,7 +136,7 @@ namespace PDF_API.Controllers {
                 newPdfPath = MyPDF.CombineFiles(filePath, filePath2);
 
 
-                byte[] fileBytes = System.IO.File.ReadAllBytes(newPdfPath);
+                byte[] fileBytes = await System.IO.File.ReadAllBytesAsync(newPdfPath);
                 MyPDF.DeleteFile(filePath);
                 MyPDF.DeleteFile(filePath2);
                 MyPDF.DeleteFile(newPdfPath);
@@ -173,8 +173,51 @@ namespace PDF_API.Controllers {
             }
         }
 
+        [HttpPost("compress-pdf-file")]
+        public async Task<ActionResult> CompressPdfFile(CompressPdfFileRequest data) {
+            string? requestId = HttpContext.Items["RequestId"]?.ToString();
+
+            string? filePath = null;
+            string? newPdfPath = null;
+
+            try {
+                MyPDF.CanBeUpload(data.file);
+                filePath = MyPDF.Upload(data.file);
+
+                newPdfPath = MyPDF.CompressFile(filePath, data.compressionRatio);
+
+                byte[] fileBytes = await System.IO.File.ReadAllBytesAsync(newPdfPath);
+                MyPDF.DeleteFile(filePath);
+                MyPDF.DeleteFile(newPdfPath);
+
+                return File(fileBytes, "application/pdf", "returned.pdf");
+            }
+            catch (PDFException e) {
+                if (filePath != null) {
+                    MyPDF.DeleteFile(filePath);
+                }
+                if (newPdfPath != null) {
+                    MyPDF.DeleteFile(newPdfPath);
+                }
+
+                _logger.LogInformation($"RequestId: {requestId}. The user received an error: {e.Message}");
+                return BadRequest(e.Message);
+            }
+            catch (Exception e) {
+                if (filePath != null) {
+                    MyPDF.DeleteFile(filePath);
+                }
+                if (newPdfPath != null) {
+                    MyPDF.DeleteFile(newPdfPath);
+                }
+
+                _logger.LogCritical($"RequestId: {requestId}. {e.Message}");
+                return StatusCode(500, "Internal Server Error");
+            }
+        }
+
         [HttpPost("split-file")]
-        public ActionResult SplitFile(SplitPdfFileRequest data) {
+        public async Task<ActionResult> SplitFile(SplitPdfFileRequest data) {
             string? requestId = HttpContext.Items["RequestId"]?.ToString();
 
             string? filePath = null;
@@ -237,8 +280,8 @@ namespace PDF_API.Controllers {
             }
         }
 
-        [HttpPost("InsertImage")]
-        public ActionResult InsertImage(InsertImageRequest data) {
+        [HttpPost("insert-image")]
+        public async Task<ActionResult> InsertImage(InsertImageRequest data) {
             string? requestId = HttpContext.Items["RequestId"]?.ToString();
 
             try {
@@ -248,7 +291,7 @@ namespace PDF_API.Controllers {
                 string newPdfPath = MyPDF.InsertImage(pdfPath, image, data.pageNumber, data.x, data.y);
 
                 DbPDF.UpdatePath(_context, data.fileId, newPdfPath);
-                byte[] fileBytes = System.IO.File.ReadAllBytes(newPdfPath);
+                byte[] fileBytes = await System.IO.File.ReadAllBytesAsync(newPdfPath);
 
                 return File(fileBytes, "application/pdf", "returned.pdf");
             }
@@ -262,8 +305,8 @@ namespace PDF_API.Controllers {
             }
         }
 
-        [HttpPost("RotatePages")]
-        public ActionResult RotatePages(RotatePagesRequest data) {
+        [HttpPost("rotate-pages")]
+        public async Task<ActionResult> RotatePages(RotatePagesRequest data) {
             string? requestId = HttpContext.Items["RequestId"]?.ToString();
 
             try {
@@ -271,7 +314,7 @@ namespace PDF_API.Controllers {
                 string newPdfPath = MyPDF.RotatePages(pdfPath, data.degrees);
 
                 DbPDF.UpdatePath(_context, data.fileId, newPdfPath);
-                byte[] fileBytes = System.IO.File.ReadAllBytes(newPdfPath);
+                byte[] fileBytes = await System.IO.File.ReadAllBytesAsync(newPdfPath);
                 return File(fileBytes, "application/pdf", "returned.pdf");
             }
             catch (PDFException e) {
@@ -284,8 +327,8 @@ namespace PDF_API.Controllers {
             }
         }
 
-        [HttpPost("AddText")]
-        public ActionResult AddText(AddTextRequest data) {
+        [HttpPost("add-text")]
+        public async Task<ActionResult> AddText(AddTextRequest data) {
             string? requestId = HttpContext.Items["RequestId"]?.ToString();
 
             try {
@@ -293,7 +336,7 @@ namespace PDF_API.Controllers {
                 string newPdfPath = MyPDF.AddText(pdfPath, data.text, data.pageNumber, data.x, data.y, data.fontSize, data.font, data.isBold, data.fontColor); 
 
                 DbPDF.UpdatePath(_context, data.fileId, newPdfPath);
-                byte[] fileBytes = System.IO.File.ReadAllBytes(newPdfPath);
+                byte[] fileBytes = await System.IO.File.ReadAllBytesAsync(newPdfPath);
                 return File(fileBytes, "application/pdf", "returned.pdf");
             }
             catch (PDFException e) {
@@ -306,8 +349,8 @@ namespace PDF_API.Controllers {
             }
         }
 
-        [HttpPost("CropPage")]
-        public ActionResult CropPage(CropPageRequest data) {
+        [HttpPost("crop-page")]
+        public async Task<ActionResult> CropPage(CropPageRequest data) {
             string? requestId = HttpContext.Items["RequestId"]?.ToString();
 
             try {
@@ -315,7 +358,7 @@ namespace PDF_API.Controllers {
                 string newPdfPath = MyPDF.CropPage(pdfPath,data.pageNumber, data.x, data.y, data.width, data.height);
 
                 DbPDF.UpdatePath(_context, data.fileId, newPdfPath);
-                byte[] fileBytes = System.IO.File.ReadAllBytes(newPdfPath);
+                byte[] fileBytes = await System.IO.File.ReadAllBytesAsync(newPdfPath);
                 return File(fileBytes, "application/pdf", "returned.pdf");
             }
             catch (PDFException e) {
