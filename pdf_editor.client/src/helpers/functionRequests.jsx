@@ -1,112 +1,94 @@
+import axios from 'axios';
+import ssm from '../utils/SessionStorageManager';
+
 const commonError = "Ошибка сервера! Статус ответа:"
 
-export async function deletePageRequest(file, pageNumber) {
+export async function startEditingRequest(file) {
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('pageNumber', pageNumber);
-
-    const response = await fetch('https://localhost:7199/api/PDF/DeletePage', {
-        method: 'POST',
-        body: formData
-    });
-
-    if (!response.ok) {
-        const errorData = await response.json();
-        const errorMessage = errorData?.message || commonError + response.status;
-        throw new Error(errorMessage);
-    }
-
-    const data = await response;
-    return data;
+    const response = await axios.post(
+        "https://localhost:7199/api/PDF/start-editing",
+        formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        }
+    );
+    return response.data.fileId;
 }
 
-export async function swapPagesRequest(file, pageFrom, pageTo) {
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('pageFrom', pageFrom);
-    formData.append('pageTo', pageTo);
-
-    const response = await fetch('https://localhost:7199/api/PDF/SwapPages', {
-        method: 'POST',
-        body: formData
-    });
-
-    if (!response.ok) {
-        const errorData = await response.json();
-        const errorMessage = errorData?.message || commonError + response.status;
-        throw new Error(errorMessage);
-    }
-
-    const data = await response;
-    return data;
+export async function deletePageRequest(pageNumber) {
+    const response = await axios.post(
+        "https://localhost:7199/api/PDF/delete-page", {
+            fileId: ssm.getFileId(),
+            pageNumber: pageNumber,
+        }, {
+            'responseType': 'blob'
+        }
+    );
+    return response.data;
 }
 
-export async function rotatePagesRequest(file, degrees) {
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('degrees', degrees);
-
-    const response = await fetch('https://localhost:7199/api/PDF/RotatePages', {
-        method: 'POST',
-        body: formData
-    });
-
-    if (!response.ok) {
-        const errorData = await response.json();
-        const errorMessage = errorData?.message || commonError + response.status;
-        throw new Error(errorMessage);
-    }
-
-    const data = await response;
-    return data;
+export async function swapPagesRequest(pageFrom, pageTo) {
+    const response = await axios.post(
+        "https://localhost:7199/api/PDF/swap-pages", {
+            fileId: ssm.getFileId(),
+            pageFrom: pageFrom,
+            pageTo: pageTo,
+        }, {
+            'responseType': 'blob'
+        }
+    );
+    return response.data;
 }
 
-export async function cropPageRequest(file, pageNumber, width, height, x, y) {
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('pageNumber', pageNumber);
-    formData.append('width', width);
-    formData.append('height', height);
-    formData.append('x', x);
-    formData.append('y', y);
-
-    const response = await fetch('https://localhost:7199/api/PDF/CropPage', {
-        method: 'POST',
-        body: formData
-    });
-
-    if (!response.ok) {
-        const errorData = await response.json();
-        const errorMessage = errorData?.message || `HTTP error! status: ${response.status}`;
-        throw new Error(errorMessage);
-    }
-
-    const data = await response;
-    return data;
+export async function rotatePagesRequest(degrees) {
+    const response = await axios.post(
+        "https://localhost:7199/api/PDF/RotatePages", {
+            fileId: ssm.getFileId(),
+            degrees: degrees,
+        }, {
+            'responseType': 'blob'
+        }
+    );
+    return response.data;
 }
 
-export async function insertImageRequest(file, imageFile, pageNumber, width, height, x, y) {
+export async function cropPageRequest(pageNumber, width, height, x, y) {
+    const response = await axios.post(
+        "https://localhost:7199/api/PDF/CropPage", {
+            fileId: ssm.getFileId(),
+            pageNumber: pageNumber,
+            width: width,
+            height: height,
+            x: x,
+            y: y,
+        }, {
+            'responseType': 'blob'
+        }
+    );
+    return response.data;
+}
+
+export async function insertImageRequest(imageFile, pageNumber, width, height, x, y) {
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append('fileId', ssm.getFileId());
     formData.append('imageFile', imageFile);
     formData.append('pageNumber', pageNumber);
     formData.append('width', width);
     formData.append('height', height);
     formData.append('x', x);
-    formData.append('y', y);    
-
-    const response = await fetch('https://localhost:7199/api/PDF/InsertImage', {
-        method: 'POST',
-        body: formData
-    });
-
-    if (!response.ok) {
-        const errorData = await response.json();
-        const errorMessage = errorData?.message || `HTTP error! status: ${response.status}`;
-        throw new Error(errorMessage);
-    }
-
-    const data = await response;
-    console.log('Success:', data);
-    return data;
+    formData.append('y', y);
+    console.log(imageFile, pageNumber, width, height, x, y);
+    
+    const response = await axios.post(
+        "https://localhost:7199/api/PDF/InsertImage",
+        formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            },
+            'responseType': 'blob',
+        }
+    );
+    return response.data;
 }

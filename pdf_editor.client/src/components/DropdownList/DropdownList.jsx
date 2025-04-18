@@ -20,9 +20,9 @@ function DropdownList(props) {
                 <ArrowDown direction={isShown ? 'up' : 'down'} />
             </div>
             <div className={'links-list' + (!isShown ? ' hidden' : '')}>
-                {props.tools.map((tools_list) => {
+                {props.tools.map((tools_list, index) => {
                     return (
-                        <ul>
+                        <ul key={index}>
                             {tools_list.map((tool) => {
                                 return (
                                     <li>
