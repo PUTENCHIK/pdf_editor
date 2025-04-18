@@ -2,8 +2,8 @@ import './EditorPage.css'
 import React, { useState, useRef, useEffect } from 'react'
 import { getDocument, GlobalWorkerOptions } from 'pdfjs-dist/build/pdf'
 import * as pdfjs from 'pdfjs-dist/build/pdf';
-import { deletePageRequest, rotatePagesRequest, swapPagesRequest,
-    cropPageRequest, insertImageRequest
+import { startEditingRequest, deletePageRequest, rotatePagesRequest,
+    swapPagesRequest, cropPageRequest, insertImageRequest
 } from '../../helpers/functionRequests'
 
 import Header from '../../components/Header/Header'
@@ -14,12 +14,13 @@ import ZoomButton from './components/ZoomButton/ZoomButton';
 import Button from '../../components/Button/Button';
 
 import DeletePageFormContent from './components/DeletePageFormContent/DeletePageFormContent';
-import SwapPagesFromContent from './components/SwapPagesFromContent/SwapPagesFromContent';
+import SwapPagesFormContent from './components/SwapPagesFormContent/SwapPagesFormContent';
 import RotatePagesFormContent from './components/RotatePagesFormContent/RotatePagesFormContent';
 import CropPageFormContent from './components/CropPageFormContent/CropPageFormContent';
 import InsertImageFormContent from './components/InsertImageFormContent/InsertImageFormContent';
 
 import MessageBlocksContainer from '../../components/MessageBlocksContainer/MessageBlocksContainer';
+import ssm from '../../utils/SessionStorageManager';
 
 GlobalWorkerOptions.workerSrc = './node_modules/pdfjs-dist/build/pdf.worker.mjs';
 const EditorPage = () => {
@@ -49,12 +50,19 @@ const EditorPage = () => {
     }
     
     // Обработка загрузки файла
-    async function handleFileChange() {
+    async function handleFileUpload() {
         const file = inputFileButton.current.getFile();
         if (file) {
-            setFileObject(file);            
-            setPdf(await createPdfObject(file));
-            setPageState("display");
+            try {
+                let fileId = await startEditingRequest(file);
+                ssm.setFileId(fileId);
+                setFileObject(file);
+                setPdf(await createPdfObject(file));
+                setPageState("display");
+                messagesContainerRef.current.addMessage("Загрузка файла", "ID файла сохранён");
+            } catch (error) {
+                messagesContainerRef.current.addError("Загрузка файла", "Не удалось загрузить файл на сервер");
+            }
         }
     };
 
@@ -95,7 +103,8 @@ const EditorPage = () => {
                     } catch (error) {
                         messagesContainerRef.current.addError("Удаление страницы", "Не получено поле с номером страницы");
                     }
-                    result = await deletePageRequest(fileObject, pageNumber);
+                    // result = await deletePageRequest(fileObject, pageNumber);
+                    result = await deletePageRequest(pageNumber);
                     if (result) {
                         messagesContainerRef.current.addMessage("Успех", "Страница удалена");
                     }
@@ -107,11 +116,11 @@ const EditorPage = () => {
                         page1 = event.target.page_1.value;
                         page2 = event.target.page_2.value;
                     } catch (error) {
-                        messagesContainerRef.current.addError("Свап страниц", "Не получено одно из полей с номером страницы");
+                        messagesContainerRef.current.addError("Замещение страниц", "Не получено одно из полей с номером страницы");
                     }
-                    result = await swapPagesRequest(fileObject, page1, page2);
+                    result = await swapPagesRequest(page1, page2);
                     if (result) {
-                        messagesContainerRef.current.addMessage("Успех", `Страницы ${page1} и ${page2} свапнуты`);
+                        messagesContainerRef.current.addMessage("Успех", `Страницы ${page1} и ${page2} замещены`);
                     }
                     break;
                 }
@@ -122,7 +131,7 @@ const EditorPage = () => {
                     } catch (error) {
                         messagesContainerRef.current.addError("Поворот документа", "Не получено поле с градусами");
                     }
-                    result = await rotatePagesRequest(fileObject, degrees);
+                    result = await rotatePagesRequest(degrees);
                     if (result) {
                         messagesContainerRef.current.addMessage("Успех", `Документ повёрнут на ${degrees}°`);
                     }
@@ -139,7 +148,9 @@ const EditorPage = () => {
                     } catch (error) {
                         messagesContainerRef.current.addError("Обрезание страницы", "Не получено одно из полей формы: " + error.message);
                     }
-                    result = await cropPageRequest(fileObject, pageNumber, width, height, x, y);
+                    console.log(pageNumber, width, height, x, y);
+                    
+                    result = await cropPageRequest(pageNumber, width, height, x, y);
                     if (result) {
                         messagesContainerRef.current.addMessage("Успех",
                             `Документ обрезан; точка: (${x}, ${y}), размеры: (${width}, ${height})`
@@ -159,7 +170,7 @@ const EditorPage = () => {
                     } catch (error) {
                         messagesContainerRef.current.addError("Вставка изображения", "Не получено одно из полей формы: " + error.message);
                     }
-                    result = await insertImageRequest(fileObject, imageFile, pageNumber, width, height, x, y);
+                    result = await insertImageRequest(imageFile, pageNumber, width, height, x, y);
                     if (result) {
                         messagesContainerRef.current.addMessage("Успех", `Изображение вставлено`);
                     }
@@ -168,7 +179,7 @@ const EditorPage = () => {
             }
             if (result) {
                 const newFile = new File(
-                    [await result.blob()],
+                    [result],
                     `returned.pdf`,
                     {
                         type: "application/pdf"
@@ -204,7 +215,7 @@ const EditorPage = () => {
                                 <h1>Работа с вашими файлами</h1>
                                 <p>Выберите файл с расширением PDF из вашего хранилища</p>
                                 <AddFile 
-                                    onChange={handleFileChange}
+                                    onChange={handleFileUpload}
                                     ref={inputFileButton}
                                 />
                             </div>
@@ -244,7 +255,7 @@ const EditorPage = () => {
                                             </>
                                         }
                                         {activeTool == "swap_pages" &&
-                                            <SwapPagesFromContent
+                                            <SwapPagesFormContent
                                                 pageCount={pdf ? pdf.numPages : 1}
                                                 formOnSubmit={formSubmit}
                                             />                                            
