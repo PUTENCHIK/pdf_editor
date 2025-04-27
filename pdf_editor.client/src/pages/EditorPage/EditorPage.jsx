@@ -12,6 +12,7 @@ import AddFile from '../../components/AddFile/AddFile'
 import DocumentDisplay from '../../components/DocumentDisplay/DocumentDisplay'
 import ZoomButton from './components/ZoomButton/ZoomButton';
 import Button from '../../components/Button/Button';
+import MinimapDisplay from './components/MinimapDisplay/MinimapDisplay';
 
 import DeletePageFormContent from './components/DeletePageFormContent/DeletePageFormContent';
 import SwapPagesFormContent from './components/SwapPagesFormContent/SwapPagesFormContent';
@@ -35,6 +36,7 @@ const EditorPage = () => {
     const documentDisplay = useRef(null);
     const [fileObject, setFileObject] = useState(null);
     const [pdf, setPdf] = useState(null);
+    const minimapDisplay = useRef(null);
 
     const messagesContainerRef = useRef(null);
 
@@ -223,27 +225,28 @@ const EditorPage = () => {
                     }
                     {pageState == "display" &&
                         <>
+                            <div className="minimap-segment">
+                                <MinimapDisplay
+                                    document={pdf}
+                                    ref={minimapDisplay}
+                                />
+                            </div>
                             <div className="document-segment">
-                                <div className="buttons-container">
-                                    <ZoomButton
-                                        type="increase"
-                                        onClick={zoomIn}
+                                {pdf &&
+                                    <DocumentDisplay
+                                        document={pdf}
+                                        ref={documentDisplay}
                                     />
-                                    <ZoomButton
-                                        type="decrease"
-                                        onClick={zoomOut}
-                                    />
-                                </div>
-                                <div className="document-container">
-                                    {pdf &&
-                                        <DocumentDisplay
-                                            document={pdf}
-                                            ref={documentDisplay}
-                                        />
-                                    }
-                                </div>
+                                }
+                                <div className="bedding"></div>
                             </div>
                             <div className="interaction-segment">
+                                <Button
+                                    type="submit"
+                                    class="danger"
+                                    text="Скачать файл"
+                                    onClick={downloadFile}
+                                />
                                 <div className="interaction-field">
                                     <div className="__content">
                                         {activeTool == "delete_page" &&
@@ -283,18 +286,12 @@ const EditorPage = () => {
                                         }
                                     </div>
                                 </div>
-                                <Button
-                                    type="submit"
-                                    class="danger"
-                                    text="Скачать файл"
-                                    onClick={downloadFile}
-                                />
                             </div>
                         </>
                     }
 
-                    <MessageBlocksContainer ref={messagesContainerRef} />
                 </main>
+                <MessageBlocksContainer ref={messagesContainerRef} />
             </div>
         </>
     );

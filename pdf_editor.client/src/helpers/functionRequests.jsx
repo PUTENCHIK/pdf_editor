@@ -44,7 +44,7 @@ export async function swapPagesRequest(pageFrom, pageTo) {
 
 export async function rotatePagesRequest(degrees) {
     const response = await axios.post(
-        "https://localhost:7199/api/PDF/RotatePages", {
+        "https://localhost:7199/api/PDF/rotate-pages", {
             fileId: ssm.getFileId(),
             degrees: degrees,
         }, {
@@ -56,7 +56,7 @@ export async function rotatePagesRequest(degrees) {
 
 export async function cropPageRequest(pageNumber, width, height, x, y) {
     const response = await axios.post(
-        "https://localhost:7199/api/PDF/CropPage", {
+        "https://localhost:7199/api/PDF/crop-page", {
             fileId: ssm.getFileId(),
             pageNumber: pageNumber,
             width: width,
