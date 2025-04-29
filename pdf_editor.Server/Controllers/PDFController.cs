@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using PDF_API.Data;
 using PDF_API.Models;
 using pdf_editor.Server.Models;
 using pdf_editor.Server.Requests;
+using pdf_editor.Server.Services;
 using System.IO.Compression;
 
 
@@ -11,13 +13,14 @@ namespace PDF_API.Controllers {
     [Route("api/[controller]")]
     [ApiController]
     public class PDFController : ControllerBase {
-        
+        private readonly IWordToPdfConverter _wordToPdfConverter;
         private readonly ILogger<PDFController> _logger;
         private readonly AppDbContext _context;
 
-        public PDFController(ILogger<PDFController> logger, AppDbContext context) {
+        public PDFController(ILogger<PDFController> logger, AppDbContext context, IWordToPdfConverter wordToPdfConverter) {
             _logger = logger;
             _context = context;
+            _wordToPdfConverter = wordToPdfConverter;
 
             string directoryPath = Path.Combine(Directory.GetCurrentDirectory(), "Uploads");
             if (!Directory.Exists(directoryPath)) {
@@ -283,23 +286,33 @@ namespace PDF_API.Controllers {
         [HttpPost("insert-image")]
         public async Task<ActionResult> InsertImage(InsertImageRequest data) {
             string? requestId = HttpContext.Items["RequestId"]?.ToString();
+            MyImage? image = null;
 
             try {
                 string pdfPath = DbPDF.GetPdfPath(_context, data.fileId);
-                var image = new MyImage(data.imageFile, data.width, data.height);
+                image = new MyImage(data.imageFile, data.width, data.height);
 
                 string newPdfPath = MyPDF.InsertImage(pdfPath, image, data.pageNumber, data.x, data.y);
 
                 DbPDF.UpdatePath(_context, data.fileId, newPdfPath);
                 byte[] fileBytes = await System.IO.File.ReadAllBytesAsync(newPdfPath);
+                image.Clear();
 
                 return File(fileBytes, "application/pdf", "returned.pdf");
             }
             catch (PDFException e) {
+                if (image != null) {
+                    image.Clear();
+                }
+
                 _logger.LogInformation($"RequestId: {requestId}. The user received an error: {e.Message}");
                 return BadRequest(e.Message);
             }
             catch (Exception e) {
+                if (image != null) {
+                    image.Clear();
+                }
+
                 _logger.LogCritical($"RequestId: {requestId}. {e.Message}");
                 return StatusCode(500, "Internal Server Error");
             }
@@ -366,6 +379,84 @@ namespace PDF_API.Controllers {
                 return BadRequest(e.Message);
             }
             catch (Exception e) {
+                _logger.LogCritical($"RequestId: {requestId}. {e.Message}");
+                return StatusCode(500, "Internal Server Error");
+            }
+        }
+
+        //    [HttpPost("delete-text")]
+        //    public async Task<ActionResult> DeleteText(DeleteTextRequest data) {
+        //        string? requestId = HttpContext.Items["RequestId"]?.ToString();
+
+        //        try {
+        //            string pdfPath = DbPDF.GetPdfPath(_context, data.fileId);
+        //            string newPdfPath = MyPDF.CropPage(pdfPath, data.pageNumber, data.x, data.y, data.width, data.height);
+
+        //            DbPDF.UpdatePath(_context, data.fileId, newPdfPath);
+        //            byte[] fileBytes = await System.IO.File.ReadAllBytesAsync(newPdfPath);
+        //            return File(fileBytes, "application/pdf", "returned.pdf");
+        //        }
+        //        catch (PDFException e) {
+        //            _logger.LogInformation($"RequestId: {requestId}. The user received an error: {e.Message}");
+        //            return BadRequest(e.Message);
+        //        }
+        //        catch (Exception e) {
+        //            _logger.LogCritical($"RequestId: {requestId}. {e.Message}");
+        //            return StatusCode(500, "Internal Server Error");
+        //        }
+        //    }
+        //}
+        [HttpPost("сonvert-word-to-pdf")]
+        public async Task<IActionResult> ConvertWordToPdf(WordTopPdfConvertRequest data) {
+            string? requestId = HttpContext.Items["RequestId"]?.ToString();
+
+            string? wordFilePath = null;
+            string? pdfFilePath = null;
+
+            try {
+                wordFilePath = Path.GetTempFileName() + ".docx";
+                using (var stream = new FileStream(wordFilePath, FileMode.Create)) {
+                    await data.file.CopyToAsync(stream);
+                }
+
+                pdfFilePath = Path.GetTempFileName() + ".pdf";
+                var (success, errorMessage) = await _wordToPdfConverter.ConvertWordToPdfAsync(wordFilePath, pdfFilePath);
+
+                if (!success) {
+                    _logger.LogError($"Conversion error: {errorMessage}");
+
+                    MyPDF.DeleteFile(wordFilePath);
+                    MyPDF.DeleteFile(pdfFilePath);
+
+                    return StatusCode(500, $"Conversion error: {errorMessage}");
+                }
+
+                byte[] pdfBytes = System.IO.File.ReadAllBytes(pdfFilePath);
+                string fileName = Path.GetFileNameWithoutExtension(data.file.FileName) + ".pdf";
+                MyPDF.DeleteFile(wordFilePath);
+                MyPDF.DeleteFile(pdfFilePath);
+
+                return File(pdfBytes, "application/pdf", fileName);
+            }
+            catch (PDFException e) {
+                if (wordFilePath != null) {
+                    MyPDF.DeleteFile(wordFilePath);
+                }
+                if (pdfFilePath != null) {
+                    MyPDF.DeleteFile(pdfFilePath);
+                }
+
+                _logger.LogInformation($"RequestId: {requestId}. The user received an error: {e.Message}");
+                return BadRequest(e.Message);
+            }
+            catch (Exception e) {
+                if (wordFilePath != null) {
+                    MyPDF.DeleteFile(wordFilePath);
+                }
+                if (pdfFilePath != null) {
+                    MyPDF.DeleteFile(pdfFilePath);
+                }
+
                 _logger.LogCritical($"RequestId: {requestId}. {e.Message}");
                 return StatusCode(500, "Internal Server Error");
             }

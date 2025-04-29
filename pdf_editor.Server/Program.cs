@@ -10,6 +10,8 @@ builder.Services.AddHostedService<FileCleanupService>();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("pdf_editor")));
 
+builder.Services.AddScoped<IWordToPdfConverter, WordToPdfConverter>();
+
 builder.Services.AddLogging();
 builder.Logging.AddConsole();
 builder.Logging.AddDebug();

@@ -45,7 +45,7 @@ namespace pdf_editor.Server.Services {
                     .Where(f => f.LastActivityTime < DateTime.Now.AddHours(-1))
                     .ToList();
 
-                _logger.LogInformation($"Запуск очистки файлов... {DateTime.UtcNow.AddHours(-1)}");
+                _logger.LogInformation($"Запуск очистки файлов...");
                 foreach (var file in filesToDelete) {
                     try {;
                         MyPDF.DeleteFile(file.Path);

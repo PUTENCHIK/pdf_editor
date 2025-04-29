@@ -70,4 +70,16 @@
         public int y { get; set; }
     }
 
+    public class DeleteTextRequest {
+        public string fileId { get; set; }
+        public int pageNumber { get; set; }
+        public int x1 { get; set; }
+        public int y1 { get; set; }
+        public int x2 { get; set; }
+        public int y2 { get; set; }
+    }
+
+    public class WordTopPdfConvertRequest {
+        public IFormFile file { get; set; }
+    }
 }

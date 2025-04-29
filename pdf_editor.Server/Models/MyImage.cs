@@ -20,9 +20,6 @@
             Upload(image);
         }
 
-        ~MyImage() {
-            Clear();
-        }
         public string GetPath() {
             return path;
         }

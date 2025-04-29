@@ -67,6 +67,22 @@ namespace PDF_API.Models {
             return true;
         }
 
+        public static bool CanBeUploadWord(IFormFile file) {
+            string extention = System.IO.Path.GetExtension(file.FileName);
+
+            if (extention == ".docx") {
+                throw new PDFException("Extension is not valid");
+            }
+
+            long size = file.Length;
+
+            if (size > (100 * 1024 * 1024)) {
+                throw new PDFException("Uploaded file too large");
+            }
+
+            return true;
+        }
+
         public static string Upload(IFormFile file) {
             string extention = System.IO.Path.GetExtension(file.FileName);
 
@@ -336,11 +352,40 @@ namespace PDF_API.Models {
                 throw new PDFException("The compression ratio specified is outside the scope.");
             }
 
-
             string outputFilePath = GenerateNewPath(inputFilePath);
 
             using (var pdfDocument = new PdfDocument(new PdfReader(inputFilePath), new PdfWriter(outputFilePath))) {
                 pdfDocument.GetWriter().SetCompressionLevel(compressionRatio);
+            }
+
+            return outputFilePath;
+        }
+
+        public static string DeleteText(string inputFilePath, MyImage image, int pageNumberToInsert, int x, int y) {
+            string outputFilePath = GenerateNewPath(inputFilePath);
+
+            using (var inputPdfDocument = new PdfDocument(new PdfReader(inputFilePath), new PdfWriter(outputFilePath))) {
+                using (var document = new Document(inputPdfDocument)) {
+                    if (pageNumberToInsert < 1 || pageNumberToInsert > inputPdfDocument.GetNumberOfPages()) {
+                        throw new PDFException("The page specified is outside the scope of the document.");
+                    }
+
+                    var pagePageSize = inputPdfDocument.GetPage(pageNumberToInsert).GetPageSize();
+
+                    if (y < 0 || y > pagePageSize.GetHeight() || x < 0 || x > pagePageSize.GetWidth()) {
+                        throw new PDFException("The coordinates specified are outside the page.");
+                    }
+
+                    if (image.height < 0 || image.height > pagePageSize.GetHeight() || image.width < 0 || image.width > pagePageSize.GetWidth()) {
+                        throw new PDFException("Dimensions are beyond the page.");
+                    }
+
+
+                    ImageData imageData = ImageDataFactory.Create(image.GetPath());
+
+                    var newImage = new iText.Layout.Element.Image(imageData).ScaleAbsolute(image.width, image.height).SetFixedPosition(pageNumberToInsert, x, pagePageSize.GetHeight() - image.height - y);
+                    document.Add(newImage);
+                }
             }
 
             return outputFilePath;
