@@ -12,6 +12,9 @@ using static System.Net.Mime.MediaTypeNames;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using PDF_API.Data;
 using System.IO;
+using iText.Kernel.Pdf.Canvas;
+using Rectangle = iText.Kernel.Geom.Rectangle;
+using iText.Kernel.Colors;
 
 namespace PDF_API.Models {
     public class MyPDF {
@@ -361,31 +364,40 @@ namespace PDF_API.Models {
             return outputFilePath;
         }
 
-        public static string DeleteText(string inputFilePath, MyImage image, int pageNumberToInsert, int x, int y) {
+        public static string DeleteText(string inputFilePath, int pageNumber, float x1, float y1, float x2, float y2) {
             string outputFilePath = GenerateNewPath(inputFilePath);
 
             using (var inputPdfDocument = new PdfDocument(new PdfReader(inputFilePath), new PdfWriter(outputFilePath))) {
-                using (var document = new Document(inputPdfDocument)) {
-                    if (pageNumberToInsert < 1 || pageNumberToInsert > inputPdfDocument.GetNumberOfPages()) {
-                        throw new PDFException("The page specified is outside the scope of the document.");
-                    }
-
-                    var pagePageSize = inputPdfDocument.GetPage(pageNumberToInsert).GetPageSize();
-
-                    if (y < 0 || y > pagePageSize.GetHeight() || x < 0 || x > pagePageSize.GetWidth()) {
-                        throw new PDFException("The coordinates specified are outside the page.");
-                    }
-
-                    if (image.height < 0 || image.height > pagePageSize.GetHeight() || image.width < 0 || image.width > pagePageSize.GetWidth()) {
-                        throw new PDFException("Dimensions are beyond the page.");
-                    }
-
-
-                    ImageData imageData = ImageDataFactory.Create(image.GetPath());
-
-                    var newImage = new iText.Layout.Element.Image(imageData).ScaleAbsolute(image.width, image.height).SetFixedPosition(pageNumberToInsert, x, pagePageSize.GetHeight() - image.height - y);
-                    document.Add(newImage);
+                if (pageNumber < 1 || pageNumber > inputPdfDocument.GetNumberOfPages()) {
+                    throw new PDFException("The page specified is outside the scope of the document.");
                 }
+
+                PdfPage page = inputPdfDocument.GetPage(pageNumber);
+                var pagePageSize = page.GetPageSize();
+
+                if (y1 < 0 || y1 > pagePageSize.GetHeight() || x1 < 0 || x1 > pagePageSize.GetWidth()) {
+                    throw new PDFException("The coordinates specified are outside the page.");
+                }
+
+                if (y2 < 0 || y2 > pagePageSize.GetHeight() || x2 < 0 || x2 > pagePageSize.GetWidth()) {
+                    throw new PDFException("The coordinates 2 specified are outside the page.");
+                }
+
+                float width = x2 - x1;
+                float height = y2 - y1;
+
+                if (width <= 0 || height <= 0) {
+                    throw new PDFException("Incorrect corner coordinates. x2 must be greater than x1, and y2 must be greater than y1.");
+                }
+
+                Rectangle rect = new Rectangle(x1, pagePageSize.GetHeight() - y2, width, height);
+                PdfCanvas canvas = new PdfCanvas(page);
+
+                DeviceRgb whiteColor = new DeviceRgb(255, 255, 255);
+                canvas.SetColor(whiteColor, false);
+                canvas.SetFillColor(ColorConstants.WHITE);
+                canvas.Rectangle(rect);
+                canvas.Fill();
             }
 
             return outputFilePath;

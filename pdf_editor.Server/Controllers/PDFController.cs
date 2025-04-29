@@ -77,22 +77,31 @@ namespace PDF_API.Controllers {
         [HttpPost("delete-page")]
         public async Task<ActionResult> DeletePage(DeletePageRequest data) {
             string? requestId = HttpContext.Items["RequestId"]?.ToString();
+            string? filePath = null;
+            bool deleteOldFile = false;
 
             try {
-                string pdfPath = DbPDF.GetPdfPath(_context, data.fileId);
-                string newPdfPath = MyPDF.DeletePage(pdfPath, data.pageNumber);
+                filePath = DbPDF.GetPdfPath(_context, data.fileId);
+                string newPdfPath = MyPDF.DeletePage(filePath, data.pageNumber);
 
                 DbPDF.UpdatePath(_context, data.fileId, newPdfPath);
+                deleteOldFile = true;
                 byte[] fileBytes = await System.IO.File.ReadAllBytesAsync(newPdfPath);
+
+                MyPDF.DeleteFile(filePath);
                 return File(fileBytes, "application/pdf", "returned.pdf");
             }
             catch (PDFException e) {
-
+                if (filePath != null && deleteOldFile) {
+                    MyPDF.DeleteFile(filePath);
+                }
                 _logger.LogInformation($"RequestId: {requestId}. The user received an error: {e.Message}");
                 return BadRequest(e.Message);
             }
             catch (Exception e) {
-
+                if (filePath != null && deleteOldFile) {
+                    MyPDF.DeleteFile(filePath);
+                }
                 _logger.LogCritical($"RequestId: {requestId}. {e.Message}");
                 return StatusCode(500, "Internal Server Error");
             }
@@ -101,22 +110,31 @@ namespace PDF_API.Controllers {
         [HttpPost("swap-pages")]
         public async Task<ActionResult> SwapPages(SwapPagesRequest data) {
             string? requestId = HttpContext.Items["RequestId"]?.ToString();
+            string? filePath = null;
+            bool deleteOldFile = false;
 
             try {
-                string pdfPath = DbPDF.GetPdfPath(_context, data.fileId);
-                string newPdfPath = MyPDF.SwapPages(pdfPath, data.pageFrom, data.pageTo);
+                filePath = DbPDF.GetPdfPath(_context, data.fileId);
+                string newPdfPath = MyPDF.SwapPages(filePath, data.pageFrom, data.pageTo);
 
                 DbPDF.UpdatePath(_context, data.fileId, newPdfPath);
+                deleteOldFile = true;
                 byte[] fileBytes = await System.IO.File.ReadAllBytesAsync(newPdfPath);
+
+                MyPDF.DeleteFile(filePath);
                 return File(fileBytes, "application/pdf", "returned.pdf");
             }
             catch (PDFException e) {
-
+                if (filePath != null && deleteOldFile) {
+                    MyPDF.DeleteFile(filePath);
+                }
                 _logger.LogInformation($"RequestId: {requestId}. The user received an error: {e.Message}");
                 return BadRequest(e.Message);
             }
             catch (Exception e) {
-
+                if (filePath != null && deleteOldFile) {
+                    MyPDF.DeleteFile(filePath);
+                }
                 _logger.LogCritical($"RequestId: {requestId}. {e.Message}");
                 return StatusCode(500, "Internal Server Error");
             }
@@ -287,22 +305,30 @@ namespace PDF_API.Controllers {
         public async Task<ActionResult> InsertImage(InsertImageRequest data) {
             string? requestId = HttpContext.Items["RequestId"]?.ToString();
             MyImage? image = null;
+            string? filePath = null;
+            bool deleteOldFile = false;
 
             try {
-                string pdfPath = DbPDF.GetPdfPath(_context, data.fileId);
+                filePath = DbPDF.GetPdfPath(_context, data.fileId);
                 image = new MyImage(data.imageFile, data.width, data.height);
 
-                string newPdfPath = MyPDF.InsertImage(pdfPath, image, data.pageNumber, data.x, data.y);
+                string newPdfPath = MyPDF.InsertImage(filePath, image, data.pageNumber, data.x, data.y);
 
                 DbPDF.UpdatePath(_context, data.fileId, newPdfPath);
+                deleteOldFile = true;
                 byte[] fileBytes = await System.IO.File.ReadAllBytesAsync(newPdfPath);
+
                 image.Clear();
+                MyPDF.DeleteFile(filePath);
 
                 return File(fileBytes, "application/pdf", "returned.pdf");
             }
             catch (PDFException e) {
                 if (image != null) {
                     image.Clear();
+                }
+                if (filePath != null && deleteOldFile) {
+                    MyPDF.DeleteFile(filePath);
                 }
 
                 _logger.LogInformation($"RequestId: {requestId}. The user received an error: {e.Message}");
@@ -311,6 +337,9 @@ namespace PDF_API.Controllers {
             catch (Exception e) {
                 if (image != null) {
                     image.Clear();
+                }
+                if (filePath != null && deleteOldFile) {
+                    MyPDF.DeleteFile(filePath);
                 }
 
                 _logger.LogCritical($"RequestId: {requestId}. {e.Message}");
@@ -321,20 +350,31 @@ namespace PDF_API.Controllers {
         [HttpPost("rotate-pages")]
         public async Task<ActionResult> RotatePages(RotatePagesRequest data) {
             string? requestId = HttpContext.Items["RequestId"]?.ToString();
+            string? filePath = null;
+            bool deleteOldFile = false;
 
             try {
-                string pdfPath = DbPDF.GetPdfPath(_context, data.fileId);
-                string newPdfPath = MyPDF.RotatePages(pdfPath, data.degrees);
+                filePath = DbPDF.GetPdfPath(_context, data.fileId);
+                string newPdfPath = MyPDF.RotatePages(filePath, data.degrees);
 
                 DbPDF.UpdatePath(_context, data.fileId, newPdfPath);
+                deleteOldFile = true;
                 byte[] fileBytes = await System.IO.File.ReadAllBytesAsync(newPdfPath);
+
+                MyPDF.DeleteFile(filePath);
                 return File(fileBytes, "application/pdf", "returned.pdf");
             }
             catch (PDFException e) {
+                if (filePath != null && deleteOldFile) {
+                    MyPDF.DeleteFile(filePath);
+                }
                 _logger.LogInformation($"RequestId: {requestId}. The user received an error: {e.Message}");
                 return BadRequest(e.Message);
             }
             catch (Exception e) {
+                if (filePath != null && deleteOldFile) {
+                    MyPDF.DeleteFile(filePath);
+                }
                 _logger.LogCritical($"RequestId: {requestId}. {e.Message}");
                 return StatusCode(500, "Internal Server Error");
             }
@@ -343,20 +383,31 @@ namespace PDF_API.Controllers {
         [HttpPost("add-text")]
         public async Task<ActionResult> AddText(AddTextRequest data) {
             string? requestId = HttpContext.Items["RequestId"]?.ToString();
+            string? filePath = null;
+            bool deleteOldFile = false;
 
             try {
-                string pdfPath = DbPDF.GetPdfPath(_context, data.fileId);
-                string newPdfPath = MyPDF.AddText(pdfPath, data.text, data.pageNumber, data.x, data.y, data.fontSize, data.font, data.isBold, data.fontColor); 
+                filePath = DbPDF.GetPdfPath(_context, data.fileId);
+                string newPdfPath = MyPDF.AddText(filePath, data.text, data.pageNumber, data.x, data.y, data.fontSize, data.font, data.isBold, data.fontColor); 
 
                 DbPDF.UpdatePath(_context, data.fileId, newPdfPath);
+                deleteOldFile = true;
                 byte[] fileBytes = await System.IO.File.ReadAllBytesAsync(newPdfPath);
+
+                MyPDF.DeleteFile(filePath);
                 return File(fileBytes, "application/pdf", "returned.pdf");
             }
             catch (PDFException e) {
+                if (filePath != null && deleteOldFile) {
+                    MyPDF.DeleteFile(filePath);
+                }
                 _logger.LogInformation($"RequestId: {requestId}. The user received an error: {e.Message}");
                 return BadRequest(e.Message);
             }
             catch (Exception e) {
+                if (filePath != null && deleteOldFile) {
+                    MyPDF.DeleteFile(filePath);
+                }
                 _logger.LogCritical($"RequestId: {requestId}. {e.Message}");
                 return StatusCode(500, "Internal Server Error");
             }
@@ -365,47 +416,70 @@ namespace PDF_API.Controllers {
         [HttpPost("crop-page")]
         public async Task<ActionResult> CropPage(CropPageRequest data) {
             string? requestId = HttpContext.Items["RequestId"]?.ToString();
+            string? filePath = null;
+            bool deleteOldFile = false;
 
             try {
-                string pdfPath = DbPDF.GetPdfPath(_context, data.fileId);
-                string newPdfPath = MyPDF.CropPage(pdfPath,data.pageNumber, data.x, data.y, data.width, data.height);
+                filePath = DbPDF.GetPdfPath(_context, data.fileId);
+                string newPdfPath = MyPDF.CropPage(filePath, data.pageNumber, data.x, data.y, data.width, data.height);
 
                 DbPDF.UpdatePath(_context, data.fileId, newPdfPath);
+                deleteOldFile = true;
                 byte[] fileBytes = await System.IO.File.ReadAllBytesAsync(newPdfPath);
+
+                MyPDF.DeleteFile(filePath);
                 return File(fileBytes, "application/pdf", "returned.pdf");
             }
             catch (PDFException e) {
+                if (filePath != null && deleteOldFile) {
+                    MyPDF.DeleteFile(filePath);
+                }
                 _logger.LogInformation($"RequestId: {requestId}. The user received an error: {e.Message}");
                 return BadRequest(e.Message);
             }
             catch (Exception e) {
+                if (filePath != null && deleteOldFile) {
+                    MyPDF.DeleteFile(filePath);
+                }
                 _logger.LogCritical($"RequestId: {requestId}. {e.Message}");
                 return StatusCode(500, "Internal Server Error");
             }
         }
 
-        //    [HttpPost("delete-text")]
-        //    public async Task<ActionResult> DeleteText(DeleteTextRequest data) {
-        //        string? requestId = HttpContext.Items["RequestId"]?.ToString();
+        [HttpPost("delete-text")]
+        public async Task<ActionResult> DeleteText(DeleteTextRequest data) {
+            string? requestId = HttpContext.Items["RequestId"]?.ToString();
+            string? filePath = null;
+            bool deleteOldFile = false;
 
-        //        try {
-        //            string pdfPath = DbPDF.GetPdfPath(_context, data.fileId);
-        //            string newPdfPath = MyPDF.CropPage(pdfPath, data.pageNumber, data.x, data.y, data.width, data.height);
+            try {
+                filePath = DbPDF.GetPdfPath(_context, data.fileId);
+                string newPdfPath = MyPDF.DeleteText(filePath, data.pageNumber, data.x1, data.y1, data.x2, data.y2);
 
-        //            DbPDF.UpdatePath(_context, data.fileId, newPdfPath);
-        //            byte[] fileBytes = await System.IO.File.ReadAllBytesAsync(newPdfPath);
-        //            return File(fileBytes, "application/pdf", "returned.pdf");
-        //        }
-        //        catch (PDFException e) {
-        //            _logger.LogInformation($"RequestId: {requestId}. The user received an error: {e.Message}");
-        //            return BadRequest(e.Message);
-        //        }
-        //        catch (Exception e) {
-        //            _logger.LogCritical($"RequestId: {requestId}. {e.Message}");
-        //            return StatusCode(500, "Internal Server Error");
-        //        }
-        //    }
-        //}
+                DbPDF.UpdatePath(_context, data.fileId, newPdfPath);
+                deleteOldFile = true;
+
+                byte[] fileBytes = await System.IO.File.ReadAllBytesAsync(newPdfPath);
+
+                MyPDF.DeleteFile(filePath);
+                return File(fileBytes, "application/pdf", "returned.pdf");
+            }
+            catch (PDFException e) {
+                if (filePath != null && deleteOldFile) {
+                    MyPDF.DeleteFile(filePath);
+                }
+                _logger.LogInformation($"RequestId: {requestId}. The user received an error: {e.Message}");
+                return BadRequest(e.Message);
+            }
+            catch (Exception e) {
+                if (filePath != null && deleteOldFile) {
+                    MyPDF.DeleteFile(filePath);
+                }
+                _logger.LogCritical($"RequestId: {requestId}. {e.Message}");
+                return StatusCode(500, "Internal Server Error");
+            }
+        }
+
         [HttpPost("сonvert-word-to-pdf")]
         public async Task<IActionResult> ConvertWordToPdf(WordTopPdfConvertRequest data) {
             string? requestId = HttpContext.Items["RequestId"]?.ToString();
@@ -460,6 +534,6 @@ namespace PDF_API.Controllers {
                 _logger.LogCritical($"RequestId: {requestId}. {e.Message}");
                 return StatusCode(500, "Internal Server Error");
             }
-        }
+    }
     }
 }
