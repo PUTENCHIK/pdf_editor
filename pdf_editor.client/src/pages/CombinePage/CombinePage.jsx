@@ -43,9 +43,6 @@ const CombinePage = () => {
     }
 
     function downloadResultFile() {
-        // const blob = new Blob([resultFile], { type: 'application/pdf' });
-        // console.log(blob);
-
         const newFile = new File(
             [resultFile],
             `returned.pdf`,
@@ -53,9 +50,6 @@ const CombinePage = () => {
                 type: "application/pdf"
             }
         );
-        // console.log(newFile);
-        // console.log(resultFile.substring(0, 100));
-        // console.log(resultFile.length);
         const fileURL = URL.createObjectURL(newFile);
         const link = document.createElement('a');
         link.href = fileURL;
@@ -86,17 +80,21 @@ const CombinePage = () => {
                             <div className="files-container">
                                 <form name='combine-files' method="POST" onSubmit={handleCombineForm}>
                                     <div className="inputs-box">
-                                        <AddFile
-                                            inputName="file1"
-                                            uploaded={hasFileUploaded1}
-                                            ref={addFileButton1}
-                                        />
+                                        <div className="file-input-container">
+                                            <AddFile
+                                                inputName="file1"
+                                                uploaded={hasFileUploaded1}
+                                                ref={addFileButton1}
+                                            />
+                                        </div>
                                         <span className='big-plus'>+</span>
-                                        <AddFile
-                                            inputName="file2"
-                                            uploaded={hasFileUploaded2}
-                                            ref={addFileButton2}
-                                        />
+                                        <div className="file-input-container">
+                                            <AddFile
+                                                inputName="file2"
+                                                uploaded={hasFileUploaded2}
+                                                ref={addFileButton2}
+                                            />
+                                        </div>
                                     </div>
                                     {
                                         fileExists1 && fileExists2 &&

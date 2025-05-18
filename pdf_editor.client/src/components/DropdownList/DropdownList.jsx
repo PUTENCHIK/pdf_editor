@@ -23,9 +23,9 @@ function DropdownList(props) {
                 {props.tools.map((tools_list, index) => {
                     return (
                         <ul key={index}>
-                            {tools_list.map((tool) => {
+                            {tools_list.map((tool, key) => {
                                 return (
-                                    <li>
+                                    <li key={key}>
                                         <Link to={tool.link}>{tool.title}</Link>
                                     </li>
                                 );

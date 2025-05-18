@@ -108,3 +108,19 @@ export async function combineFiles(file1, file2) {
     );
     return response.data;
 }
+
+export async function splitFile(file, page) {
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await axios.post(
+        `https://localhost:7199/api/PDF/split-file?breakPageNumber=${page}`,
+        formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+                'Accept': 'application/zip'
+            },
+            'responseType': 'blob',
+        }
+    );
+    return response.data; 
+}

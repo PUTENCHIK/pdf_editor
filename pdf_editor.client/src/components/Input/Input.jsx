@@ -15,6 +15,7 @@ const Input = forwardRef((props, ref) => {
 
     return (
         <input
+            className={props.widthBehavior}
             type={props.type}
             name={props.name}
             placeholder={props.placeholder}

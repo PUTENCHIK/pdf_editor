@@ -1,4 +1,4 @@
-main.section.combine-page {
+main.section.split-page {
     box-sizing: border-box;
 
     display: flex;
@@ -9,7 +9,7 @@ main.section.combine-page {
     background-color: #DDEED9;
 }
 
-main.section.combine-page h1 {
+main.section.split-page h1 {
     text-align: center;
 }
 
@@ -32,11 +32,11 @@ p.description {
     align-items: center;
 }
 
-.center-block .files-container,
-.files-container > form {
+main.section.split-page .center-block .files-container,
+main.section.split-page .files-container > form {
     width: 100%;
     display: flex;
-    column-gap: 50px;
+    row-gap: 30px;
     justify-content: center;
     align-items: center;
 }
@@ -61,14 +61,6 @@ p.description {
 .inputs-box .file-input-container {
     width: 100%;
     display: flex;
-}
-
-.inputs-box .file-input-container:first-child {
-    justify-content: flex-end;
-}
-
-.inputs-box .file-input-container:last-child {
-    justify-content: flex-start;
 }
 
 .center-block > .result-container {

@@ -16,9 +16,10 @@ const InputWithLabel = forwardRef((props, ref) => {
     });
 
     return (
-        <label className='label'>
+        <label className={'label' + (props.labelType != null ? " " + props.labelType : "")}>
             <span className='label-title'>{props.title}</span>
             <Input
+                widthBehavior={props.labelType == "horizontal" ? "inline" : null}
                 ref={inputRef}
                 type={props.type}
                 name={props.name}

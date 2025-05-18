@@ -4,6 +4,13 @@ label.label {
     row-gap: 10px;
 }
 
+label.label.horizontal {
+    display: inline-flex;
+    flex-direction: row;
+    column-gap: 15px;
+    align-items: center;
+}
+
 span.label-title {
     font-size: 18px;
 }
