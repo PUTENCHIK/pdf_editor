@@ -122,5 +122,20 @@ export async function splitFile(file, page) {
             'responseType': 'blob',
         }
     );
-    return response.data; 
+    return response.data;
+}
+
+export async function compressFile(file, compressionRatio) {
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await axios.post(
+        `https://localhost:7199/api/PDF/compress-pdf-file?compressionRatio=${compressionRatio}`,
+        formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            },
+            'responseType': 'blob',
+        }
+    );
+    return response.data;
 }

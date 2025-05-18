@@ -1,58 +1,53 @@
-import './SplitPage.css'
-import Header from '../../components/Header/Header';
-import AddFile from '../../components/AddFile/AddFile';
-import MessageBlocksContainer from '../../components/MessageBlocksContainer/MessageBlocksContainer';
-import InputWithLabel from '../../components/InputWithLabel/InputWithLabel';
-import Button from '../../components/Button/Button';
+import { useRef, useState } from "react";
+import './CompressPage.css'
+import Header from "../../components/Header/Header";
+import AddFile from "../../components/AddFile/AddFile";
+import InputWithLabel from "../../components/InputWithLabel/InputWithLabel";
+import Button from "../../components/Button/Button";
+import MessageBlocksContainer from "../../components/MessageBlocksContainer/MessageBlocksContainer";
+import { compressFile } from "../../helpers/functionRequests";
 
-import { splitFile } from '../../helpers/functionRequests';
-import { useRef, useState } from 'react';
-
-const SplitPage = () => {
+const CompressPage = () => {
     const addFileButton = useRef(null);
     const messagesContainerRef = useRef(null);
     const [fileExists, setFileExists] = useState(false);
     const [resultFile, setResultFile] = useState(null);
 
     function hasFileUploaded(flag) {
-        setFileExists(flag);
+        setFileExists(flag)
     }
 
-    async function handleSplitForm(event) {
+    async function handleCompressForm(event) {
         event.preventDefault();
 
-        let file, page;
+        let file, ratio;
         try {
             file = event.target.file.files[0];
-            page = event.target.page_number.value;
+            ratio = event.target.ratio.value;
         } catch (error) {
-            messagesContainerRef.current.addError("Разделение", "Не получено одно из полей формы: " + error.message);
+            messagesContainerRef.current.addError("Сжатие", "Не получено одно из полей формы: " + error.message);
         }
 
-        if (page < 2) {
-            messagesContainerRef.current.addError("Разделение", "Нельзя указывать первую или более раннюю страницу");
+        if (ratio < 1 || ratio > 9) {
+            messagesContainerRef.current.addError("Сжатие", "Степень сжатия должна быть в пределах от 1 до 9");
         } else {
-            try {
-                let result = await splitFile(file, page);
-                if (result) {
-                    messagesContainerRef.current.addMessage("Успех", "Файлы разделены");
-                    setResultFile(result);
-                } else {
-                    messagesContainerRef.current.addError("Разделение", "Не удалось провести разделение файлов");
-                }
-            } catch (error) {
-                messagesContainerRef.current.addError("Разделение", "Указанная страница не существует в документе");
+            let result = await compressFile(file, ratio);
+            if (result) {
+                messagesContainerRef.current.addMessage("Успех", "Файл сжат");
+                setResultFile(result);
+            } else {
+                messagesContainerRef.current.addError("Сжатие", "Не удалось провести сжатие файла");
             }
         }
     }
 
     function downloadResultFile() {
-        const fileName = "splitted.zip";
+        const fileName = "compressed.pdf";
         const newFile = new File(
             [resultFile],
             fileName,
             {
-                type: "application/zip"
+                type: "application/pdf"
             }
         );
         const fileURL = URL.createObjectURL(newFile);
@@ -64,7 +59,7 @@ const SplitPage = () => {
         link.remove();
     }
 
-    function splitAgain() {
+    function compressAgain() {
         setResultFile(null);
         setFileExists(false);
     }
@@ -72,17 +67,17 @@ const SplitPage = () => {
     return (
         <>
             <Header />
-            <main className="section split-page">
+            <main className="section compress-page">
                 <div className="__content">
                     <div className="center-block">
                         <div className="texts">
-                            <h1>Разделить PDF файл</h1>
-                            <p className='description'>Быстро разделите ваш PDF файл на две части</p>
+                            <h1>Сжать PDF файл</h1>
+                            <p className='description'>Добавьте свой PDF документ и укажите степень сжатия, чтобы приложение можно уменьшить размер файла</p>
                         </div>
                         {
                             resultFile == null &&
                             <div className="files-container">
-                                <form name='split-file' method="POST" onSubmit={handleSplitForm}>
+                                <form name='compress-file' method="POST" onSubmit={handleCompressForm}>
                                     <div className="inputs-box">
                                         <AddFile
                                             uploaded={hasFileUploaded}
@@ -94,16 +89,16 @@ const SplitPage = () => {
                                         <>
                                             <InputWithLabel
                                                 labelType="horizontal"
-                                                title="Введите номер страницы, с которой начнётся второй файл:"
+                                                title="Введите желаемую степень сжатия:"
                                                 type="number"
-                                                name="page_number"
-                                                min="2"
+                                                name="ratio"
+                                                placeholder="[1-9]"
                                             />
                                             <div className='button-container'>
                                                 <Button
                                                     type="submit"
                                                     class="danger"
-                                                    text="Разделить"
+                                                    text="Сжать"
                                                 />
                                             </div>
                                         </>
@@ -115,7 +110,7 @@ const SplitPage = () => {
                             resultFile != null &&
                             <>
                                 <div className="result-container">
-                                    <p>Готово! Можете скачать архив с разделёнными файлами:</p>
+                                    <p>Готово! Можете скачать сжатый файл:</p>
                                     <Button
                                         type="button"
                                         class="danger"
@@ -125,8 +120,8 @@ const SplitPage = () => {
                                 </div>
                                 <Button
                                     type="button"
-                                    text="Разделить заново"
-                                    onClick={splitAgain}
+                                    text="Сжать заново"
+                                    onClick={compressAgain}
                                 />
                             </>
                         }
@@ -138,4 +133,4 @@ const SplitPage = () => {
     );
 };
 
-export default SplitPage;
+export default CompressPage;

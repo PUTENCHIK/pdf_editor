@@ -1,0 +1,71 @@
+main.section.compress-page {
+    box-sizing: border-box;
+
+    display: flex;
+    flex-direction: column;
+    height: calc(100% - 80px);
+    justify-content: space-between;
+
+    background-color: #DDEED9;
+}
+
+main.section.compress-page h1 {
+    text-align: center;
+}
+
+p.description {
+    width: 600px;
+    text-align: center;
+}
+
+.center-block {
+    display: inline-flex;
+    flex-direction: column;
+    row-gap: 90px;
+    align-items: center;
+}
+
+.center-block > .texts {
+    display: flex;
+    flex-direction: column;
+    row-gap: 8px;
+    align-items: center;
+}
+
+main.section.compress-page .center-block .files-container,
+main.section.compress-page .files-container > form {
+    width: 100%;
+    display: flex;
+    row-gap: 30px;
+    justify-content: center;
+    align-items: center;
+}
+
+.files-container > form {
+    display: flex;
+    flex-direction: column;
+    row-gap: 90px;
+}
+
+.center-block .files-container .big-plus {
+    font-size: 48px;
+}
+
+.files-container .inputs-box {
+    width: 100%;
+    display: flex;
+    column-gap: 50px;
+    justify-content: center;
+}
+
+.inputs-box .file-input-container {
+    width: 100%;
+    display: flex;
+}
+
+.center-block > .result-container {
+    display: flex;
+    flex-direction: column;
+    row-gap: 32px;
+    align-items: center;
+}
