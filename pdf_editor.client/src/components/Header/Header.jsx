@@ -16,27 +16,33 @@ function Header(props) {
 
     return (
         <header>
-            <div className='header-content'>
-                <nav>
-                    {
-                        props.linkRootExists || props.linkRootExists == null && 
-                        <Link to={"/"}>
-                            <div className="site-logo"></div>
-                        </Link>
-                    }
-                    <DropdownList
-                        title="Работа со страницами"
-                        tools={tools.with_pages}
-                        isShown={currentList == 1}
-                    />
-                    <DropdownList
-                        title="Работа с документами"
-                        tools={tools.with_documents}
-                        isShown={currentList == 2}
-                    />
-                </nav>
-                <HeaderLink href="about" text="О проекте" />
+            <Link to={"/"}>
+                <div className="logo-container">
+                    <div className='logo'></div>
+                </div>
+            </Link>
+            <div className="content">
+                <DropdownList
+                    title="Инструменты"
+                    tools={tools}
+                    isShown={currentList == 1}
+                />
             </div>
+            {/* <div className='header-content'>
+                {
+                    props.linkRootExists || props.linkRootExists == null && 
+                    <Link to={"/"}>
+                        <div className="logo-container">
+                            <div className='logo'></div>
+                        </div>
+                    </Link>
+                }
+                <DropdownList
+                    title="Инструменты"
+                    tools={tools}
+                    isShown={currentList == 1}
+                />
+            </div> */}
         </header>
     );
 }

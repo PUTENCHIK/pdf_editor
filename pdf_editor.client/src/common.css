@@ -59,8 +59,6 @@ main.section > .__content {
     display: flex;
     flex-direction: column;
     row-gap: 60px;
-    width: 1280px;
-    margin: auto;
 }
 
 .__content > h1 {

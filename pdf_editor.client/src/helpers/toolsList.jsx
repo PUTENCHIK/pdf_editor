@@ -1,28 +1,26 @@
-const tools = {
-    with_pages: [
-        [
-            {
-                title: 'Удаление страницы',
-                link: '/delete_page'
-            },
-            {
-                title: 'Изменить порядок страниц',
-                link: '/swap_pages'
-            },
-        ]
-    ],
-    with_documents: [
-        [
-            {
-                title: 'Объединить документы',
-                link: '/combine'
-            },
-            {
-                title: 'Разделить документ',
-                link: '/split'
-            },
-        ]
-    ],
-};
+const tools = [
+    [
+        {
+            title: 'Объединить PDF',
+            link: '/combine'
+        },
+        {
+            title: 'Разделить PDF',
+            link: '/split'
+        },
+        {
+            title: 'Сжать PDF',
+            link: '/compress'
+        },
+        {
+            title: 'Конвертировать PDF',
+            link: '/convert'
+        },
+        {
+            title: 'Редактировать PDF',
+            link: '/editor'
+        },
+    ]
+];
 
 export default tools;

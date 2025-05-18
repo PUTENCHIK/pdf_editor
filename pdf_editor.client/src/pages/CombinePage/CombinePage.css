@@ -1,0 +1,63 @@
+main.section.combine-page {
+    box-sizing: border-box;
+
+    display: flex;
+    flex-direction: column;
+    height: calc(100% - 80px);
+    justify-content: space-between;
+
+    background-color: #DDEED9;
+}
+
+main.section.combine-page h1 {
+    text-align: center;
+}
+
+p.description {
+    width: 600px;
+    text-align: center;
+}
+
+.center-block {
+    display: inline-flex;
+    flex-direction: column;
+    row-gap: 90px;
+    align-items: center;
+}
+
+.center-block > .texts {
+    display: flex;
+    flex-direction: column;
+    row-gap: 8px;
+    align-items: center;
+}
+
+.center-block .files-container,
+.files-container > form {
+    display: flex;
+    column-gap: 50px;
+    justify-content: center;
+    align-items: center;
+}
+
+.files-container > form {
+    display: flex;
+    flex-direction: column;
+    row-gap: 90px;
+}
+
+.center-block .files-container .big-plus {
+    font-size: 48px;
+}
+
+.files-container .inputs-box {
+    display: flex;
+    column-gap: 50px;
+}
+
+.center-block > .result-container {
+    display: flex;
+    flex-direction: column;
+    row-gap: 32px;
+    align-items: center;
+}

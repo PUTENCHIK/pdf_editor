@@ -54,6 +54,7 @@ const EditorPage = () => {
     // Обработка загрузки файла
     async function handleFileUpload() {
         const file = inputFileButton.current.getFile();
+        
         if (file) {
             try {
                 let fileId = await startEditingRequest(file);
@@ -163,7 +164,7 @@ const EditorPage = () => {
                 case "insert_image": {
                     let imageFile, pageNumber, width, height, x, y;
                     try {
-                        imageFile = event.target.image_file.files[0];                        
+                        imageFile = event.target.image_file.files[0];
                         pageNumber = event.target.page_number.value;
                         width = event.target.width.value;
                         height = event.target.height.value;
@@ -201,12 +202,12 @@ const EditorPage = () => {
 
     return (
         <>
-            <RightMenu
+            {/* <RightMenu
                 showTools={pageState == "display"}
                 onClick={rightMenuOnClick}
                 activeTool={activeTool}
                 ref={rightMenu}
-            />
+            /> */}
             <div className="page-content">
                 <Header linkRootExists={false} />
                 <main className={"section editor-page" + (pageState == "display" ? " full" : "")}>
@@ -238,10 +239,9 @@ const EditorPage = () => {
                                         ref={documentDisplay}
                                     />
                                 }
-                                <div className="bedding"></div>
                             </div>
                             <div className="interaction-segment">
-                                <Button
+                                {/*<Button
                                     type="submit"
                                     class="danger"
                                     text="Скачать файл"
@@ -285,7 +285,7 @@ const EditorPage = () => {
                                             />                                            
                                         }
                                     </div>
-                                </div>
+                                </div> */}
                             </div>
                         </>
                     }

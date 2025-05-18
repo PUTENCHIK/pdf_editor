@@ -9,26 +9,30 @@ header {
     background-color: #F4F4F4;
 }
 
-.header-content {
-    display: inline-flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    width: 1280px;
+header .logo-container {
+    width: 80px;
+    height: 100%;
 
-    margin: auto;
-}
-
-header nav {
     display: flex;
-    column-gap: 40px;
     align-items: center;
+    justify-content: center;
+
+    background-color: #FE5F55;
 }
 
-header .site-logo {
-    width: 40px;
-    height: 40px;
+header .logo-container .logo {
+    width: 48px;
+    height: 48px;
 
-    background-color: #F14925;
-    border-radius: 20px;
+    background-color: white;
+    border-radius: 50px;
+}
+
+header > .content {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0 25px;
+
+    display: flex;
+    align-items: center;
 }

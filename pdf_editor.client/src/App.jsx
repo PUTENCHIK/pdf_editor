@@ -4,7 +4,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import RootPage from './pages/RootPage/RootPage';
 import EditorPage from './pages/EditorPage/EditorPage';
 import ConvertPage from './pages/ConvertPage/ConvertPage';
-import DeletePagePage from './pages/DeletePagePage/DeletePagePage';
+import CombinePage from './pages/CombinePage/CombinePage';
 
 function App() {
     return (
@@ -12,12 +12,8 @@ function App() {
             <Routes>
                 <Route path="/" element={<RootPage/>}></Route>
                 <Route path="/editor" element={<EditorPage/>}/>
+                <Route path="/combine" element={<CombinePage/>}/>
                 <Route path="/convert" element={<ConvertPage/>}/>
-                <Route path='/delete_page' element={<DeletePagePage/>}/>
-
-                {/* <Switch>
-                    <Route path='/delete_page/:tool' element={<h2>tool</h2>}/>
-                </Switch> */}
 
                 <Route path='*' element={<h2>Ресурс не найден</h2>}></Route>
             </Routes>

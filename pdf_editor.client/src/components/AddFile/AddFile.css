@@ -4,14 +4,14 @@
     align-items: center;
 
     height: 60px;
-    /* padding: 0 40px; */
 
-    border-radius: 10px;
-    background-color: #D3D3D3;
+    border-radius: 50px;
+    background-color: #FE5F55;
+    color: white;
 }
 
 .add-file-block:hover {
-    background-color: #E1E1E1;
+    background-color: #ff7b71;
 }
 
 .add-file-block.clickable:hover {
@@ -25,6 +25,7 @@
 .add-file-block > .__content {
     display: flex;
     justify-content: space-between;
+    column-gap: 20px;
     
     width: 100%;
     max-width: 100%;
@@ -32,10 +33,11 @@
 }
 
 .__content > .span-container {
+    width: 400px;
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 400px;
+    column-gap: 20px;
 }
 
 .file-info-box {
@@ -56,7 +58,7 @@ img.icon {
 }
 
 span.file-name {
-    width: 60px;
+    max-width: 200px;
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;

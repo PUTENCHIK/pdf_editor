@@ -3,7 +3,8 @@ import './AddFile.css'
 import { useRef, useState, forwardRef, useImperativeHandle } from 'react';
 import { Link } from 'react-router-dom';
 
-import file_image from '../../images/common/file.png'
+import file_icon1 from '../../images/common/mdi_files.png'
+import file_icon2 from '../../images/common/file.png'
 import CrossButton from '../CrossButton/CrossButton';
 
 const AddFile = forwardRef((props, ref) =>{
@@ -27,6 +28,9 @@ const AddFile = forwardRef((props, ref) =>{
     function inputFileOnChange() {        
         if (inputFile.current.value) {
             changeState(2);
+            if (props.uploaded) {
+                props.uploaded(true);
+            }
         } else {
             changeState(1);
         }
@@ -45,6 +49,9 @@ const AddFile = forwardRef((props, ref) =>{
     function resetFile() {
         changeState(1);
         inputFile.current.value = "";
+        if (props.uploaded) {
+            props.uploaded(false);
+        }
     }
 
     return (
@@ -55,13 +62,13 @@ const AddFile = forwardRef((props, ref) =>{
                 ref={inputFile}
                 className='hidden'
                 name={props.inputName ? props.inputName : "file"}
-                // onChange={inputFileOnChange}
                 onChange={props.onChange ? props.onChange : inputFileOnChange}
             />
 
             <div className="__content">
                 {state == 1 &&
                     <div className="span-container">
+                        <img className='icon' src={file_icon1} alt="icon" />
                         <span className='choose-file-span'>Выберите файл</span>
                     </div>
                 }
@@ -69,12 +76,12 @@ const AddFile = forwardRef((props, ref) =>{
                     <>
                         <div className="file-info-box">
                             <div className="icon-name">
-                                <img className="icon" src={file_image} alt="file" />
-                                <span className="file-name">{inputFile.current.files[0].name}</span>
+                                <img className="icon" src={file_icon2} alt="file" />
+                                <span className="file-name" title={inputFile.current.files[0].name}>{inputFile.current.files[0].name}</span>
                             </div>
                             <span className="file-size">{getSize(inputFile.current.files[0].size)}</span>
                         </div>
-                        <CrossButton size="normal" color="black" onClick={resetFile} />
+                        <CrossButton size="normal" color="white" onClick={resetFile} />
                     </>
                 }
             </div>

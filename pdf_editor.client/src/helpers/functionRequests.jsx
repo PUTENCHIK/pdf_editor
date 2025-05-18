@@ -92,3 +92,19 @@ export async function insertImageRequest(imageFile, pageNumber, width, height, x
     );
     return response.data;
 }
+
+export async function combineFiles(file1, file2) {
+    const formData = new FormData();
+    formData.append('file', file1);
+    formData.append('file2', file2);
+    const response = await axios.post(
+        "https://localhost:7199/api/PDF/combine-pdf-files",
+        formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            },
+            'responseType': 'blob',
+        }
+    );
+    return response.data;
+}
