@@ -28,8 +28,8 @@ const DocumentDisplay = forwardRef((props, ref) => {
         if (document) {
             createPages();
             // =================================================================
-            setZoom(zoom * 1.1);
-            setZoom(zoom / 1.1);
+            setZoom(zoom + 0.1);
+            setZoom(zoom - 0.1);
             // =================================================================
         }
     }, [document]);
@@ -70,10 +70,13 @@ const DocumentDisplay = forwardRef((props, ref) => {
     useImperativeHandle(ref, () => {
         return {
             zoomIn() {
-                setZoom(zoom * 1.2 < 2 ? zoom * 1.2 : zoom);
+                setZoom(zoom + 0.1 < 5 ? zoom + 0.1 : zoom);
             },
             zoomOut() {
-                setZoom(zoom / 1.2 > 0.2 ? zoom / 1.2 : zoom);
+                setZoom(zoom - 0.1 > 0.25 ? zoom - 0.1 : zoom);
+            },
+            updateZoom(newZoom) {
+                setZoom(newZoom);
             },
             updateDocument(newDocument) {           
                 setDocument(newDocument);

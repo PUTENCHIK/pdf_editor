@@ -1,20 +1,32 @@
 import './DropdownList.css'
-import { useState } from 'react';
+import {Link} from 'react-router-dom';
+import { useRef, useEffect, useState } from 'react';
 
 import ArrowDown from '../ArrowDown/ArrowDown';
 
-import {Link} from 'react-router-dom';
-
-function DropdownList(props) {
-
+const DropdownList = (props, ref) => {
+    const dropdownList = useRef(null);
     let [isShown, setShown] = useState(props.isShown);
+
+    function handleClickOutside(event) {
+        if (dropdownList.current && !dropdownList.current.contains(event.target)) {
+            setShown(false);
+        }
+    }
+    
+    useEffect(() => {
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside)
+        }
+    }, []);
     
     function toggleLinksList() {
         setShown(!isShown);
     }
 
     return (
-        <div className='dropdown-list'>
+        <div ref={dropdownList} className='dropdown-list'>
             <div className='title-container' onClick={toggleLinksList}>
                 <span>{props.title}</span>
                 <ArrowDown direction={isShown ? 'up' : 'down'} />
@@ -36,6 +48,6 @@ function DropdownList(props) {
             </div>
         </div>
     );
-}
+};
 
 export default DropdownList;

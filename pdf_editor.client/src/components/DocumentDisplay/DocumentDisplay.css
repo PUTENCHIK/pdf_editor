@@ -1,6 +1,5 @@
 .document-display {
     box-sizing: border-box;
-    padding: 40px;
     
     display: flex;
     flex-direction: column;
