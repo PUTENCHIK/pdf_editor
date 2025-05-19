@@ -49,6 +49,12 @@
         public int degrees { get; set; }
     }
 
+    public class RotatePageRequest {
+        public string fileId { get; set; }
+        public int pageNumber { get; set; }
+        public int degrees { get; set; }
+    }
+
     public class AddTextRequest {
         public string fileId { get; set; }
         public string text { get; set; }
@@ -58,7 +64,23 @@
         public float fontSize { get; set; }
         public string font { get; set; }
         public bool isBold { get; set; }
-        public string fontColor { get; set; }
+        public bool isItalic { get; set; }
+        public bool isUnderline { get; set; }
+        public string htmlColorCode { get; set; }
+    }
+
+    public class EditTextRequest {
+        public string fileId { get; set; }
+        public string text { get; set; }
+        public int pageNumber { get; set; }
+        public int x { get; set; }
+        public int y { get; set; }
+        public float fontSize { get; set; }
+        public string font { get; set; }
+        public bool isBold { get; set; }
+        public bool isItalic { get; set; }
+        public bool isUnderline { get; set; }
+        public string htmlColorCode { get; set; }
     }
 
     public class CropPageRequest {
@@ -81,5 +103,9 @@
 
     public class WordTopPdfConvertRequest {
         public IFormFile file { get; set; }
+    }
+
+    public class GetFontsRequest {
+        public string fileId { get; set; }
     }
 }

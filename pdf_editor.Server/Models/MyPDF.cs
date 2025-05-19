@@ -1,42 +1,19 @@
-﻿using iText.IO.Font.Constants;
-using iText.IO.Image;
+﻿using iText.IO.Image;
 using iText.Kernel.Colors;
 using iText.Kernel.Font;
 using iText.Kernel.Pdf;
 using iText.Layout;
 using iText.Layout.Element;
 using iText.Layout.Properties;
-using System.Drawing;
-using iText.Kernel.Geom;
-using static System.Net.Mime.MediaTypeNames;
-using Swashbuckle.AspNetCore.SwaggerGen;
 using PDF_API.Data;
-using System.IO;
 using iText.Kernel.Pdf.Canvas;
 using Rectangle = iText.Kernel.Geom.Rectangle;
-using iText.Kernel.Colors;
 
 namespace PDF_API.Models {
     public class MyPDF {
         public static List<string> validExtensions = new List<string>() { ".pdf" };
         public int countUploadedDocuments;
         public static string uploadFolder = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "Uploads", "pdf");
-        public static Dictionary<string, iText.Kernel.Colors.Color> colors = new Dictionary<string, iText.Kernel.Colors.Color>()
-        {
-            {"Black", ColorConstants.BLACK},
-            {"Blue", ColorConstants.BLUE},
-            {"Cyan", ColorConstants.CYAN},
-            {"Dark gray", ColorConstants.DARK_GRAY},
-            {"Gray", ColorConstants.GRAY},
-            {"Green", ColorConstants.GREEN},
-            {"Light gray", ColorConstants.LIGHT_GRAY},
-            {"Magenta", ColorConstants.MAGENTA},
-            {"Orange", ColorConstants.ORANGE},
-            {"Pink", ColorConstants.PINK},
-            {"Red", ColorConstants.RED},
-            {"White", ColorConstants.WHITE},
-            {"Yellow", ColorConstants.YELLOW},
-        };
         public static Dictionary<string, string> fonts = new Dictionary<string, string>()
         {
             {"Roboto", System.IO.Path.Combine(Directory.GetCurrentDirectory(), "Fonts", "Roboto-Regular.ttf")},
@@ -271,7 +248,90 @@ namespace PDF_API.Models {
             return outputFilePath;
         }
 
-        public static string AddText(string inputFilePath, string text, int pageNumber, int x, int y, float FontSize, string font, bool isBold, string fontColor) {
+        public static string RotatePage(string inputFilePath, int degrees, int pageNumber) {
+            string outputFilePath = GenerateNewPath(inputFilePath);
+
+            using (var pdfDocument = new PdfDocument(new PdfReader(inputFilePath), new PdfWriter(outputFilePath))) {
+                var page = pdfDocument.GetPage(pageNumber);
+                page.SetRotation(degrees);
+            }
+
+            return outputFilePath;
+        }
+
+        public static List<string> GetAllFonts() {
+            List<string> result = new List<string>();
+            foreach (var (key, value) in fonts) {
+                result.Add(key);
+            }
+            return result;
+        }
+
+        public static string AddText(string inputFilePath, string text, int pageNumber, int x, int y, float FontSize, string font, bool isBold, bool isItalic, bool isUnderline, string htmlColorCode) {
+            string outputFilePath = GenerateNewPath(inputFilePath);
+
+
+            using (var pdfDocument = new PdfDocument(new PdfReader(inputFilePath), new PdfWriter(outputFilePath))) {
+                if (pageNumber < 1 || pageNumber > pdfDocument.GetNumberOfPages()) {
+                    throw new PDFException("The page specified is outside the scope of the document.");
+                }
+
+                var pagePageSize = pdfDocument.GetPage(pageNumber).GetPageSize();
+
+                if (y < 0 || y > pagePageSize.GetHeight() || x < 0 || x > pagePageSize.GetWidth()) {
+                    throw new PDFException("The coordinates specified are outside the page.");
+                }
+
+                PdfFont code;
+                if (fonts.ContainsKey(font)) {
+                    code = PdfFontFactory.CreateFont(fonts[font]);
+                }
+                else {
+                    code = PdfFontFactory.CreateFont(fonts["Roboto"]);
+                }
+
+                iText.Kernel.Colors.Color itextColor;
+                try {
+                    if (htmlColorCode.StartsWith("#")) {
+                        htmlColorCode = htmlColorCode.Substring(1);
+                    }
+
+                    System.Drawing.Color systemColor = System.Drawing.ColorTranslator.FromHtml("#" + htmlColorCode);
+                    itextColor = new DeviceRgb(systemColor.R / 255f, systemColor.G / 255f, systemColor.B / 255f);
+                }
+                catch (Exception ex) {
+                    itextColor = ColorConstants.BLACK;
+                }
+
+                Style style = new Style()
+                    .SetFont(code)
+                    .SetFontSize(FontSize)
+                    .SetFontColor(itextColor);
+
+                if (isBold) {
+                    style.SetBold();
+                }
+
+                if (isItalic) {
+                    style.SetItalic();
+                }
+
+                if (isUnderline) {
+                    style.SetUnderline();
+                }
+
+                Paragraph paragraph = new Paragraph()
+                    .Add(new iText.Layout.Element.Text(text).AddStyle(style));
+
+                using (Document document = new Document(pdfDocument)) {
+                    document.ShowTextAligned(paragraph, x, pagePageSize.GetHeight() - y, pageNumber, TextAlignment.LEFT, VerticalAlignment.TOP, 0);
+                }
+            }
+
+            return outputFilePath;
+        }
+
+        public static string EditText(string inputFilePath, string text, int pageNumber, int x, int y, float FontSize, string font, bool isBold, bool isItalic, bool isUnderline, string htmlColorCode) {
             string outputFilePath = GenerateNewPath(inputFilePath);
 
             using (var pdfDocument = new PdfDocument(new PdfReader(inputFilePath), new PdfWriter(outputFilePath))) {
@@ -285,38 +345,71 @@ namespace PDF_API.Models {
                     throw new PDFException("The coordinates specified are outside the page.");
                 }
 
-
                 PdfFont code;
                 if (fonts.ContainsKey(font)) {
                     code = PdfFontFactory.CreateFont(fonts[font]);
                 }
                 else {
                     code = PdfFontFactory.CreateFont(fonts["Roboto"]);
-                    //throw new PDFException("The specified font was not found.");
                 }
 
-                iText.Kernel.Colors.Color color;
-                if (colors.ContainsKey(fontColor)) {
-                    color = colors[fontColor];
+                iText.Kernel.Colors.Color itextColor;
+                try {
+                    if (htmlColorCode.StartsWith("#")) {
+                        htmlColorCode = htmlColorCode.Substring(1);
+                    }
+
+                    System.Drawing.Color systemColor = System.Drawing.ColorTranslator.FromHtml("#" + htmlColorCode);
+                    itextColor = new DeviceRgb(systemColor.R / 255f, systemColor.G / 255f, systemColor.B / 255f);
                 }
-                else {
-                    throw new PDFException("The specified font color was not found.");
+                catch (Exception ex) {
+                    itextColor = ColorConstants.BLACK;
                 }
 
                 Style style = new Style()
                     .SetFont(code)
                     .SetFontSize(FontSize)
-                    .SetFontColor(color);
+                    .SetFontColor(itextColor);
 
                 if (isBold) {
                     style.SetBold();
+                }
+
+                if (isItalic) {
+                    style.SetItalic();
+                }
+
+                if (isUnderline) {
+                    style.SetUnderline();
                 }
 
                 Paragraph paragraph = new Paragraph()
                     .Add(new iText.Layout.Element.Text(text).AddStyle(style));
 
                 using (Document document = new Document(pdfDocument)) {
-                    document.ShowTextAligned(paragraph, x, pagePageSize.GetHeight() - y, pageNumber, TextAlignment.LEFT, VerticalAlignment.TOP, 0);
+                    PdfPage page = pdfDocument.GetPage(pageNumber);
+                    PdfCanvas canvas = new PdfCanvas(page);
+
+                    string[] lines = text.Split('\n');
+                    float currentY = y;
+
+                    foreach (string line in lines) {
+                        Paragraph paragraph1 = new Paragraph()
+                                                    .Add(new iText.Layout.Element.Text(line).AddStyle(style));
+
+                        float textWidth = code.GetWidth(line, FontSize);
+
+                        canvas.SaveState()
+                                .SetFillColor(ColorConstants.WHITE)
+                                .SetStrokeColor(ColorConstants.WHITE)
+                                .Rectangle(x, pagePageSize.GetHeight() - currentY - FontSize, textWidth, FontSize * 1.1f)
+                                .FillStroke()
+                                .RestoreState();
+
+                        document.ShowTextAligned(paragraph1, x, pagePageSize.GetHeight() - currentY, pageNumber, TextAlignment.LEFT, VerticalAlignment.TOP, 0);
+
+                        currentY += FontSize * 1.3f;
+                    }
                 }
             }
 
