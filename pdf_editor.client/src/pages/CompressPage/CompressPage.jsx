@@ -5,7 +5,7 @@ import AddFile from "../../components/AddFile/AddFile";
 import InputWithLabel from "../../components/InputWithLabel/InputWithLabel";
 import Button from "../../components/Button/Button";
 import MessageBlocksContainer from "../../components/MessageBlocksContainer/MessageBlocksContainer";
-import { compressFile } from "../../helpers/functionRequests";
+import { compressFileRequest } from "../../helpers/functionRequests";
 
 const CompressPage = () => {
     const addFileButton = useRef(null);
@@ -31,7 +31,7 @@ const CompressPage = () => {
         if (ratio < 1 || ratio > 9) {
             messagesContainerRef.current.addError("Сжатие", "Степень сжатия должна быть в пределах от 1 до 9");
         } else {
-            let result = await compressFile(file, ratio);
+            let result = await compressFileRequest(file, ratio);
             if (result) {
                 messagesContainerRef.current.addMessage("Успех", "Файл сжат");
                 setResultFile(result);

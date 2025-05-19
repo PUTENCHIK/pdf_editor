@@ -3,14 +3,14 @@ import React, { useState, useRef, useEffect } from 'react'
 import { getDocument, GlobalWorkerOptions } from 'pdfjs-dist/build/pdf'
 import * as pdfjs from 'pdfjs-dist/build/pdf';
 import { startEditingRequest, deletePageRequest, rotatePagesRequest,
-    swapPagesRequest, cropPageRequest, insertImageRequest
+    swapPagesRequest, cropPageRequest, insertImageRequest,
+    rotatePageRequest
 } from '../../helpers/functionRequests'
 
 import Header from '../../components/Header/Header'
 import RightMenu from './components/RightMenu/RightMenu'
 import AddFile from '../../components/AddFile/AddFile'
 import DocumentDisplay from '../../components/DocumentDisplay/DocumentDisplay'
-import ZoomButton from './components/ZoomButton/ZoomButton';
 import Button from '../../components/Button/Button';
 import MinimapDisplay from './components/MinimapDisplay/MinimapDisplay';
 
@@ -23,6 +23,7 @@ import InsertImageFormContent from './components/InsertImageFormContent/InsertIm
 import MessageBlocksContainer from '../../components/MessageBlocksContainer/MessageBlocksContainer';
 import ssm from '../../utils/SessionStorageManager';
 import ZoomPanel from './components/ZoomPanel/ZoomPanel';
+import RotateDocumentPanel from './components/RotateDocumentPanel/RotateDocumentPanel';
 
 GlobalWorkerOptions.workerSrc = './node_modules/pdfjs-dist/build/pdf.worker.mjs';
 const EditorPage = () => {
@@ -35,16 +36,17 @@ const EditorPage = () => {
     
     const inputFileButton = useRef(null);
     const documentDisplay = useRef(null);
+    const minimapDisplay = useRef(null);
     const [fileObject, setFileObject] = useState(null);
     const [pdf, setPdf] = useState(null);
-    const minimapDisplay = useRef(null);
 
     const messagesContainerRef = useRef(null);
 
     useEffect(() => {
-        console.log("PDF updated");
         if (documentDisplay.current && pdf) {
+            console.log("=============== PDF UPDATED ===============");
             documentDisplay.current.updateDocument(pdf);
+            minimapDisplay.current.updateDocument(pdf);
         }
     }, [pdf]);
 
@@ -52,7 +54,6 @@ const EditorPage = () => {
         return await getDocument(URL.createObjectURL(file)).promise;
     }
     
-    // Обработка загрузки файла
     async function handleFileUpload() {
         const file = inputFileButton.current.getFile();
         
@@ -68,18 +69,46 @@ const EditorPage = () => {
                 messagesContainerRef.current.addError("Загрузка файла", "Не удалось загрузить файл на сервер");
             }
         }
-    };
-
-    function zoomIn() {
-        documentDisplay.current.zoomIn();
     }
 
-    function zoomOut() {
-        documentDisplay.current.zoomOut();
+    async function setDocumentFromBlob(blob) {
+        const newFile = new File(
+            [blob], `updated.pdf`,
+            { type: "application/pdf" }
+        );
+        setFileObject(newFile);
+        setPdf(await createPdfObject(newFile));
     }
 
     function updateZoom(newZoom) {
         documentDisplay.current.updateZoom(newZoom);
+    }
+
+    async function rotateDocument(newAngle) {
+        let result = await rotatePagesRequest(newAngle);
+        if (result) {
+            await setDocumentFromBlob(result);
+        } else {
+            messagesContainerRef.current.addError("Поворот документа", "Не удалось сделать поворот");
+        }
+    }
+
+    async function deletePage(pageNumber) {
+        let result = await deletePageRequest(pageNumber);
+        if (result) {
+            await setDocumentFromBlob(result);
+        } else {
+            messagesContainerRef.current.addError("Удаление страницы", `Не удалось удалить страницу ${pageNumber}`);
+        }
+    }
+
+    async function rotatePage(pageNumber, newAngle) {
+        let result = await rotatePageRequest(pageNumber, newAngle);
+        if (result) {
+            await setDocumentFromBlob(result);
+        } else {
+            messagesContainerRef.current.addError("Поворот страницы", `Не удалось сделать поворот страницы ${pageNumber}`);
+        }
     }
 
     function rightMenuOnClick() {
@@ -216,7 +245,6 @@ const EditorPage = () => {
             <div className="page-content">
                 <Header linkRootExists={false} />
                 <main className={"section editor-page" + (pageState == "display" ? " full" : "")}>
-
                     {pageState == "start" &&
                         <div className='start-state'>
                             <div className="__content">
@@ -233,21 +261,26 @@ const EditorPage = () => {
                         <>
                             <div className="minimap-segment">
                                 <MinimapDisplay
-                                    document={pdf}
                                     ref={minimapDisplay}
+                                    document={pdf}
+                                    onDeletePage={deletePage}
+                                    onRotatePage={rotatePage}
                                 />
                             </div>
                             <div className="document-segment">
                                 {pdf &&
                                     <>
                                         <div className="instruments-container">
+                                            <RotateDocumentPanel
+                                                rotateDocument={rotateDocument}
+                                            />
                                             <ZoomPanel
                                                 updateZoom={updateZoom}
                                             />
                                         </div>
                                         <DocumentDisplay
-                                            document={pdf}
                                             ref={documentDisplay}
+                                            document={pdf}
                                         />
                                     </>
                                 }

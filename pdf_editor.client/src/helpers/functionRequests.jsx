@@ -93,7 +93,7 @@ export async function insertImageRequest(imageFile, pageNumber, width, height, x
     return response.data;
 }
 
-export async function combineFiles(file1, file2) {
+export async function combineFilesRequest(file1, file2) {
     const formData = new FormData();
     formData.append('file', file1);
     formData.append('file2', file2);
@@ -109,7 +109,7 @@ export async function combineFiles(file1, file2) {
     return response.data;
 }
 
-export async function splitFile(file, page) {
+export async function splitFileRequest(file, page) {
     const formData = new FormData();
     formData.append('file', file);
     const response = await axios.post(
@@ -125,7 +125,7 @@ export async function splitFile(file, page) {
     return response.data;
 }
 
-export async function compressFile(file, compressionRatio) {
+export async function compressFileRequest(file, compressionRatio) {
     const formData = new FormData();
     formData.append('file', file);
     const response = await axios.post(
@@ -135,6 +135,19 @@ export async function compressFile(file, compressionRatio) {
                 'Content-Type': 'multipart/form-data'
             },
             'responseType': 'blob',
+        }
+    );
+    return response.data;
+}
+
+export async function rotatePageRequest(pageNumber, degrees) {
+    const response = await axios.post(
+        "https://localhost:7199/api/PDF/rotate-page", {
+            fileId: ssm.getFileId(),
+            pageNumber: pageNumber,
+            degrees: degrees,
+        }, {
+            'responseType': 'blob'
         }
     );
     return response.data;

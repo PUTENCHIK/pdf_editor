@@ -1,9 +1,8 @@
 import './ToolButton.css'
-import { Link } from 'react-router-dom';
 
 function ToolButton(props) {
     return (
-        <div className={"tool-button" + (props.isActive ? " active" : "")} title={props.title}>
+        <div className="tool-button" title={props.title} onClick={props.onClick}>
             <img className='icon' src={props.icon} alt={props.name} />
         </div>
     );

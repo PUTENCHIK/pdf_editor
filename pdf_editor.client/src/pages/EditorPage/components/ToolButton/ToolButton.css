@@ -3,21 +3,17 @@
     align-items: center;
     justify-content: center;
 
-    width: 40px;
-    height: 40px;
+    width: 30px;
+    height: 30px;
 
     border-radius: 5px;
-}
-
-.tool-button:not(.active):hover {
-    background-color: #d6d3be;
     cursor: pointer;
 }
 
-.tool-button.active {
-    background-color: #D6D1B1;
+.tool-button:hover {
+    background-color: #d9d9d985;
 }
 
 .tool-button img.icon {
-    color: white;
+    width: 24px;
 }

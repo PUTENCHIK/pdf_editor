@@ -3,7 +3,7 @@ import Header from "../../components/Header/Header";
 import AddFile from '../../components/AddFile/AddFile';
 import Button from '../../components/Button/Button';
 import MessageBlocksContainer from '../../components/MessageBlocksContainer/MessageBlocksContainer';
-import { combineFiles } from '../../helpers/functionRequests';
+import { combineFilesRequest } from '../../helpers/functionRequests';
 import { useRef, useState } from 'react';
 
 const CombinePage = () => {
@@ -33,7 +33,7 @@ const CombinePage = () => {
             messagesContainerRef.current.addError("Объединение", "Не получено одно из полей формы: " + error.message);
         }
         
-        let result = await combineFiles(file1, file2);
+        let result = await combineFilesRequest(file1, file2);
         if (result) {
             messagesContainerRef.current.addMessage("Успех", "Файлы объединены");
             setResultFile(result);

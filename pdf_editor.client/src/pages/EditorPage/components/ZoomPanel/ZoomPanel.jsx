@@ -1,7 +1,10 @@
 import { useRef, useState, useEffect } from 'react';
-import ZoomButton from '../ZoomButton/ZoomButton';
 import './ZoomPanel.css'
+import zoom_increase from '../../../../images/common/zoom_increase.svg'
+import zoom_decrease from '../../../../images/common/zoom_decrease.svg'
+
 import roundNumber from '../../../../helpers/functions';
+import InstrumentButton from '../InstrumentButton/InstrumentButton';
 
 const ZoomPanel = (props) => {
     const startZoom = 1, minZoom = 0.2, maxZoom = 5;
@@ -52,9 +55,11 @@ const ZoomPanel = (props) => {
     return (
         <>
             <div className='zoom-panel'>
-                <ZoomButton
+                <InstrumentButton
+                    image={zoom_increase}
+                    alt="+"
+                    tooltip="Приблизить на 10%"
                     onClick={handleZoomIn}
-                    type="increase"
                 />
                 <div className='zoom-display'>
                     <input
@@ -66,9 +71,11 @@ const ZoomPanel = (props) => {
                     />
                     %
                 </div>
-                <ZoomButton
+                <InstrumentButton
+                    image={zoom_decrease}
+                    alt="-"
+                    tooltip="Отдалить на 10%"
                     onClick={handleZoomOut}
-                    type="decrease"
                 />
             </div>
         </>

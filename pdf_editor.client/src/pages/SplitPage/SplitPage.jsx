@@ -5,7 +5,7 @@ import MessageBlocksContainer from '../../components/MessageBlocksContainer/Mess
 import InputWithLabel from '../../components/InputWithLabel/InputWithLabel';
 import Button from '../../components/Button/Button';
 
-import { splitFile } from '../../helpers/functionRequests';
+import { splitFileRequest } from '../../helpers/functionRequests';
 import { useRef, useState } from 'react';
 
 const SplitPage = () => {
@@ -33,7 +33,7 @@ const SplitPage = () => {
             messagesContainerRef.current.addError("Разделение", "Нельзя указывать первую или более раннюю страницу");
         } else {
             try {
-                let result = await splitFile(file, page);
+                let result = await splitFileRequest(file, page);
                 if (result) {
                     messagesContainerRef.current.addMessage("Успех", "Файлы разделены");
                     setResultFile(result);

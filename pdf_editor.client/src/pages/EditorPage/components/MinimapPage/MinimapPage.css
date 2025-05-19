@@ -1,0 +1,11 @@
+.minimap-page-container {
+    display: flex;
+    flex-direction: column;
+    row-gap: 8px;
+}
+
+.minimap-page-container > .low-panel {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}

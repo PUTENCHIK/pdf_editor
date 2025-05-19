@@ -1,4 +1,4 @@
-.zoom-button {
+.instrument-button {
     width: 50px;
     height: 50px;
 
@@ -11,11 +11,11 @@
     /* background-color: white; */
 }
 
-.zoom-button:hover {
+.instrument-button:hover {
     background-color: #ffffff5b;
     cursor: pointer;
 }
 
-.zoom-button > img {
+.instrument-button > img {
     width: 24px;
 }

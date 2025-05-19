@@ -1,0 +1,4 @@
+.rotate-document-panel {
+    display: flex;
+    column-gap: 5px;
+}
