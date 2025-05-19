@@ -1,0 +1,23 @@
+.zoom-panel {
+    display: inline-flex;
+    column-gap: 10px;
+}
+
+.zoom-display {
+    display: flex;
+    column-gap: 5px;
+    align-items: center;
+}
+
+input.span {
+    width: 50px;
+    height: auto;
+    box-sizing: 0;
+
+    text-align: center;
+    padding: 0;
+    border: 0;
+    outline: 0;
+    border-radius: 0;
+    background-color: #ffffff5b;
+}

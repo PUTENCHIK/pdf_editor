@@ -22,6 +22,7 @@ import InsertImageFormContent from './components/InsertImageFormContent/InsertIm
 
 import MessageBlocksContainer from '../../components/MessageBlocksContainer/MessageBlocksContainer';
 import ssm from '../../utils/SessionStorageManager';
+import ZoomPanel from './components/ZoomPanel/ZoomPanel';
 
 GlobalWorkerOptions.workerSrc = './node_modules/pdfjs-dist/build/pdf.worker.mjs';
 const EditorPage = () => {
@@ -75,6 +76,10 @@ const EditorPage = () => {
 
     function zoomOut() {
         documentDisplay.current.zoomOut();
+    }
+
+    function updateZoom(newZoom) {
+        documentDisplay.current.updateZoom(newZoom);
     }
 
     function rightMenuOnClick() {
@@ -234,10 +239,17 @@ const EditorPage = () => {
                             </div>
                             <div className="document-segment">
                                 {pdf &&
-                                    <DocumentDisplay
-                                        document={pdf}
-                                        ref={documentDisplay}
-                                    />
+                                    <>
+                                        <div className="instruments-container">
+                                            <ZoomPanel
+                                                updateZoom={updateZoom}
+                                            />
+                                        </div>
+                                        <DocumentDisplay
+                                            document={pdf}
+                                            ref={documentDisplay}
+                                        />
+                                    </>
                                 }
                             </div>
                             <div className="interaction-segment">
@@ -289,7 +301,6 @@ const EditorPage = () => {
                             </div>
                         </>
                     }
-
                 </main>
                 <MessageBlocksContainer ref={messagesContainerRef} />
             </div>
