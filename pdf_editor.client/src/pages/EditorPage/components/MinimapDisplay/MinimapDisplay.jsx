@@ -4,28 +4,21 @@ import MinimapPage from "../MinimapPage/MinimapPage";
 
 const MinimapDisplay = forwardRef((props, ref) => {
     const [numPages, setNumPages] = useState(null);
-    const [children, setChildren] = useState([]);
+    const [pageObjects, setPageObjects] = useState([]);
 
     async function loadPdf() {
-        setChildren([]);
+        // setChildren([]);
         try {
             const pdf = props.document;
             setNumPages(pdf.numPages);
             let pages = [];
             for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-                const page = await pdf.getPage(pageNum);
-                let documentPage = <MinimapPage
-                    key={pageNum}
-                    page={page}
-                    pageNumber={pageNum}
-                    pageWidth={props.pageWidth}
-                    onDeletePage={props.onDeletePage}
-                    onRotatePage={props.onRotatePage}
-                />;
-
-                pages.push(documentPage);
+                pages.push({
+                    page: await pdf.getPage(pageNum),
+                    pageNum: pageNum
+                });
             }
-            setChildren(pages);
+            setPageObjects(pages);
         } catch (err) {
             console.error("Ошибка при загрузке PDF:", err);
         }
@@ -43,7 +36,17 @@ const MinimapDisplay = forwardRef((props, ref) => {
         <div className="minimap-display">
             {numPages &&
                 <>
-                    {children}
+                    {pageObjects.map((pageObject) => (
+                        <MinimapPage
+                            key={pageObject.pageNum}
+                            page={pageObject.page}
+                            pageNumber={pageObject.pageNum}
+                            pageWidth={props.pageWidth}
+                            isCurrent={props.currentPage == pageObject.pageNum}
+                            onDeletePage={props.onDeletePage}
+                            onRotatePage={props.onRotatePage}
+                        />
+                    ))}
                 </>
             }
         </div>

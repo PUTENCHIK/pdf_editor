@@ -25,6 +25,8 @@ import ssm from '../../utils/SessionStorageManager';
 import ZoomPanel from './components/ZoomPanel/ZoomPanel';
 import RotateDocumentPanel from './components/RotateDocumentPanel/RotateDocumentPanel';
 import CurrentPagePanel from './components/CurrentPagePanel/CurrentPagePanel';
+import InstrumentsPanel from './components/InstrumentsPanel/InstrumentsPanel';
+import ExtraPanel from './components/ExtraPanel/ExtraPanel';
 
 GlobalWorkerOptions.workerSrc = './node_modules/pdfjs-dist/build/pdf.worker.mjs';
 const EditorPage = () => {
@@ -34,7 +36,6 @@ const EditorPage = () => {
     // start - начальный выбор файла
     // display - отображение файла
     const [pageState, setPageState] = useState("start");
-    const rightMenu = useRef(null);
     const [activeTool, setActiveTool] = useState("delete_page");
     
     const inputFileButton = useRef(null);
@@ -48,6 +49,7 @@ const EditorPage = () => {
     const [zoom, setZoom] = useState(1);
     const [minimapWidth, setMinimapWidth] = useState(0);
     const [currentPage, setCurrentPage] = useState(1);
+    const [isInteractionSegmentVisible, setIsInteractionSegmentVisible] = useState(false);
 
     const messagesContainerRef = useRef(null);
 
@@ -130,20 +132,31 @@ const EditorPage = () => {
         }
     }
 
-    function rightMenuOnClick() {
-        if (rightMenu.current) {
-            setActiveTool(rightMenu.current.getActiveTool());
-        }
-    }
-
     function downloadFile() {
         const fileURL = URL.createObjectURL(fileObject);
         const link = document.createElement('a');
         link.href = fileURL;
         link.download = 'returned.pdf';
         link.click();
-
         link.remove();
+    }
+
+    function closeFile() {
+        setFileObject(null);
+        setPdf(null);
+        setPageState('start');
+    }
+
+    function startClipPage() {
+
+    }
+
+    function startInsertImage() {
+
+    }
+
+    function startInsertText() {
+
     }
 
     async function formSubmit(event) {
@@ -283,6 +296,7 @@ const EditorPage = () => {
                                     ref={minimapDisplay}
                                     document={pdf}
                                     pageWidth={minimapWidth}
+                                    currentPage={currentPage}
                                     onDeletePage={deletePage}
                                     onRotatePage={rotatePage}
                                 />
@@ -292,9 +306,14 @@ const EditorPage = () => {
                                     <>
                                         <div className="instruments-container">
                                             <div className="side-block">
-                                                <CurrentPagePanel
-                                                    current={currentPage}
-                                                    pages={pdf.numPages}
+                                                <InstrumentsPanel
+                                                    currentPage={currentPage}
+                                                    onClipPage={startClipPage}
+                                                    onInsertImage={startInsertImage}
+                                                    onInsertText={startInsertText}
+                                                />
+                                                <RotateDocumentPanel
+                                                    rotateDocument={rotateDocument}
                                                 />
                                             </div>
                                             <div className="center-block">
@@ -303,8 +322,13 @@ const EditorPage = () => {
                                                 />
                                             </div>
                                             <div className="side-block">
-                                                <RotateDocumentPanel
-                                                    rotateDocument={rotateDocument}
+                                                <CurrentPagePanel
+                                                    current={currentPage}
+                                                    pages={pdf.numPages}
+                                                />
+                                                <ExtraPanel
+                                                    onDownload={downloadFile}
+                                                    onClose={closeFile}
                                                 />
                                             </div>
                                         </div>
@@ -318,53 +342,55 @@ const EditorPage = () => {
                                     </>
                                 }
                             </div>
-                            <div className="interaction-segment">
-                                {/*<Button
-                                    type="submit"
-                                    class="danger"
-                                    text="Скачать файл"
-                                    onClick={downloadFile}
-                                />
-                                <div className="interaction-field">
-                                    <div className="__content">
-                                        {activeTool == "delete_page" &&
-                                            <>
-                                                <DeletePageFormContent 
+                            { isInteractionSegmentVisible &&
+                                <div className="interaction-segment">
+                                    {/*<Button
+                                        type="submit"
+                                        class="danger"
+                                        text="Скачать файл"
+                                        onClick={downloadFile}
+                                    />
+                                    <div className="interaction-field">
+                                        <div className="__content">
+                                            {activeTool == "delete_page" &&
+                                                <>
+                                                    <DeletePageFormContent 
+                                                        pageCount={pdf ? pdf.numPages : 1}
+                                                        formOnSubmit={formSubmit}
+                                                    />
+                                                </>
+                                            }
+                                            {activeTool == "swap_pages" &&
+                                                <SwapPagesFormContent
                                                     pageCount={pdf ? pdf.numPages : 1}
                                                     formOnSubmit={formSubmit}
-                                                />
-                                            </>
-                                        }
-                                        {activeTool == "swap_pages" &&
-                                            <SwapPagesFormContent
-                                                pageCount={pdf ? pdf.numPages : 1}
-                                                formOnSubmit={formSubmit}
-                                            />                                            
-                                        }
-                                        {activeTool == "rotate_pages" &&
-                                            <RotatePagesFormContent
-                                                formOnSubmit={formSubmit}
-                                            />                                            
-                                        }
-                                        {activeTool == "crop_page" &&
-                                            <CropPageFormContent
-                                                // pageWidth={1000}
-                                                // pageHeight={1000}
-                                                pageCount={pdf ? pdf.numPages : 1}
-                                                formOnSubmit={formSubmit}
-                                            />                                            
-                                        }
-                                        {activeTool == "insert_image" &&
-                                            <InsertImageFormContent
-                                                // pageWidth={1000}
-                                                // pageHeight={1000}
-                                                pageCount={pdf ? pdf.numPages : 1}
-                                                formOnSubmit={formSubmit}
-                                            />                                            
-                                        }
-                                    </div>
-                                </div> */}
-                            </div>
+                                                />                                            
+                                            }
+                                            {activeTool == "rotate_pages" &&
+                                                <RotatePagesFormContent
+                                                    formOnSubmit={formSubmit}
+                                                />                                            
+                                            }
+                                            {activeTool == "crop_page" &&
+                                                <CropPageFormContent
+                                                    // pageWidth={1000}
+                                                    // pageHeight={1000}
+                                                    pageCount={pdf ? pdf.numPages : 1}
+                                                    formOnSubmit={formSubmit}
+                                                />                                            
+                                            }
+                                            {activeTool == "insert_image" &&
+                                                <InsertImageFormContent
+                                                    // pageWidth={1000}
+                                                    // pageHeight={1000}
+                                                    pageCount={pdf ? pdf.numPages : 1}
+                                                    formOnSubmit={formSubmit}
+                                                />                                            
+                                            }
+                                        </div>
+                                    </div> */}
+                                </div>
+                            }
                         </>
                     }
                 </main>

@@ -144,14 +144,12 @@ form[name="insert-image"] > div > label {
 
     display: inline-flex;
     column-gap: 10px;
-
-    /* border-radius: 100px;
-    background-color: #8FC39A; */
 }
 
 .instruments-container > .side-block {
     width: 100%;
     display: flex;
+    column-gap: 10px;
 }
 
 .instruments-container > .side-block:first-of-type {
