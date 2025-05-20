@@ -241,7 +241,8 @@ namespace PDF_API.Models {
             using (var pdfDocument = new PdfDocument(new PdfReader(inputFilePath), new PdfWriter(outputFilePath))) {
                 for (int i = 1; i <= pdfDocument.GetNumberOfPages(); i++) {
                     var page = pdfDocument.GetPage(i);
-                    page.SetRotation(degrees);
+                    var pageDegrees = page.GetRotation();
+                    page.SetRotation(pageDegrees + degrees);
                 }
             }
 
