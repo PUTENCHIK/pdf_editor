@@ -24,9 +24,12 @@ import MessageBlocksContainer from '../../components/MessageBlocksContainer/Mess
 import ssm from '../../utils/SessionStorageManager';
 import ZoomPanel from './components/ZoomPanel/ZoomPanel';
 import RotateDocumentPanel from './components/RotateDocumentPanel/RotateDocumentPanel';
+import CurrentPagePanel from './components/CurrentPagePanel/CurrentPagePanel';
 
 GlobalWorkerOptions.workerSrc = './node_modules/pdfjs-dist/build/pdf.worker.mjs';
 const EditorPage = () => {
+    const minimapWidthPercent = 0.5;
+
     // переменная, определяющая основной контент на странице
     // start - начальный выбор файла
     // display - отображение файла
@@ -37,21 +40,39 @@ const EditorPage = () => {
     const inputFileButton = useRef(null);
     const documentDisplay = useRef(null);
     const minimapDisplay = useRef(null);
+    const minimapSegment = useRef(null);
+    const documentSegment = useRef(null);
+
     const [fileObject, setFileObject] = useState(null);
     const [pdf, setPdf] = useState(null);
+    const [zoom, setZoom] = useState(1);
+    const [minimapWidth, setMinimapWidth] = useState(0);
+    const [currentPage, setCurrentPage] = useState(1);
 
     const messagesContainerRef = useRef(null);
 
     useEffect(() => {
-        if (documentDisplay.current && pdf) {
-            console.log("=============== PDF UPDATED ===============");
-            documentDisplay.current.updateDocument(pdf);
-            minimapDisplay.current.updateDocument(pdf);
+        if (documentDisplay.current && pdf && zoom) {
+            console.log("PDF file updated");
+            documentDisplay.current.updateDocument();
+            minimapDisplay.current.updateDocument();
         }
-    }, [pdf]);
+    }, [pdf, zoom]);
 
-    async function createPdfObject(file) {
-        return await getDocument(URL.createObjectURL(file)).promise;
+    useEffect(() => {
+        async function createAndSetPdf() {
+            setPdf(await createPdfObject());
+        }
+        
+        if (fileObject) {
+            createAndSetPdf();
+            let minimapContainer = minimapSegment.current.getBoundingClientRect();
+            setMinimapWidth(minimapWidthPercent * minimapContainer.width);
+        }
+    }, [fileObject]);
+
+    async function createPdfObject() {
+        return await getDocument(URL.createObjectURL(fileObject)).promise;
     }
     
     async function handleFileUpload() {
@@ -62,7 +83,6 @@ const EditorPage = () => {
                 let fileId = await startEditingRequest(file);
                 ssm.setFileId(fileId);
                 setFileObject(file);
-                setPdf(await createPdfObject(file));
                 setPageState("display");
                 messagesContainerRef.current.addMessage("Загрузка файла", "ID файла сохранён");
             } catch (error) {
@@ -77,11 +97,10 @@ const EditorPage = () => {
             { type: "application/pdf" }
         );
         setFileObject(newFile);
-        setPdf(await createPdfObject(newFile));
     }
 
     function updateZoom(newZoom) {
-        documentDisplay.current.updateZoom(newZoom);
+        setZoom(newZoom);
     }
 
     async function rotateDocument(newAngle) {
@@ -259,28 +278,42 @@ const EditorPage = () => {
                     }
                     {pageState == "display" &&
                         <>
-                            <div className="minimap-segment">
+                            <div className="minimap-segment" ref={minimapSegment}>
                                 <MinimapDisplay
                                     ref={minimapDisplay}
                                     document={pdf}
+                                    pageWidth={minimapWidth}
                                     onDeletePage={deletePage}
                                     onRotatePage={rotatePage}
                                 />
                             </div>
-                            <div className="document-segment">
+                            <div className="document-segment" ref={documentSegment}>
                                 {pdf &&
                                     <>
                                         <div className="instruments-container">
-                                            <RotateDocumentPanel
-                                                rotateDocument={rotateDocument}
-                                            />
-                                            <ZoomPanel
-                                                updateZoom={updateZoom}
-                                            />
+                                            <div className="side-block">
+                                                <CurrentPagePanel
+                                                    current={currentPage}
+                                                    pages={pdf.numPages}
+                                                />
+                                            </div>
+                                            <div className="center-block">
+                                                <ZoomPanel
+                                                    updateZoom={updateZoom}
+                                                />
+                                            </div>
+                                            <div className="side-block">
+                                                <RotateDocumentPanel
+                                                    rotateDocument={rotateDocument}
+                                                />
+                                            </div>
                                         </div>
                                         <DocumentDisplay
                                             ref={documentDisplay}
                                             document={pdf}
+                                            zoom={zoom}
+                                            containerRef={documentSegment}
+                                            updateCurrentPage={setCurrentPage}
                                         />
                                     </>
                                 }

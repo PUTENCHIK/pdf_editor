@@ -134,7 +134,7 @@ form[name="insert-image"] > div > label {
 }
 
 .instruments-container {
-    /* width: 100%; */
+    width: 100%;
     /* min-height: 50px; */
     box-sizing: border-box;
     padding: 0 20px;
@@ -145,6 +145,19 @@ form[name="insert-image"] > div > label {
     display: inline-flex;
     column-gap: 10px;
 
-    border-radius: 100px;
-    background-color: #8FC39A;
+    /* border-radius: 100px;
+    background-color: #8FC39A; */
+}
+
+.instruments-container > .side-block {
+    width: 100%;
+    display: flex;
+}
+
+.instruments-container > .side-block:first-of-type {
+    justify-content: flex-end;
+}
+
+.instruments-container > .side-block:last-of-type {
+    justify-content: flex-start;
 }

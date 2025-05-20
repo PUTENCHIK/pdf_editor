@@ -1,0 +1,16 @@
+.current-page-panel {
+    box-sizing: border-box;
+    padding: 0 15px;
+    
+    display: inline-flex;
+    column-gap: 4px;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 100px;
+    background-color: #8FC39A;
+}
+
+/* .current-page-panel input.span {
+    width: 30px;
+} */

@@ -1,4 +1,10 @@
 .rotate-document-panel {
+    box-sizing: border-box;
+    padding: 0 10px;
+
     display: flex;
     column-gap: 5px;
+
+    border-radius: 100px;
+    background-color: #8FC39A;
 }

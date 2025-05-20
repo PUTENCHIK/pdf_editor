@@ -18,7 +18,7 @@ const MinimapPage = (props) => {
             <DocumentPage
                 page={props.page}
                 pageNumber={props.pageNumber}
-                zoom={props.zoom}
+                pageWidth={props.pageWidth}
             />
             <div className="low-panel">
                 <ToolButton

@@ -1,86 +1,56 @@
+import { forwardRef, useState, useEffect, useImperativeHandle, useRef } from 'react';
 import './DocumentDisplay.css'
-import { forwardRef, useState, useImperativeHandle, useEffect } from 'react';
 
 import DocumentPage from '../DocumentPage/DocumentPage';
 
 const DocumentDisplay = forwardRef((props, ref) => {
-    const [zoom, setZoom] = useState(1);
+    const pageRefs = useRef([]);
+    const [numPages, setNumPages] = useState(null);
     const [children, setChildren] = useState([]);
-    const [document, setDocument] = useState(props.document);
 
-    useEffect(() => {
-        if (document) {
-            console.log("Initial effect");
-            createPages();
-        }
-    }, []);
+    async function loadPdf() {
+        setChildren([]);
+        try {
+            const pdf = props.document;
+            setNumPages(pdf.numPages);
+            let pages = [];
+            for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+                const page = await pdf.getPage(pageNum);
+                let documentPage = <DocumentPage
+                    key={pageNum}
+                    pageNum={pageNum}
+                    page={page}
+                    zoom={props.zoom}
+                    container={props.containerRef.current}
+                    onVisible={props.updateCurrentPage}
+                    ref={el => (pageRefs.current[pageNum - 1] = el)}
+                />;
 
-    useEffect(() => {
-        console.log("Zoom effect");
-        if (document) {
-            createPages();
-        }
-    }, [zoom]);
-
-    useEffect(() => {
-        console.log("Document effect");
-        if (document) {
-            createPages();
-            setZoom(zoom * 1.1);
-            setZoom(zoom / 1.1);
-        }
-    }, [document]);
-
-    async function createPages() {
-        console.log("Creating pages: ", document.numPages);
-        console.log("Document:", document);
-        
-        let pages = [];
-
-        for (let index = 1; index <= document.numPages; index++) {            
-            let flag = false;
-            let count = 1;
-            try {
-                while (!flag && count < 10) {
-                    flag = true;
-                    let page = await document.getPage(index);
-
-                    let newPage = <DocumentPage
-                        key={`page-${index}`}
-                        page={page}
-                        pageNumber={index}
-                        zoom={zoom}
-                    />;                    
-                    pages.push(newPage);
-                }
-            } catch (error) {
-                count += 1;
+                pages.push(documentPage);
             }
-
-            if (count == 10) {
-                throw new Error("Не удалось открыть файл. Превышено количество попыток открытия");
-            }
+            setChildren(pages);
+        } catch (err) {
+            console.error("Ошибка при загрузке PDF:", err);
         }
-        setChildren(pages);
     }
 
     useImperativeHandle(ref, () => {
         return {
-            updateZoom(newZoom) {
-                setZoom(newZoom);
-            },
-            updateDocument(newDocument) {           
-                setDocument(newDocument);
+            updateDocument() {
+                loadPdf();
             }
         }
     });
 
     return (
-        <>
-            <div className="document-display">
-                {children}
-            </div>
-        </>
+        <div className="document-display">
+            {numPages && (
+                <>
+                    {children}
+                </>
+            )}
+            {!props.document && <p>Выберите PDF файл для отображения.</p>}
+        </div>
     );
 });
 
