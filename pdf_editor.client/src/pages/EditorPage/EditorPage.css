@@ -135,7 +135,6 @@ form[name="insert-image"] > div > label {
 
 .instruments-container {
     width: 100%;
-    /* min-height: 50px; */
     box-sizing: border-box;
     padding: 0 20px;
 
@@ -144,6 +143,8 @@ form[name="insert-image"] > div > label {
 
     display: inline-flex;
     column-gap: 10px;
+
+    z-index: 10;
 }
 
 .instruments-container > .side-block {

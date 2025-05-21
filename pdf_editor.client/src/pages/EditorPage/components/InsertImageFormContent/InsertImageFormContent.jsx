@@ -9,9 +9,19 @@ function InsertImageFormContent(props) {
         <>
             <h3>Вставить изображение</h3>
             <form name='insert-image' method='POST' onSubmit={props.formOnSubmit}>
-                <AddImageFile accept_types="images" inputName="image_file" ref={props.inputFileButton} imageData={props.imageData} setImageData={props.setImageData} />
+                <AddImageFile
+                    accept_types="images"
+                    inputName="image_file"
+                    ref={props.inputFileButton}
+                    imageData={props.imageData}
+                    setImageData={props.setImageData}
+                />
                 <div className="button-container">
-                    <Button type="submit" className="primary" text="Вставить" />
+                    <Button
+                        type="submit"
+                        className="primary"
+                        text="Вставить"
+                    />
                 </div>
             </form>
         </>

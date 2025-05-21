@@ -1,0 +1,88 @@
+.croping-field {
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    z-index: 5;
+    user-select: none;
+}
+
+.croping-field [class$="-box"] {
+    width: 100%;
+    display: flex;
+}
+
+.croping-field .center-box {
+    justify-content: space-between;
+}
+
+.croping-field .corner {
+    width: 100%;
+    display: flex;
+    background-color: #3b3b3bc7;
+}
+
+.croping-field .croping-area {
+    display: flex;
+    background-color: #3b3b3bc7;
+}
+
+.croping-field .resizer {
+    position: absolute;
+    background-color: #15b5ff38;
+}
+
+.croping-field .resizer:hover,
+.croping-field .resizer.current {
+    background-color: #15b5ffc7;
+}
+
+.croping-field .top > .resizer,
+.croping-field .bottom > .resizer {
+    width: 100%;
+    height: 5px;
+    cursor: ns-resize;
+}
+
+.croping-field .left > .resizer,
+.croping-field .right > .resizer {
+    height: 100%;
+    cursor: ew-resize;
+}
+
+.croping-field .top {
+    align-items: flex-end;
+}
+
+.croping-field .left {
+    justify-content: flex-end;
+}
+
+.croping-field .rest {
+    width: 100%;
+    height: 100%;
+    cursor: move;
+}
+
+/* .croping-field .top {
+    background-color: rgba(255, 0, 0, 0.432);
+}
+
+.croping-field .bottom {
+    background-color: rgba(255, 217, 0, 0.432);
+}
+
+.croping-field .right {
+    background-color: rgba(43, 255, 0, 0.432);
+}
+
+.croping-field .left {
+    background-color: rgba(0, 140, 255, 0.432);
+} */

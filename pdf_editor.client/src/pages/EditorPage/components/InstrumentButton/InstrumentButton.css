@@ -8,12 +8,19 @@
 
     user-select: none;
     border-radius: 100px;
-    /* background-color: white; */
 }
 
 .instrument-button:hover {
     background-color: #ffffff5b;
     cursor: pointer;
+}
+
+.instrument-button.active {
+    background-color: #ffffffbb;
+}
+
+.instrument-button.active:hover {
+    background-color: #ffffffdd;
 }
 
 .instrument-button > img {

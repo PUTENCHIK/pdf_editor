@@ -5,20 +5,12 @@ import arrow_counterclockwise from '../../../../images/common/arrow_counterclock
 import InstrumentButton from '../InstrumentButton/InstrumentButton';
 
 const RotateDocumentPanel = (props) => {
-    const startAngle = 0;
-    const [angle, setAngle] = useState(startAngle);
-
     function rotateClockwise() {
-        updateAngle(angle + 90);
+        props.rotateDocument(true);
     }
 
     function rotateCounterclockwise() {
-        updateAngle(angle - 90);
-    }
-
-    function updateAngle(newAngle) {
-        setAngle(newAngle);
-        props.rotateDocument(newAngle);
+        props.rotateDocument(false);
     }
 
     return (

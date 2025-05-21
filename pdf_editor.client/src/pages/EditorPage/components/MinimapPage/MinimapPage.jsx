@@ -10,7 +10,7 @@ const MinimapPage = (props) => {
     }
 
     function handleRotatePage() {
-        props.onRotatePage(props.pageNumber, props.page._pageInfo.rotate - 90);
+        props.onRotatePage(props.pageNumber, false);
     }
 
     return (

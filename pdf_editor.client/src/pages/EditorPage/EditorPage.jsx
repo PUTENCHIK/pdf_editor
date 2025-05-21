@@ -13,10 +13,6 @@ import AddFile from '../../components/AddFile/AddFile';
 import DocumentDisplay from '../../components/DocumentDisplay/DocumentDisplay';
 import MinimapDisplay from './components/MinimapDisplay/MinimapDisplay';
 
-import DeletePageFormContent from './components/DeletePageFormContent/DeletePageFormContent';
-import SwapPagesFormContent from './components/SwapPagesFormContent/SwapPagesFormContent';
-import RotatePagesFormContent from './components/RotatePagesFormContent/RotatePagesFormContent';
-import CropPageFormContent from './components/CropPageFormContent/CropPageFormContent';
 import InsertImageFormContent from './components/InsertImageFormContent/InsertImageFormContent';
 
 import MessageBlocksContainer from '../../components/MessageBlocksContainer/MessageBlocksContainer';
@@ -26,6 +22,8 @@ import RotateDocumentPanel from './components/RotateDocumentPanel/RotateDocument
 import CurrentPagePanel from './components/CurrentPagePanel/CurrentPagePanel';
 import InstrumentsPanel from './components/InstrumentsPanel/InstrumentsPanel';
 import ExtraPanel from './components/ExtraPanel/ExtraPanel';
+import CropPageInfo from './components/CropPageInfo/CropPageInfo';
+import roundNumber from '../../helpers/functions';
 
 GlobalWorkerOptions.workerSrc = './node_modules/pdfjs-dist/build/pdf.worker.mjs';
 
@@ -45,9 +43,16 @@ const EditorPage = () => {
     const [pdf, setPdf] = useState(null);
     const [zoom, setZoom] = useState(1);
     const [minimapWidth, setMinimapWidth] = useState(0);
+
     const [currentPage, setCurrentPage] = useState(1);
-    const [isInteractionSegmentVisible, setIsInteractionSegmentVisible] = useState(false);
-    let [imageData, setImageData] = useState([]);
+    
+    const [cropingPage, setCropingPage] = useState(null);
+    const [cropPageData, setCropPageData] = useState(null);
+    
+    const [insertImagePage, setInsertImagePage] = useState(false);
+    const [imageData, setImageData] = useState([]);
+
+    const [insertTextPage, setInsertTextPage] = useState(null);
     const messagesContainerRef = useRef(null);
 
     useEffect(() => {
@@ -101,8 +106,8 @@ const EditorPage = () => {
         setZoom(newZoom);
     }
 
-    async function rotateDocument(newAngle) {
-        let result = await rotatePagesRequest(newAngle);
+    async function rotateDocument(isClockwise) {
+        let result = await rotatePagesRequest(isClockwise);
         if (result) {
             await setDocumentFromBlob(result);
         } else {
@@ -119,8 +124,8 @@ const EditorPage = () => {
         }
     }
 
-    async function rotatePage(pageNumber, newAngle) {
-        let result = await rotatePageRequest(pageNumber, newAngle);
+    async function rotatePage(pageNumber, isClockwise) {
+        let result = await rotatePageRequest(pageNumber, isClockwise);
         if (result) {
             await setDocumentFromBlob(result);
         } else {
@@ -128,25 +133,55 @@ const EditorPage = () => {
         }
     }
 
+    async function cropPage() {
+        let result = await cropPageRequest(
+            cropingPage,
+            roundNumber(cropPageData.x),
+            roundNumber(cropPageData.y),
+            roundNumber(cropPageData.width),
+            roundNumber(cropPageData.height),
+        );
+        if (result) {
+            await setDocumentFromBlob(result);
+        } else {
+            messagesContainerRef.current.addError("Обрезание страницы", `Не удалось обрезать страницу ${cropingPage}`);
+        }
+        setCropingPage(null);
+        setCropPageData(null);
+    }
+
+    function downloadFile() {
+        const fileURL = URL.createObjectURL(fileObject);
+        const link = document.createElement('a');
+        link.href = fileURL;
+        link.download = 'returned.pdf';
+        link.click();
+        link.remove();
+    }
+
     function closeFile() {
         setFileObject(null);
         setPdf(null);
         setPageState('start');
+        setCropingPage(null);
+        setInsertImagePage(false);
+        setInsertTextPage(null);
     }
 
-    function startClipPage() { }
+    function startCropPage() {
+        setCropingPage(cropingPage ? null : currentPage);
+    }
 
     function startInsertImage() {
-        if (isInteractionSegmentVisible == false) {
-            setIsInteractionSegmentVisible(true);
-            setActiveTool("insert_image"); // Устанавливаем активный инструмент
-        }
-        else {
-            setIsInteractionSegmentVisible(false);
+        setInsertImagePage(!insertImagePage);
+        if (insertImagePage) {
+            setImageData([]);
         }
     }
 
-    function startInsertText() { }
+    function startInsertText() {
+        setInsertTextPage(insertTextPage ? null : currentPage);
+    }
 
     async function formSubmit(event) {
         event.preventDefault();
@@ -203,9 +238,6 @@ const EditorPage = () => {
                     break;
             }
             if (result) {
-                //const newFile = new File([result], `returned.pdf`, { type: "application/pdf" });
-                //setFileObject(newFile);
-                //setPdf(await createPdfObject(newFile));
                 await setDocumentFromBlob(result);
             } else {
                 messagesContainerRef.current.addError("Ошибка", "Не удалось отобразить файл после редактирования");
@@ -251,7 +283,10 @@ const EditorPage = () => {
                                             <div className="side-block">
                                                 <InstrumentsPanel
                                                     currentPage={currentPage}
-                                                    onClipPage={startClipPage}
+                                                    cropingPage={cropingPage}
+                                                    insertImagePage={insertImagePage}
+                                                    insertTextPage={insertTextPage}
+                                                    onCropPage={startCropPage}
                                                     onInsertImage={startInsertImage}
                                                     onInsertText={startInsertText}
                                                 />
@@ -262,7 +297,10 @@ const EditorPage = () => {
                                             </div>
                                             <div className="side-block">
                                                 <CurrentPagePanel current={currentPage} pages={pdf.numPages} />
-                                                <ExtraPanel onClose={closeFile} />
+                                                <ExtraPanel
+                                                    onDownload={downloadFile}
+                                                    onClose={closeFile}
+                                                />
                                             </div>
                                         </div>
                                         <DocumentDisplay
@@ -270,47 +308,33 @@ const EditorPage = () => {
                                             document={pdf}
                                             zoom={zoom}
                                             containerRef={documentSegment}
+                                            currentPage={currentPage}
+                                            cropingPage={cropingPage}
+                                            updateCropPageData={setCropPageData}
+                                            insertImagePage={insertImagePage}
+                                            insertTextPage={insertTextPage}
                                             updateCurrentPage={setCurrentPage}
                                         />
                                     </>
                                 )}
                             </div>
-                            {isInteractionSegmentVisible && (
-                                <div className="interaction-segment" style={{ padding: '20px', marginTop: '20px' }}>
-                                    <div className="interaction-field">
-                                        <div className="__content">
-                                            {activeTool === "delete_page" && (
-                                                <DeletePageFormContent
-                                                    pageCount={pdf ? pdf.numPages : 1}
-                                                    formOnSubmit={formSubmit}
-                                                />
-                                            )}
-                                            {activeTool === "swap_pages" && (
-                                                <SwapPagesFormContent
-                                                    pageCount={pdf ? pdf.numPages : 1}
-                                                    formOnSubmit={formSubmit}
-                                                />
-                                            )}
-                                            {activeTool === "rotate_pages" && (
-                                                <RotatePagesFormContent formOnSubmit={formSubmit} />
-                                            )}
-                                            {activeTool === "crop_page" && (
-                                                <CropPageFormContent
-                                                    pageCount={pdf ? pdf.numPages : 1}
-                                                    formOnSubmit={formSubmit}
-                                                />
-                                            )}
-                                            {activeTool === "insert_image" && (
-                                                <InsertImageFormContent
-                                                    pageCount={pdf ? pdf.numPages : 1}
-                                                    inputFileButton={inputFileButton}
-                                                    formOnSubmit={formSubmit}
-                                                    imageData={imageData}
-                                                    setImageData={setImageData}
-                                                />
-                                            )}
-                                        </div>
-                                    </div>
+                            { (cropingPage || insertImagePage || insertTextPage) && (
+                                <div className="interaction-segment">
+                                    { (cropingPage && cropPageData) && 
+                                        <CropPageInfo
+                                            data={cropPageData}
+                                            onClick={cropPage}
+                                        />
+                                    }
+                                    { (insertImagePage) && 
+                                        <InsertImageFormContent
+                                            pageCount={pdf ? pdf.numPages : 1}
+                                            inputFileButton={inputFileButton}
+                                            formOnSubmit={formSubmit}
+                                            imageData={imageData}
+                                            setImageData={setImageData}
+                                        />
+                                    }
                                 </div>
                             )}
                         </>

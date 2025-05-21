@@ -1,0 +1,31 @@
+.crop-page-info {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    row-gap: 20px;
+
+    font-size: 18px;
+}
+
+.crop-page-info > .content {
+    display: flex;
+}
+
+.crop-page-info .column {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    row-gap: 10px;
+}
+
+.crop-page-info .column:nth-child(2) {
+    font-weight: 600;
+}
+
+.crop-page-info .button-box {
+    width: 100%;
+    padding-top: 20px;
+
+    display: flex;
+    justify-content: center;
+}

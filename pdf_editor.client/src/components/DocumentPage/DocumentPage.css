@@ -1,3 +1,9 @@
+.page-wrapper {
+    display: flex;
+    
+    position: relative;
+}
+
 canvas.current-page {
     outline: 5px solid #34b5ff;
 }

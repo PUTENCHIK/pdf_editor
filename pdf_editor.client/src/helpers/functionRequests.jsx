@@ -42,19 +42,20 @@ export async function swapPagesRequest(pageFrom, pageTo) {
     return response.data;
 }
 
-export async function rotatePagesRequest(degrees) {
+export async function rotatePagesRequest(isClockwise) {
+    const pathes = {
+        true: "rotate-pages-right",
+        false: "rotate-pages-left",
+    }
     const response = await axios.post(
-        "https://localhost:7199/api/PDF/rotate-pages", {
+        `https://localhost:7199/api/PDF/${pathes[isClockwise]}`, {
             fileId: ssm.getFileId(),
-            degrees: degrees,
-        }, {
-            'responseType': 'blob'
-        }
+        }, { 'responseType': 'blob' }
     );
     return response.data;
 }
 
-export async function cropPageRequest(pageNumber, width, height, x, y) {
+export async function cropPageRequest(pageNumber, x, y, width, height) {
     const response = await axios.post(
         "https://localhost:7199/api/PDF/crop-page", {
             fileId: ssm.getFileId(),
@@ -187,12 +188,15 @@ export async function compressFileRequest(file, compressionRatio) {
     return response.data;
 }
 
-export async function rotatePageRequest(pageNumber, degrees) {
+export async function rotatePageRequest(pageNumber, isClockwise) {
+    const pathes = {
+        true: "rotate-page-right",
+        false: "rotate-page-left",
+    }
     const response = await axios.post(
-        "https://localhost:7199/api/PDF/rotate-page", {
+        `https://localhost:7199/api/PDF/${pathes[isClockwise]}`, {
             fileId: ssm.getFileId(),
-            pageNumber: pageNumber,
-            degrees: degrees,
+            pageNumber: pageNumber
         }, {
             'responseType': 'blob'
         }

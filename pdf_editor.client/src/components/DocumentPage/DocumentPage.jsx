@@ -1,8 +1,41 @@
-import { useRef, useEffect, forwardRef } from 'react';
+import { useRef, useEffect, forwardRef, useState } from 'react';
 import './DocumentPage.css'
+import CropingField from '../../pages/EditorPage/components/CropingField/CropingField';
 
 const DocumentPage = forwardRef((props, outRef) => {
+    const visibleThreshold = 0.8;
     const canvas = useRef(null);
+    const [originPageWidth, setOriginPageWidth] = useState(0);
+    const [originPageHeight, setOriginPageHeight] = useState(0);
+    const [pageWidth, setPageWidth] = useState(0);
+    const [pageHeight, setPageHeight] = useState(0);
+
+    async function renderPage() {
+        const originViewport = props.page.getViewport({ scale: 1.0 });
+        setOriginPageWidth(originViewport.width);
+        setOriginPageHeight(originViewport.height);
+        let zoom = props.zoom ?? (props.pageWidth ?? originViewport.width) / originViewport.width;
+
+        const canvasContext = canvas.current.getContext('2d');
+        const viewport = props.page.getViewport({ scale: zoom });
+        canvas.current.width = viewport.width;
+        setPageWidth(viewport.width);
+        canvas.current.height = viewport.height;
+        setPageHeight(viewport.height);
+        await props.page.render({
+            canvasContext,
+            viewport,
+        }).promise;
+    }
+
+    function handleDataUpdated(newData) {
+        props.updateCropPageData({
+            x: newData.x * originPageWidth,
+            y: newData.y * originPageHeight,
+            width: newData.width * originPageWidth,
+            height: newData.height * originPageHeight,
+        });
+    }
 
     useEffect(() => {
         if (props.container) {
@@ -17,7 +50,7 @@ const DocumentPage = forwardRef((props, outRef) => {
             const pageObserver = new IntersectionObserver(handleIntersection, {
                 root: props.container,
                 rootMargin: '0px',
-                threshold: 0.5,
+                threshold: visibleThreshold,
             });
 
             pageObserver.observe(canvas.current);
@@ -25,27 +58,20 @@ const DocumentPage = forwardRef((props, outRef) => {
         return undefined;
     }, [props.container]);
 
-    async function renderPage() {
-        const originViewport = props.page.getViewport({ scale: 1.0 });
-        let zoom = props.zoom ?? (props.pageWidth ?? originViewport.width) / originViewport.width;
-
-        const canvasContext = canvas.current.getContext('2d');
-        const viewport = props.page.getViewport({ scale: zoom });
-        canvas.current.width = viewport.width;
-        canvas.current.height = viewport.height;
-        await props.page.render({
-            canvasContext,
-            viewport,
-        }).promise;
-    }
-
     useEffect(() => {
         renderPage();
     }, [props.page, props.zoom]);
 
     return (
-        <div ref={outRef}>
-            <canvas id={`canvas-${props.pageNum}`}  className={props.isCurrent ? "current-page" : null} ref={canvas}></canvas>
+        <div className='page-wrapper' ref={outRef}>
+            { props.isCroping &&
+                <CropingField
+                    pageWidth={pageWidth}
+                    pageHeight={pageHeight}
+                    updateData={handleDataUpdated}
+                />
+            }
+            <canvas id={`canvas-${props.pageNum}`} className={props.isCurrent ? "current-page" : null} ref={canvas}></canvas>
         </div>
     );
 });
