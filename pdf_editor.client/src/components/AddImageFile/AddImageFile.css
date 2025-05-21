@@ -1,12 +1,23 @@
+.add-image-file-box {
+    display: flex;
+    justify-content: center;
+}
+
+.add-image-file-box button {
+    width: 100%;
+    font-family: "Inter";
+    font-size: 20px;
+}
+
 .image-container {
-    border: 2px dashed #ccc; /* Обводка для визуализации */
+    border: 2px dashed #ccc;
     position: relative;
 }
 
 .resize-handle {
     width: 10px;
     height: 10px;
-    background-color: #007bff; /* Цвет квадратов изменения размера */
+    background-color: #007bff;
     position: absolute;
     cursor: pointer;
 }

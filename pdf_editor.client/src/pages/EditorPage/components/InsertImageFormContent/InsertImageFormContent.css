@@ -1,0 +1,16 @@
+.insert-image-form {
+    display: flex;
+    flex-direction: column;
+    row-gap: 30px;
+}
+
+.insert-image-form > form {
+    display: flex;
+    flex-direction: column;
+    row-gap: 30px;
+}
+
+.insert-image-form .button-container {
+    display: flex;
+    justify-content: center;
+}

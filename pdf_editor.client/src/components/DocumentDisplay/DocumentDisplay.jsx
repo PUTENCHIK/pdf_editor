@@ -45,9 +45,10 @@ const DocumentDisplay = forwardRef((props, ref) => {
                             zoom={props.zoom}
                             isCroping={props.cropingPage == pageObject.pageNum}
                             updateCropPageData={props.updateCropPageData}
+                            isInsertText={props.insertTextPage == pageObject.pageNum}
+                            insertTextData={props.insertTextData}
                             container={props.containerRef.current}
                             onVisible={props.updateCurrentPage}
-                            //ref={el => (pageRefs.current[pageNum - 1] = el)}
                         />
                     ))}
                 </>

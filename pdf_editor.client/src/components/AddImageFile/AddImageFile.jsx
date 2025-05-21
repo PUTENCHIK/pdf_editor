@@ -5,9 +5,7 @@ import React, {
     useImperativeHandle,
     useEffect,
 } from 'react';
-import ReactDOM from 'react-dom';
 import { createRoot } from 'react-dom/client';
-import CrossButton from '../CrossButton/CrossButton';
 import ImageContainer from './ImageContainer';
 
 const AddImageFile = forwardRef((props, ref) => {
@@ -114,7 +112,7 @@ const AddImageFile = forwardRef((props, ref) => {
     }
 
     return (
-        <div>
+        <div className='add-image-file-box'>
             <input
                 type="file"
                 name={props.inputName}
@@ -126,7 +124,7 @@ const AddImageFile = forwardRef((props, ref) => {
                 disabled={uploading} // Disable the input based on the uploading state
             />
             <button type="button" onClick={buttonOnClick} disabled={uploading}>
-                Добавить изображение
+                Добавить изображения
             </button>
             {uploading && <p>Загрузка...</p>} {/* Display loading indicator when uploading */}
         </div>

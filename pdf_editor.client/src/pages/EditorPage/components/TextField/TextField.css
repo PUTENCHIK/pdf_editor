@@ -1,0 +1,17 @@
+.text-field-box {
+    position: absolute;
+}
+
+.text-field {
+    position: absolute;
+
+    outline: 1px solid black;
+    cursor: move;
+}
+
+.text-field span.text {
+    min-width: 20px;
+    display: block;
+
+    outline: 0;
+}

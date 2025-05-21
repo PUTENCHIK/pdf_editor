@@ -1,0 +1,111 @@
+.insert-text-panel {
+    display: flex;
+    flex-direction: column;
+    row-gap: 20px;
+}
+
+.insert-text-panel .content {
+    display: flex;
+    flex-direction: column;
+    row-gap: 10px;
+}
+
+.insert-text-panel .content .row {
+    display: flex;
+    align-items: center;
+}
+
+.insert-text-panel .content .row > * {
+    width: 50%;
+}
+
+.insert-text-panel select[name="fonts"] {
+    height: 40px;
+    box-sizing: border-box;
+    padding: 0 5px;
+
+    border: 0;
+    outline: 1px solid #808080;
+    border-radius: 10px;
+    font-size: 16px;
+    font-family: "Inter";
+}
+
+.insert-text-panel .text-styles {
+    width: 100%;
+    height: 40px;
+
+    display: flex;
+    column-gap: -1px;
+}
+
+.insert-text-panel .text-styles > div {
+    width: 100%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 1px solid black;
+    user-select: none;
+    cursor: pointer;
+}
+
+.insert-text-panel .text-styles > div:hover {
+    background-color: #ececec;
+}
+
+.insert-text-panel .text-styles > div:first-child {
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+    border-right: 0;
+}
+
+.insert-text-panel .text-styles > div:last-child {
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    border-left: 0;
+}
+
+.insert-text-panel .text-styles > .active {
+    background-color: #c2c2c2;
+}
+
+.text-styles .bold {
+    font-weight: 600;
+}
+
+.text-styles .italic {
+    font-style: italic;
+}
+
+.text-styles .underline {
+    text-decoration: underline;
+}
+
+.insert-text-panel input.span.font-size {
+    width: 60px;
+    height: 40px;
+    box-sizing: border-box;
+    padding-left: 10px;
+
+    outline: 1px solid #808080;
+    border-radius: 10px;
+    text-align: left;
+}
+
+.insert-text-panel input.color {
+    max-width: 40px;
+    height: 40px;
+    padding: 0;
+
+    border: 0;
+    outline: 0;
+    background-color: transparent;
+}
+
+.insert-text-panel .input-box {
+    display: flex;
+    column-gap: 8px;
+    align-items: center;
+}

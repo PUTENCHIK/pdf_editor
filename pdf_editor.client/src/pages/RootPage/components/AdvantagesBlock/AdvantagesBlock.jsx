@@ -8,9 +8,10 @@ function AdvantagesBlock() {
         <main className='section'>
             <div className="container">
                 <div className='advantages-block'>
-                    {advantages.map(advantage => {
+                    {advantages.map((advantage, index) => {
                         return (
                             <AdvantageElement
+                                key={index}
                                 image={advantage.image}
                                 title={advantage.title}
                                 text={advantage.text}

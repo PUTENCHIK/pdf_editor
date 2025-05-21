@@ -203,3 +203,10 @@ export async function rotatePageRequest(pageNumber, isClockwise) {
     );
     return response.data;
 }
+
+export async function getFontsRequest() {
+    const response = await axios.get(
+        "https://localhost:7199/api/PDF/get-fonts"
+    );
+    return response.data
+}

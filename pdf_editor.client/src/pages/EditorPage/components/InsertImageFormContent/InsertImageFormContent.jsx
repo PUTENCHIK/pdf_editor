@@ -1,4 +1,5 @@
 import React, { useRef } from 'react';
+import './InsertImageFormContent.css'
 import AddImageFile from '../../../../components/AddImageFile/AddImageFile';
 import InputWithLabel from '../../../../components/InputWithLabel/InputWithLabel';
 import Button from '../../../../components/Button/Button';
@@ -6,8 +7,8 @@ import Button from '../../../../components/Button/Button';
 function InsertImageFormContent(props) {
 
     return (
-        <>
-            <h3>Вставить изображение</h3>
+        <div className="insert-image-form">
+            <h3>Вставить изображения</h3>
             <form name='insert-image' method='POST' onSubmit={props.formOnSubmit}>
                 <AddImageFile
                     accept_types="images"
@@ -19,12 +20,13 @@ function InsertImageFormContent(props) {
                 <div className="button-container">
                     <Button
                         type="submit"
+                        class="danger"
                         className="primary"
                         text="Вставить"
                     />
                 </div>
             </form>
-        </>
+        </div>
     );
 }
 

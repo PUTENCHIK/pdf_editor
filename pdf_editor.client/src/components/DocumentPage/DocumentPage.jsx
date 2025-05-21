@@ -1,6 +1,7 @@
 import { useRef, useEffect, forwardRef, useState } from 'react';
 import './DocumentPage.css'
 import CropingField from '../../pages/EditorPage/components/CropingField/CropingField';
+import TextField from '../../pages/EditorPage/components/TextField/TextField';
 
 const DocumentPage = forwardRef((props, outRef) => {
     const visibleThreshold = 0.8;
@@ -9,12 +10,14 @@ const DocumentPage = forwardRef((props, outRef) => {
     const [originPageHeight, setOriginPageHeight] = useState(0);
     const [pageWidth, setPageWidth] = useState(0);
     const [pageHeight, setPageHeight] = useState(0);
+    const [pageZoom, setPageZoom] = useState(1);
 
     async function renderPage() {
         const originViewport = props.page.getViewport({ scale: 1.0 });
         setOriginPageWidth(originViewport.width);
         setOriginPageHeight(originViewport.height);
         let zoom = props.zoom ?? (props.pageWidth ?? originViewport.width) / originViewport.width;
+        setPageZoom(zoom);
 
         const canvasContext = canvas.current.getContext('2d');
         const viewport = props.page.getViewport({ scale: zoom });
@@ -69,6 +72,14 @@ const DocumentPage = forwardRef((props, outRef) => {
                     pageWidth={pageWidth}
                     pageHeight={pageHeight}
                     updateData={handleDataUpdated}
+                />
+            }
+            { props.isInsertText &&
+                <TextField
+                    pageWidth={pageWidth}
+                    pageHeight={pageHeight}
+                    pageZoom={pageZoom}
+                    data={props.insertTextData}
                 />
             }
             <canvas id={`canvas-${props.pageNum}`} className={props.isCurrent ? "current-page" : null} ref={canvas}></canvas>

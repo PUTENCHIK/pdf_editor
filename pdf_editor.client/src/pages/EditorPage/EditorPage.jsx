@@ -24,6 +24,7 @@ import InstrumentsPanel from './components/InstrumentsPanel/InstrumentsPanel';
 import ExtraPanel from './components/ExtraPanel/ExtraPanel';
 import CropPageInfo from './components/CropPageInfo/CropPageInfo';
 import roundNumber from '../../helpers/functions';
+import InsertTextPanel from './components/InsertTextPanel/InsertTextPanel';
 
 GlobalWorkerOptions.workerSrc = './node_modules/pdfjs-dist/build/pdf.worker.mjs';
 
@@ -53,6 +54,7 @@ const EditorPage = () => {
     const [imageData, setImageData] = useState([]);
 
     const [insertTextPage, setInsertTextPage] = useState(null);
+    const [insertTextData, setInsertTextData] = useState(null);
     const messagesContainerRef = useRef(null);
 
     useEffect(() => {
@@ -170,6 +172,8 @@ const EditorPage = () => {
 
     function startCropPage() {
         setCropingPage(cropingPage ? null : currentPage);
+        setInsertImagePage(false);
+        setInsertTextPage(null);
     }
 
     function startInsertImage() {
@@ -177,10 +181,14 @@ const EditorPage = () => {
         if (insertImagePage) {
             setImageData([]);
         }
+        setCropingPage(null);
+        setInsertTextPage(null);
     }
 
     function startInsertText() {
         setInsertTextPage(insertTextPage ? null : currentPage);
+        setCropingPage(null);
+        setInsertImagePage(false);
     }
 
     async function formSubmit(event) {
@@ -189,41 +197,6 @@ const EditorPage = () => {
         let result;
         try {
             switch (activeTool) {
-                case "delete_page":
-                    let pageNumber = event.target.page_number.value;
-                    result = await deletePageRequest(pageNumber);
-                    if (result) {
-                        messagesContainerRef.current.addMessage("Успех", "Страница удалена");
-                    }
-                    break;
-                case "swap_pages":
-                    let page1 = event.target.page_1.value;
-                    let page2 = event.target.page_2.value;
-                    result = await swapPagesRequest(page1, page2);
-                    if (result) {
-                        messagesContainerRef.current.addMessage("Успех", `Страницы ${page1} и ${page2} замещены`);
-                    }
-                    break;
-                case "rotate_pages":
-                    let degrees = event.target.degrees.value;
-                    result = await rotatePagesRequest(degrees);
-                    if (result) {
-                        messagesContainerRef.current.addMessage("Успех", `Документ повёрнут на ${degrees}°`);
-                    }
-                    break;
-                case "crop_page":
-                    let cropPageNumber = event.target.page_number.value;
-                    let width = event.target.width.value;
-                    let height = event.target.height.value;
-                    let x = event.target.x.value;
-                    let y = event.target.y.value;
-                    result = await cropPageRequest(cropPageNumber, width, height, x, y);
-                    if (result) {
-                        messagesContainerRef.current.addMessage("Успех",
-                            `Документ обрезан; точка: (${x}, ${y}), размеры: (${width}, ${height})`
-                        );
-                    }
-                    break;
                 case "insert_image":
                     const images = inputFileButton.current.getImageData();
                     if (!images || !images.length) {
@@ -313,6 +286,7 @@ const EditorPage = () => {
                                             updateCropPageData={setCropPageData}
                                             insertImagePage={insertImagePage}
                                             insertTextPage={insertTextPage}
+                                            insertTextData={insertTextData}
                                             updateCurrentPage={setCurrentPage}
                                         />
                                     </>
@@ -326,7 +300,7 @@ const EditorPage = () => {
                                             onClick={cropPage}
                                         />
                                     }
-                                    { (insertImagePage) && 
+                                    { insertImagePage && 
                                         <InsertImageFormContent
                                             pageCount={pdf ? pdf.numPages : 1}
                                             inputFileButton={inputFileButton}
@@ -334,6 +308,23 @@ const EditorPage = () => {
                                             imageData={imageData}
                                             setImageData={setImageData}
                                         />
+                                    }
+                                    { insertTextPage &&
+                                        <>
+                                            <InsertTextPanel
+                                                updateData={setInsertTextData}
+                                            />
+                                            {/* {insertTextData &&
+                                                <>
+                                                    <p>{insertTextData.font}</p>
+                                                    <p>{Number(insertTextData.isBold)}</p>
+                                                    <p>{Number(insertTextData.isItalic)}</p>
+                                                    <p>{Number(insertTextData.isUnderline)}</p>
+                                                    <p>{insertTextData.textSize}</p>
+                                                    <p>{insertTextData.textColor}</p>
+                                                </>
+                                            } */}
+                                        </>
                                     }
                                 </div>
                             )}

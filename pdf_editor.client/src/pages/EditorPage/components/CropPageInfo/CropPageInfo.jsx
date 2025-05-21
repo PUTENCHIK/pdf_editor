@@ -9,7 +9,7 @@ const CropPageInfo = (props) => {
             <div className='content'>
                 <div className="column">
                     <span>Отступ слева</span>
-                    <span>Отступ сверху</span>
+                    <span>Отступ снизу</span>
                     <span>Ширина</span>
                     <span>Высота</span>
                 </div>
