@@ -46,13 +46,11 @@
 
     public class RotatePagesRequest {
         public string fileId { get; set; }
-        public int degrees { get; set; }
     }
 
     public class RotatePageRequest {
         public string fileId { get; set; }
         public int pageNumber { get; set; }
-        public int degrees { get; set; }
     }
 
     public class AddTextRequest {

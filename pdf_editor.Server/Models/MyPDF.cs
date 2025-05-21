@@ -235,26 +235,37 @@ namespace PDF_API.Models {
             return outputFilePath;
         }
 
-        public static string RotatePages(string inputFilePath, int degrees) {
+        public static string RotatePages(string inputFilePath, bool isRight) {
             string outputFilePath = GenerateNewPath(inputFilePath);
 
             using (var pdfDocument = new PdfDocument(new PdfReader(inputFilePath), new PdfWriter(outputFilePath))) {
                 for (int i = 1; i <= pdfDocument.GetNumberOfPages(); i++) {
                     var page = pdfDocument.GetPage(i);
                     var pageDegrees = page.GetRotation();
-                    page.SetRotation(pageDegrees + degrees);
+                    if (isRight) {
+                        page.SetRotation(pageDegrees + 90);
+                    }
+                    else {
+                        page.SetRotation(pageDegrees - 90);
+                    }
                 }
             }
 
             return outputFilePath;
         }
 
-        public static string RotatePage(string inputFilePath, int degrees, int pageNumber) {
+        public static string RotatePage(string inputFilePath, int pageNumber, bool isRight) {
             string outputFilePath = GenerateNewPath(inputFilePath);
 
             using (var pdfDocument = new PdfDocument(new PdfReader(inputFilePath), new PdfWriter(outputFilePath))) {
                 var page = pdfDocument.GetPage(pageNumber);
-                page.SetRotation(degrees);
+                var pageDegrees = page.GetRotation();
+                if (isRight) {
+                    page.SetRotation(pageDegrees + 90);
+                }
+                else {
+                    page.SetRotation(pageDegrees - 90);
+                }
             }
 
             return outputFilePath;

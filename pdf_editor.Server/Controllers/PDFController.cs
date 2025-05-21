@@ -367,15 +367,15 @@ namespace PDF_API.Controllers {
             }
         }
 
-        [HttpPost("rotate-pages")]
-        public async Task<ActionResult> RotatePages(RotatePagesRequest data) {
+        [HttpPost("rotate-pages-left")]
+        public async Task<ActionResult> RotatePagesLeft(RotatePagesRequest data) {
             string? requestId = HttpContext.Items["RequestId"]?.ToString();
             string? filePath = null;
             bool deleteOldFile = false;
 
             try {
                 filePath = DbPDF.GetPdfPath(_context, data.fileId);
-                string newPdfPath = MyPDF.RotatePages(filePath, data.degrees);
+                string newPdfPath = MyPDF.RotatePages(filePath, false);
 
                 DbPDF.UpdatePath(_context, data.fileId, newPdfPath);
                 deleteOldFile = true;
@@ -400,15 +400,81 @@ namespace PDF_API.Controllers {
             }
         }
 
-        [HttpPost("rotate-page")]
-        public async Task<ActionResult> RotatePage(RotatePageRequest data) {
+        [HttpPost("rotate-pages-right")]
+        public async Task<ActionResult> RotatePagesRight(RotatePagesRequest data) {
             string? requestId = HttpContext.Items["RequestId"]?.ToString();
             string? filePath = null;
             bool deleteOldFile = false;
 
             try {
                 filePath = DbPDF.GetPdfPath(_context, data.fileId);
-                string newPdfPath = MyPDF.RotatePage(filePath, data.degrees, data.pageNumber);
+                string newPdfPath = MyPDF.RotatePages(filePath, true);
+
+                DbPDF.UpdatePath(_context, data.fileId, newPdfPath);
+                deleteOldFile = true;
+                byte[] fileBytes = await System.IO.File.ReadAllBytesAsync(newPdfPath);
+
+                MyPDF.DeleteFile(filePath);
+                return File(fileBytes, "application/pdf", "returned.pdf");
+            }
+            catch (PDFException e) {
+                if (filePath != null && deleteOldFile) {
+                    MyPDF.DeleteFile(filePath);
+                }
+                _logger.LogInformation($"RequestId: {requestId}. The user received an error: {e.Message}");
+                return BadRequest(e.Message);
+            }
+            catch (Exception e) {
+                if (filePath != null && deleteOldFile) {
+                    MyPDF.DeleteFile(filePath);
+                }
+                _logger.LogCritical($"RequestId: {requestId}. {e.Message}");
+                return StatusCode(500, "Internal Server Error");
+            }
+        }
+
+        [HttpPost("rotate-page-left")]
+        public async Task<ActionResult> RotatePageLeft(RotatePageRequest data) {
+            string? requestId = HttpContext.Items["RequestId"]?.ToString();
+            string? filePath = null;
+            bool deleteOldFile = false;
+
+            try {
+                filePath = DbPDF.GetPdfPath(_context, data.fileId);
+                string newPdfPath = MyPDF.RotatePage(filePath, data.pageNumber, false);
+
+                DbPDF.UpdatePath(_context, data.fileId, newPdfPath);
+                deleteOldFile = true;
+                byte[] fileBytes = await System.IO.File.ReadAllBytesAsync(newPdfPath);
+
+                MyPDF.DeleteFile(filePath);
+                return File(fileBytes, "application/pdf", "returned.pdf");
+            }
+            catch (PDFException e) {
+                if (filePath != null && deleteOldFile) {
+                    MyPDF.DeleteFile(filePath);
+                }
+                _logger.LogInformation($"RequestId: {requestId}. The user received an error: {e.Message}");
+                return BadRequest(e.Message);
+            }
+            catch (Exception e) {
+                if (filePath != null && deleteOldFile) {
+                    MyPDF.DeleteFile(filePath);
+                }
+                _logger.LogCritical($"RequestId: {requestId}. {e.Message}");
+                return StatusCode(500, "Internal Server Error");
+            }
+        }
+
+        [HttpPost("rotate-page-right")]
+        public async Task<ActionResult> RotatePageRight(RotatePageRequest data) {
+            string? requestId = HttpContext.Items["RequestId"]?.ToString();
+            string? filePath = null;
+            bool deleteOldFile = false;
+
+            try {
+                filePath = DbPDF.GetPdfPath(_context, data.fileId);
+                string newPdfPath = MyPDF.RotatePage(filePath, data.pageNumber, true);
 
                 DbPDF.UpdatePath(_context, data.fileId, newPdfPath);
                 deleteOldFile = true;
