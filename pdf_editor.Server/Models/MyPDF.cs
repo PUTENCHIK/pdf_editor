@@ -224,10 +224,19 @@ namespace PDF_API.Models {
                         throw new PDFException("Dimensions are beyond the page.");
                     }
 
+                    PdfPage page = inputPdfDocument.GetPage(pageNumberToInsert);
+                    iText.Kernel.Geom.Rectangle actualCropBox = page.GetCropBox();
+                    float offsetX = actualCropBox.GetX();
+                    float offsetY = actualCropBox.GetY();
+
+                    float trueX = x + offsetX;
+                    float trueY = y + offsetY;
+                    
 
                     ImageData imageData = ImageDataFactory.Create(image.GetPath());
 
-                    var newImage = new iText.Layout.Element.Image(imageData).ScaleAbsolute(image.width, image.height).SetFixedPosition(pageNumberToInsert, x, pagePageSize.GetHeight() - image.height - y);
+                    //var newImage = new iText.Layout.Element.Image(imageData).ScaleAbsolute(image.width, image.height).SetFixedPosition(pageNumberToInsert, trueX, pagePageSize.GetHeight() - image.height - trueY);
+                    var newImage = new iText.Layout.Element.Image(imageData).ScaleAbsolute(image.width, image.height).SetFixedPosition(pageNumberToInsert, trueX, trueY);
                     document.Add(newImage);
                 }
             }
@@ -335,8 +344,16 @@ namespace PDF_API.Models {
                 Paragraph paragraph = new Paragraph()
                     .Add(new iText.Layout.Element.Text(text).AddStyle(style));
 
+                PdfPage page = pdfDocument.GetPage(pageNumber);
+                iText.Kernel.Geom.Rectangle actualCropBox = page.GetCropBox();
+                float offsetX = actualCropBox.GetX();
+                float offsetY = actualCropBox.GetY();
+
+                float trueX = x + offsetX;
+                float trueY = y + offsetY;
+
                 using (Document document = new Document(pdfDocument)) {
-                    document.ShowTextAligned(paragraph, x, pagePageSize.GetHeight() - y, pageNumber, TextAlignment.LEFT, VerticalAlignment.TOP, 0);
+                    document.ShowTextAligned(paragraph, trueX, trueY, pageNumber, TextAlignment.LEFT, VerticalAlignment.TOP, 0);
                 }
             }
 
@@ -395,15 +412,22 @@ namespace PDF_API.Models {
                     style.SetUnderline();
                 }
 
+                PdfPage page = pdfDocument.GetPage(pageNumber);
+                iText.Kernel.Geom.Rectangle actualCropBox = page.GetCropBox();
+                float offsetX = actualCropBox.GetX();
+                float offsetY = actualCropBox.GetY();
+
+                float trueX = x + offsetX;
+                float trueY = y + offsetY;
+
                 Paragraph paragraph = new Paragraph()
                     .Add(new iText.Layout.Element.Text(text).AddStyle(style));
 
                 using (Document document = new Document(pdfDocument)) {
-                    PdfPage page = pdfDocument.GetPage(pageNumber);
                     PdfCanvas canvas = new PdfCanvas(page);
 
                     string[] lines = text.Split('\n');
-                    float currentY = y;
+                    float currentY = trueY;
 
                     foreach (string line in lines) {
                         Paragraph paragraph1 = new Paragraph()
@@ -414,11 +438,11 @@ namespace PDF_API.Models {
                         canvas.SaveState()
                                 .SetFillColor(ColorConstants.WHITE)
                                 .SetStrokeColor(ColorConstants.WHITE)
-                                .Rectangle(x, pagePageSize.GetHeight() - currentY - FontSize, textWidth, FontSize * 1.1f)
+                                .Rectangle(trueX, currentY - FontSize, textWidth, FontSize * 1.1f)
                                 .FillStroke()
                                 .RestoreState();
 
-                        document.ShowTextAligned(paragraph1, x, pagePageSize.GetHeight() - currentY, pageNumber, TextAlignment.LEFT, VerticalAlignment.TOP, 0);
+                        document.ShowTextAligned(paragraph1, trueX, currentY, pageNumber, TextAlignment.LEFT, VerticalAlignment.TOP, 0);
 
                         currentY += FontSize * 1.3f;
                     }
@@ -446,10 +470,16 @@ namespace PDF_API.Models {
                     throw new PDFException("Dimensions are beyond the page.");
                 }
 
+                iText.Kernel.Geom.Rectangle actualCropBox = page.GetCropBox();
+                float offsetX = actualCropBox.GetX();
+                float offsetY = actualCropBox.GetY();
 
-                var cropBox = new iText.Kernel.Geom.Rectangle(x, y, width, height);
+                var cropBox = new iText.Kernel.Geom.Rectangle(x + offsetX, y + offsetY, width, height);
+
 
                 page.SetCropBox(cropBox);
+
+
             }
 
             return outputFilePath;
@@ -488,14 +518,24 @@ namespace PDF_API.Models {
                     throw new PDFException("The coordinates 2 specified are outside the page.");
                 }
 
-                float width = x2 - x1;
-                float height = y2 - y1;
+                iText.Kernel.Geom.Rectangle actualCropBox = page.GetCropBox();
+                float offsetX = actualCropBox.GetX();
+                float offsetY = actualCropBox.GetY();
+
+                float trueX1 = x1 + offsetX;
+                float trueY1 = y1 + offsetY;
+
+                float trueX2 = x2 + offsetX;
+                float trueY2 = y2 + offsetY;
+
+                float width = Math.Abs(trueX2 - trueX1);
+                float height = Math.Abs(trueY2 - trueY1);
 
                 if (width <= 0 || height <= 0) {
                     throw new PDFException("Incorrect corner coordinates. x2 must be greater than x1, and y2 must be greater than y1.");
                 }
 
-                Rectangle rect = new Rectangle(x1, pagePageSize.GetHeight() - y2, width, height);
+                Rectangle rect = new Rectangle(trueX1, trueY2, width, height);
                 PdfCanvas canvas = new PdfCanvas(page);
 
                 DeviceRgb whiteColor = new DeviceRgb(255, 255, 255);
