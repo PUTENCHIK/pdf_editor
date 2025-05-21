@@ -1,8 +1,14 @@
 .document-display {
+    height: auto;
     box-sizing: border-box;
-    
-    display: flex;
+    padding: 40px;
+    position: relative;
+    display: inline-flex;
     flex-direction: column;
     align-items: center;
     row-gap: 40px;
+}
+
+.document-segment {
+    position: relative;
 }

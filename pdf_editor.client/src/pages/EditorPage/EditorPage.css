@@ -69,7 +69,7 @@ main.section.editor-page.full {
 
 .interaction-segment {
     width: 350px;
-    min-width: 200px;
+    min-width: 400px;
     height: 100%;
     box-sizing: border-box;
     padding: 20px;

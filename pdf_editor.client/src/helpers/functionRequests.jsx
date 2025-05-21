@@ -70,26 +70,73 @@ export async function cropPageRequest(pageNumber, width, height, x, y) {
     return response.data;
 }
 
-export async function insertImageRequest(imageFile, pageNumber, width, height, x, y) {
-    const formData = new FormData();
-    formData.append('fileId', ssm.getFileId());
-    formData.append('imageFile', imageFile);
-    formData.append('pageNumber', pageNumber);
-    formData.append('width', width);
-    formData.append('height', height);
-    formData.append('x', x);
-    formData.append('y', y);
-    console.log(imageFile, pageNumber, width, height, x, y);
-    
-    const response = await axios.post(
-        "https://localhost:7199/api/PDF/InsertImage",
-        formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data'
-            },
-            'responseType': 'blob',
+export async function insertImageRequest(images) {
+    let response = null;
+    const elements = document.querySelectorAll('.image-container');
+    let i = 0;
+    for (const image of images) {
+        let x = 0;
+        let y = 0;
+        let w = 0;
+        let h = 0;
+        let koef = 1;
+        let number = 1;
+        const rect = elements[i].getBoundingClientRect();
+        elements[i].style.display = 'none';
+        const elementUnderneath = document.elementFromPoint(rect.x + rect.width / 2, rect.y + rect.height / 2);
+        if (elementUnderneath && elementUnderneath.id) {
+            const match = elementUnderneath.id.match(/\d+/);
+            number = match ? parseInt(match[0], 10) : null;
+            const rect2 = elementUnderneath.getBoundingClientRect();
+            x = rect2.left;  // Координата X элемента
+            y = rect2.top;   // Координата Y элемента
+            w = rect2.width;  // Координата X элемента
+            h = rect2.height;
+            koef = 600 / w;
         }
-    );
+        const pageContainer = document.getElementById("canvas-" + number);
+        console.log("number",number);
+        if (!pageContainer) {
+            console.error(`Контейнер страницы с ID "${number}" не найден.`);
+            return null;
+        }
+        i += 1;
+        const formData = new FormData();
+        formData.append('imageFile', image.file); // Передаем файл изображения
+        // Формируем URL с query parameters
+        const url = new URL("https://localhost:7199/api/PDF/insert-image");
+        url.searchParams.append('fileId', ssm.getFileId());
+        url.searchParams.append('pageNumber', number);
+        url.searchParams.append('width', Math.floor(Number((rect.width) * koef)));
+        url.searchParams.append('height', Math.floor(Number((rect.height) * koef)));
+        url.searchParams.append('x', Math.floor(Number((rect.x - x) * koef)));
+        url.searchParams.append('y', Math.floor(Number((rect.y - y) * koef)));
+        try {
+            response = await axios.post(url.toString(), formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+                responseType: 'blob',
+            });
+        } catch (error) {
+            if (error.response && error.response.data) {
+                // error.response.data — это Blob, нужно прочитать текст
+                const blob = error.response.data;
+                const text = await blob.text();
+                try {
+                    const json = JSON.parse(text);
+                } catch (e) {
+                    console.error('Ошибка при вставке изображения. Не удалось распарсить JSON:', text);
+                }
+            } else {
+                console.error('Ошибка при вставке изображения:', error.message);
+            }
+        }
+
+    }
+    elements.forEach(element => {
+        element.remove(); // Удаляем элемент из DOM
+    });
     return response.data;
 }
 

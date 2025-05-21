@@ -45,7 +45,7 @@ const DocumentDisplay = forwardRef((props, ref) => {
                             zoom={props.zoom}
                             container={props.containerRef.current}
                             onVisible={props.updateCurrentPage}
-                            // ref={el => (pageRefs.current[pageNum - 1] = el)}
+                            //ref={el => (pageRefs.current[pageNum - 1] = el)}
                         />
                     ))}
                 </>

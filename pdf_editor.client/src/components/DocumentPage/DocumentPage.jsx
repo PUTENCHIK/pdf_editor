@@ -45,7 +45,7 @@ const DocumentPage = forwardRef((props, outRef) => {
 
     return (
         <div ref={outRef}>
-            <canvas className={props.isCurrent ? "current-page" : null} ref={canvas}></canvas>
+            <canvas id={`canvas-${props.pageNum}`}  className={props.isCurrent ? "current-page" : null} ref={canvas}></canvas>
         </div>
     );
 });
