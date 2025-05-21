@@ -74,12 +74,11 @@ namespace PDF_API.Controllers {
             }
         }
 
-        [HttpPost("get-fonts")]
-        public IActionResult GetFonts(GetFontsRequest data) {
+        [HttpGet("get-fonts")]
+        public IActionResult GetFonts() {
             string? requestId = HttpContext.Items["RequestId"]?.ToString();
 
             try {
-                string pdfPath = DbPDF.GetPdfPath(_context, data.fileId);
                 List<string> fonts = MyPDF.GetAllFonts();
 
                 return Ok(fonts);
