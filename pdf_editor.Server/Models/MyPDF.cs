@@ -442,7 +442,7 @@ namespace PDF_API.Models {
                                 .FillStroke()
                                 .RestoreState();
 
-                        document.ShowTextAligned(paragraph1, trueX, currentY, pageNumber, TextAlignment.LEFT, VerticalAlignment.TOP, 0);
+                        document.ShowTextAligned(paragraph1, trueX, currentY, pageNumber, TextAlignment.LEFT, VerticalAlignment.BOTTOM, 0);
 
                         currentY += FontSize * 1.3f;
                     }
