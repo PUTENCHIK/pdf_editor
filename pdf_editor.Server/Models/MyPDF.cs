@@ -360,7 +360,7 @@ namespace PDF_API.Models {
             return outputFilePath;
         }
 
-        public static string EditText(string inputFilePath, string text, int pageNumber, int x, int y, float FontSize, string font, bool isBold, bool isItalic, bool isUnderline, string htmlColorCode) {
+        public static string EditText(string inputFilePath, string text, int pageNumber, int x, int y, float FontSize, string font, bool isBold, bool isItalic, bool isUnderline, string htmlColorCodeText, string htmlColorCodeBackground) {
             string outputFilePath = GenerateNewPath(inputFilePath);
 
             using (var pdfDocument = new PdfDocument(new PdfReader(inputFilePath), new PdfWriter(outputFilePath))) {
@@ -382,23 +382,37 @@ namespace PDF_API.Models {
                     code = PdfFontFactory.CreateFont(fonts["Roboto"]);
                 }
 
-                iText.Kernel.Colors.Color itextColor;
+                iText.Kernel.Colors.Color textColor;
                 try {
-                    if (htmlColorCode.StartsWith("#")) {
-                        htmlColorCode = htmlColorCode.Substring(1);
+                    if (htmlColorCodeText.StartsWith("#")) {
+                        htmlColorCodeText = htmlColorCodeText.Substring(1);
                     }
 
-                    System.Drawing.Color systemColor = System.Drawing.ColorTranslator.FromHtml("#" + htmlColorCode);
-                    itextColor = new DeviceRgb(systemColor.R / 255f, systemColor.G / 255f, systemColor.B / 255f);
+                    System.Drawing.Color systemColor = System.Drawing.ColorTranslator.FromHtml("#" + htmlColorCodeText);
+                    textColor = new DeviceRgb(systemColor.R / 255f, systemColor.G / 255f, systemColor.B / 255f);
                 }
                 catch (Exception ex) {
-                    itextColor = ColorConstants.BLACK;
+                    textColor = ColorConstants.BLACK;
+                }
+
+
+                iText.Kernel.Colors.Color backgroundColor;
+                try {
+                    if (htmlColorCodeBackground.StartsWith("#")) {
+                        htmlColorCodeBackground = htmlColorCodeBackground.Substring(1);
+                    }
+
+                    System.Drawing.Color systemColor = System.Drawing.ColorTranslator.FromHtml("#" + htmlColorCodeBackground);
+                    backgroundColor = new DeviceRgb(systemColor.R / 255f, systemColor.G / 255f, systemColor.B / 255f);
+                }
+                catch (Exception ex) {
+                    backgroundColor = ColorConstants.BLACK;
                 }
 
                 Style style = new Style()
                     .SetFont(code)
                     .SetFontSize(FontSize)
-                    .SetFontColor(itextColor);
+                    .SetFontColor(textColor);
 
                 if (isBold) {
                     style.SetBold();
@@ -436,9 +450,9 @@ namespace PDF_API.Models {
                         float textWidth = code.GetWidth(line, FontSize);
 
                         canvas.SaveState()
-                                .SetFillColor(ColorConstants.WHITE)
-                                .SetStrokeColor(ColorConstants.WHITE)
-                                .Rectangle(trueX, currentY - FontSize, textWidth, FontSize * 1.1f)
+                                .SetFillColor(backgroundColor)
+                                .SetStrokeColor(backgroundColor)
+                                .Rectangle(trueX, currentY, textWidth, FontSize * 1.1f)
                                 .FillStroke()
                                 .RestoreState();
 

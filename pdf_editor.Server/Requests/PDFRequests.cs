@@ -78,7 +78,8 @@
         public bool isBold { get; set; }
         public bool isItalic { get; set; }
         public bool isUnderline { get; set; }
-        public string htmlColorCode { get; set; }
+        public string htmlColorCodeText { get; set; }
+        public string htmlColorCodeBackground { get; set; }
     }
 
     public class CropPageRequest {

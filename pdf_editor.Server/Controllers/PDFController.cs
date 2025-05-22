@@ -539,7 +539,7 @@ namespace PDF_API.Controllers {
 
             try {
                 filePath = DbPDF.GetPdfPath(_context, data.fileId);
-                string newPdfPath = MyPDF.EditText(filePath, data.text, data.pageNumber, data.x, data.y, data.fontSize, data.font, data.isBold, data.isItalic, data.isUnderline, data.htmlColorCode);
+                string newPdfPath = MyPDF.EditText(filePath, data.text, data.pageNumber, data.x, data.y, data.fontSize, data.font, data.isBold, data.isItalic, data.isUnderline, data.htmlColorCodeText, data.htmlColorCodeBackground);
 
                 DbPDF.UpdatePath(_context, data.fileId, newPdfPath);
                 deleteOldFile = true;
