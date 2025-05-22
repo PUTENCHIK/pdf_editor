@@ -71,75 +71,79 @@ export async function cropPageRequest(pageNumber, x, y, width, height) {
     return response.data;
 }
 
-export async function insertImageRequest(images) {
+export async function insertImageRequest(images, pdfDocument) {
     let response = null;
     const elements = document.querySelectorAll('.image-container');
     let i = 0;
+
     for (const image of images) {
         let x = 0;
         let y = 0;
         let w = 0;
         let h = 0;
-        let koef = 1;
         let number = 1;
+
         const rect = elements[i].getBoundingClientRect();
         elements[i].style.display = 'none';
         const elementUnderneath = document.elementFromPoint(rect.x + rect.width / 2, rect.y + rect.height / 2);
         if (elementUnderneath && elementUnderneath.id) {
             const match = elementUnderneath.id.match(/\d+/);
             number = match ? parseInt(match[0], 10) : null;
+            if (!number) {
+                console.error('Не удалось определить номер страницы');
+                return null;
+            }
             const rect2 = elementUnderneath.getBoundingClientRect();
-            x = rect2.left;  // Координата X элемента
-            y = rect2.top;   // Координата Y элемента
-            w = rect2.width;  // Координата X элемента
+            x = rect2.left;
+            y = rect2.bottom;
+            w = rect2.width;
             h = rect2.height;
-            koef = 600 / w;
-        }
-        const pageContainer = document.getElementById("canvas-" + number);
-        console.log("number",number);
-        if (!pageContainer) {
-            console.error(`Контейнер страницы с ID "${number}" не найден.`);
+        } else {
+            console.error('Не найден элемент под изображением');
             return null;
         }
-        i += 1;
-        const formData = new FormData();
-        formData.append('imageFile', image.file); // Передаем файл изображения
-        // Формируем URL с query parameters
-        const url = new URL("https://localhost:7199/api/PDF/insert-image");
-        url.searchParams.append('fileId', ssm.getFileId());
-        url.searchParams.append('pageNumber', number);
-        url.searchParams.append('width', Math.floor(Number((rect.width) * koef)));
-        url.searchParams.append('height', Math.floor(Number((rect.height) * koef)));
-        url.searchParams.append('x', Math.floor(Number((rect.x - x) * koef)));
-        url.searchParams.append('y', Math.floor(Number((rect.y - y) * koef)));
-        try {
-            response = await axios.post(url.toString(), formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-                responseType: 'blob',
-            });
-        } catch (error) {
-            if (error.response && error.response.data) {
-                // error.response.data — это Blob, нужно прочитать текст
-                const blob = error.response.data;
-                const text = await blob.text();
-                try {
-                    const json = JSON.parse(text);
-                } catch (e) {
-                    console.error('Ошибка при вставке изображения. Не удалось распарсить JSON:', text);
-                }
-            } else {
-                console.error('Ошибка при вставке изображения:', error.message);
-            }
-        }
+        const page = await pdfDocument.getPage(number);
+        const viewport = page.getViewport({ scale: 1 }); // оригинальный размер страницы
+        const pageWidth = viewport.width;
+        const pageHeight = viewport.height;
+        const scaleX = w / pageWidth;
+        const scaleY = h / pageHeight;
+        const scale = (scaleX + scaleY) / 2;
 
+        const offsetX = rect.left - x;
+        const offsetY = y-rect.bottom;
+        
+        const imageX = offsetX / scale;
+        const imageY = (offsetY / scale);
+        console.log(imageY, "Значения");
+        const imageWidth = rect.width / scale;
+        const imageHeight = rect.height / scale;
+
+        i += 1;
+        console.log(scale, "scale", offsetY);
+        const formData = new FormData();
+        formData.append('imageFile', image.file);
+        formData.append('fileId', ssm.getFileId()); 
+        formData.append('pageNumber', number);
+        formData.append('width', Math.floor(imageWidth));
+        formData.append('height', Math.floor(imageHeight));
+        formData.append('x', Math.floor(imageX));
+        formData.append('y', Math.floor(imageY));
+
+        const url = "https://localhost:7199/api/PDF/insert-image";
+
+        // Выполняем POST-запрос
+        response = await axios.post(url, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+            responseType: 'blob',
+        });
     }
-    elements.forEach(element => {
-        element.remove(); // Удаляем элемент из DOM
-    });
-    return response.data;
+
+    return response?.data || null;
 }
+
 
 export async function combineFilesRequest(file1, file2) {
     const formData = new FormData();

@@ -1,175 +1,222 @@
-    import React, { useState, useRef, useEffect } from 'react';
-    import './AddImageFile.css'; // Ensure this path is correct
+import React, { useState, useRef, useEffect } from 'react';
+import './AddImageFile.css'; // Подключите свои стили
 
-    const ImageContainer = ({ image, pageWidth, pageHeight }) => {
-        const [position, setPosition] = useState({ x: image.x, y: image.y });
-        const [size, setSize] = useState({ width: image.width, height: image.height });
-        const [isDragging, setIsDragging] = useState(false);
-        const [isResizing, setIsResizing] = useState(false);
-        const [resizeHandle, setResizeHandle] = useState(null);
-        const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
-        const containerRef = useRef(null);
+const ImageContainer = ({ image, pageWidth, pageHeight }) => {
+    // Позиция и размер изображения
+    const [position, setPosition] = useState({ x: image.x, y: image.y });
+    const [size, setSize] = useState({ width: image.width, height: image.height });
 
-        useEffect(() => {
-            setPosition({ x: image.x, y: image.y });
-            setSize({ width: image.width, height: image.height });
-        }, [image.x, image.y, image.width, image.height]);
+    // Состояния для перетаскивания и изменения размера
+    const isDragging = useRef(false);
+    const isResizing = useRef(false);
+    const resizeHandle = useRef(null);
 
-        const handleMouseDown = (e) => {
-            e.preventDefault(); // Prevent default drag behavior
-            setIsDragging(!isDragging);
-            setDragStart({ x: e.clientX, y: e.clientY });
+    // Координаты мыши при начале действия
+    const dragStart = useRef({ mouseX: 0, mouseY: 0, posX: 0, posY: 0, width: 0, height: 0 });
+
+    // Обновляем позицию и размер при изменении пропса image
+    useEffect(() => {
+        setPosition({ x: image.x, y: image.y });
+        setSize({ width: image.width, height: image.height });
+    }, [image]);
+
+    // Обработчик начала перетаскивания
+    const onMouseDownDrag = (e) => {
+        e.preventDefault();
+        isDragging.current = true;
+        dragStart.current = {
+            mouseX: e.pageX,
+            mouseY: e.pageY,
+            posX: position.x,
+            posY: position.y,
         };
-
-        const handleMouseUp = () => {
-            setIsDragging(false);
-            setIsResizing(false);
-        };
-
-        const handleMouseMove = (e) => {
-            if (isDragging && !isResizing) {
-                const deltaX = e.clientX - dragStart.x;
-                const deltaY = e.clientY - dragStart.y;
-
-                setPosition((prevPosition) => {
-                    let newX = prevPosition.x + deltaX;
-                    let newY = prevPosition.y + deltaY;
-
-                    // Keep image within page bounds
-                    newX = Math.max(0, Math.min(newX, pageWidth - size.width));
-
-                    return { x: newX, y: newY };
-                });
-
-                setDragStart({ x: e.clientX, y: e.clientY });
-            } else if (isResizing && resizeHandle) {
-                const deltaX = e.clientX - dragStart.x;
-                const deltaY = e.clientY - dragStart.y;
-
-                setSize((prevSize) => {
-                    let newWidth = prevSize.width;
-                    let newHeight = prevSize.height;
-                    let newX = position.x;
-                    let newY = position.y;
-
-                    switch (resizeHandle) {
-                        case 'top-left':
-                            newWidth -= deltaX;
-                            newHeight -= deltaY;
-                            newX += deltaX;
-                            newY += deltaY;
-                            break;
-                        case 'top-right':
-                            newWidth += deltaX;
-                            newHeight -= deltaY;
-                            newY += deltaY;
-                            break;
-                        case 'bottom-left':
-                            newWidth -= deltaX;
-                            newHeight += deltaY;
-                            newX += deltaX;
-                            break;
-                        case 'bottom-right':
-                            newWidth += deltaX;
-                            newHeight += deltaY;
-                            break;
-                        default:
-                            break;
-                    }
-
-                    // Minimum size constraint
-                    const minSize = 20;
-                    newWidth = Math.max(newWidth, minSize);
-                    newHeight = Math.max(newHeight, minSize);
-
-                    // Keep image within page bounds while resizing (simplified)
-                    newX = Math.min(newX, pageWidth - newWidth);
-                    newY = Math.min(newY, pageHeight - newHeight);
-
-                    return { width: newWidth, height: newHeight };
-                });
-
-                setPosition((prevPosition) => {
-                    let newX = prevPosition.x;
-                    let newY = prevPosition.y;
-
-                    switch (resizeHandle) {
-                        case 'top-left':
-                            newX += deltaX;
-                            newY += deltaY;
-                            break;
-                        case 'top-right':
-                            newY += deltaY;
-                            break;
-                        case 'bottom-left':
-                            newX += deltaX;
-                            break;
-                        default:
-                            break;
-                    }
-
-                    return { x: newX, y: newY };
-                });
-                setDragStart({ x: e.clientX, y: e.clientY });
-            }
-        };
-
-        const handleResizeHandleMouseDown = (e, handle) => {
-            e.stopPropagation(); // Prevent dragging when resizing
-            setIsResizing(true);
-            setResizeHandle(handle);
-            setDragStart({ x: e.clientX, y: e.clientY })
-        };
-
-        useEffect(() => {
-            const handleMouseUp = () => {
-                setIsResizing(false);
-                setResizeHandle(null);
-            };
-
-            document.addEventListener('mouseup', handleMouseUp);
-
-            return () => {
-                document.removeEventListener('mouseup', handleMouseUp);
-            };
-        }, []);
-
-        return (
-            <div
-                ref={containerRef}
-                className="image-container"
-                style={{
-                    position: 'absolute',
-                    left: `${position.x}px`,
-                    top: `${position.y}px`,
-                    width: `${size.width}px`,
-                    height: `${size.height}px`,
-                    cursor: isDragging ? 'grabbing' : 'grab',
-                }}
-                onMouseDown={handleMouseDown}
-                onMouseUp={handleMouseUp}
-                onMouseMove={handleMouseMove}
-            >
-                <img src={image.src} alt={image.name} style={{ width: '100%', height: '100%', userSelect: 'none' }} />
-                {/* Resize Handles */}
-                <div
-                    className="resize-handle top-left"
-                    onMouseDown={(e) => handleResizeHandleMouseDown(e, 'top-left')}
-                />
-                <div
-                    className="resize-handle top-right"
-                    onMouseDown={(e) => handleResizeHandleMouseDown(e, 'top-right')}
-                />
-                <div
-                    className="resize-handle bottom-left"
-                    onMouseDown={(e) => handleResizeHandleMouseDown(e, 'bottom-left')}
-                />
-                <div
-                    className="resize-handle bottom-right"
-                    onMouseDown={(e) => handleResizeHandleMouseDown(e, 'bottom-right')}
-                />
-            </div>
-        );
+        // Добавляем слушатели на документ
+        document.addEventListener('mousemove', onMouseMove);
+        document.addEventListener('mouseup', onMouseUp);
     };
 
-    export default ImageContainer;
+    // Обработчик начала изменения размера
+    const onMouseDownResize = (e, handle) => {
+        e.stopPropagation();
+        e.preventDefault();
+        isResizing.current = true;
+        resizeHandle.current = handle;
+        dragStart.current = {
+            mouseX: e.pageX,
+            mouseY: e.pageY,
+            posX: position.x,
+            posY: position.y,
+            width: size.width,
+            height: size.height,
+        };
+        document.addEventListener('mousemove', onMouseMove);
+        document.addEventListener('mouseup', onMouseUp);
+    };
+
+    // Обработчик движения мыши при перетаскивании или изменении размера
+    const onMouseMove = (e) => {
+        e.preventDefault();
+        const dx = e.pageX - dragStart.current.mouseX;
+        const dy = e.pageY - dragStart.current.mouseY;
+
+        if (isDragging.current) {
+            // Перемещение
+            let newX = dragStart.current.posX + dx;
+            let newY = dragStart.current.posY + dy;
+
+            // Ограничения по границам
+            newX = Math.max(0, Math.min(newX, pageWidth - size.width));
+            newY = Math.max(0, Math.min(newY, pageHeight - size.height));
+
+            setPosition({ x: newX, y: newY });
+            //console.log('Dragging:', 'dx:', dx, 'dy:', dy, 'newX:', newX, 'newY:', newY);
+        } else if (isResizing.current) {
+            // Изменение размера
+            let newX = dragStart.current.posX;
+            let newY = dragStart.current.posY;
+            let newWidth = dragStart.current.width;
+            let newHeight = dragStart.current.height;
+
+            const minSize = 20;
+
+            switch (resizeHandle.current) {
+                case 'top-left':
+                    newWidth = dragStart.current.width - dx;
+                    newHeight = dragStart.current.height - dy;
+                    newX = dragStart.current.posX + dx;
+                    newY = dragStart.current.posY + dy;
+                    break;
+                case 'top-right':
+                    newWidth = dragStart.current.width + dx;
+                    newHeight = dragStart.current.height - dy;
+                    newY = dragStart.current.posY + dy;
+                    break;
+                case 'bottom-left':
+                    newWidth = dragStart.current.width - dx;
+                    newHeight = dragStart.current.height + dy;
+                    newX = dragStart.current.posX + dx;
+                    break;
+                case 'bottom-right':
+                    newWidth = dragStart.current.width + dx;
+                    newHeight = dragStart.current.height + dy;
+                    break;
+                default:
+                    break;
+            }
+
+            // Ограничения по минимальному размеру
+            if (newWidth < minSize) {
+                newWidth = minSize;
+                if (resizeHandle.current === 'top-left' || resizeHandle.current === 'bottom-left') {
+                    newX = dragStart.current.posX + (dragStart.current.width - minSize);
+                }
+            }
+            if (newHeight < minSize) {
+                newHeight = minSize;
+                if (resizeHandle.current === 'top-left' || resizeHandle.current === 'top-right') {
+                    newY = dragStart.current.posY + (dragStart.current.height - minSize);
+                }
+            }
+
+            // Ограничения по границам страницы
+            if (newX < 0) {
+                newWidth += newX;
+                newX = 0;
+            }
+            if (newY < 0) {
+                newHeight += newY;
+                newY = 0;
+            }
+            if (newX + newWidth > pageWidth) {
+                newWidth = pageWidth - newX;
+            }
+            if (newY + newHeight > pageHeight) {
+                newHeight = pageHeight - newY;
+            }
+
+            setPosition({ x: newX, y: newY });
+            setSize({ width: newWidth, height: newHeight });
+            console.log('Resizing:', 'newWidth:', newWidth, 'newHeight:', newHeight);
+        }
+    };
+
+    // Обработчик отпускания кнопки мыши
+    const onMouseUp = (e) => {
+        e.preventDefault();
+        isDragging.current = false;
+        isResizing.current = false;
+        resizeHandle.current = null;
+        document.removeEventListener('mousemove', onMouseMove);
+        document.removeEventListener('mouseup', onMouseUp);
+    };
+
+    // Функция для стилей углов изменения размера
+    const resizeHandleStyle = (position) => {
+        const baseStyle = {
+            position: 'absolute',
+            width: 12,
+            height: 12,
+            backgroundColor: 'white',
+            border: '2px solid black',
+            zIndex: 10,
+        };
+        switch (position) {
+            case 'top-left':
+                return { ...baseStyle, top: -6, left: -6, cursor: 'nwse-resize' };
+            case 'top-right':
+                return { ...baseStyle, top: -6, right: -6, cursor: 'nesw-resize' };
+            case 'bottom-left':
+                return { ...baseStyle, bottom: -6, left: -6, cursor: 'nesw-resize' };
+            case 'bottom-right':
+                return { ...baseStyle, bottom: -6, right: -6, cursor: 'nwse-resize' };
+            default:
+                return baseStyle;
+        }
+    };
+
+    return (
+        <div
+            className="image-container"
+            style={{
+                position: 'absolute',
+                left: position.x,
+                top: position.y,
+                width: size.width,
+                height: size.height,
+                userSelect: 'none',
+                cursor: isDragging.current ? 'grabbing' : 'grab',
+            }}
+            onMouseDown={onMouseDownDrag}
+        >
+            <img
+                src={image.src}
+                alt={image.name}
+                draggable={false}
+                style={{ width: '100%', height: '100%', pointerEvents: 'none' }}
+            />
+            {/* Углы для изменения размера */}
+            <div
+                className="resize-handle top-left"
+                onMouseDown={(e) => onMouseDownResize(e, 'top-left')}
+                style={resizeHandleStyle('top-left')}
+            />
+            <div
+                className="resize-handle top-right"
+                onMouseDown={(e) => onMouseDownResize(e, 'top-right')}
+                style={resizeHandleStyle('top-right')}
+            />
+            <div
+                className="resize-handle bottom-left"
+                onMouseDown={(e) => onMouseDownResize(e, 'bottom-left')}
+                style={resizeHandleStyle('bottom-left')}
+            />
+            <div
+                className="resize-handle bottom-right"
+                onMouseDown={(e) => onMouseDownResize(e, 'bottom-right')}
+                style={resizeHandleStyle('bottom-right')}
+            />
+        </div>
+    );
+};
+
+export default ImageContainer;

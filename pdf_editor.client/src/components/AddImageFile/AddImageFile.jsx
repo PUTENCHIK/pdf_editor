@@ -55,7 +55,6 @@ const AddImageFile = forwardRef((props, ref) => {
             inputFile.current.click();
         }
     }
-
     function inputFileOnChange() {
         const files = inputFile.current.files;
         const elements = document.querySelectorAll(".image-container");
@@ -84,7 +83,7 @@ const AddImageFile = forwardRef((props, ref) => {
                         let initialWidth = 200;
                         let initialHeight = 150;
                         let initialX = (pageW - initialWidth) / 2;
-                        let initialY = (window.innerHeight-300 - initialHeight) / 2 + (container?.scrollTop || 0);
+                        let initialY = (window.innerHeight - 300 - initialHeight) / 2 + (container?.scrollTop || 0);
                         newImages.push({
                             src: event.target.result,
                             name: files[i].name,

@@ -213,33 +213,30 @@ const EditorPage = () => {
         setCropingPage(null);
         setInsertImagePage(false);
     }
-
-    async function formSubmit(event) {
-        event.preventDefault();
-
-        let result;
-        try {
-            switch (activeTool) {
-                case "insert_image":
-                    const images = inputFileButton.current.getImageData();
-                    if (!images || !images.length) {
-                        messagesContainerRef.current.addError("Вставка изображения", "Не получено одно из полей формы");
-                        return;
-                    }
-                    result = await insertImageRequest(images);
-                    if (result) {
-                        messagesContainerRef.current.addMessage("Успех", "Изображение вставлено");
-                        setImageData([]);
-                    }
-                    break;
+    function clear() {
+        const elements = document.querySelectorAll('.image-container');
+        elements.forEach(element => {
+            const parentElement = element.parentNode; // Получаем родительский элемент
+            if (parentElement) {
+                parentElement.remove(); // Удаляем родительский элемент из DOM
             }
-            if (result) {
-                await setDocumentFromBlob(result);
-            } else {
-                messagesContainerRef.current.addError("Ошибка", "Не удалось отобразить файл после редактирования");
-            }
-        } catch (error) {
-            messagesContainerRef.current.addError("Ошибка", error.message);
+        });
+    }
+    async function insertImage() {
+        const images = inputFileButton.current.getImageData();
+        console.log(images);
+        if (!images || !images.length) {
+            messagesContainerRef.current.addError("Вставка изображения", "Не получено одно из полей формы");
+            return;
+        }
+        let result = await insertImageRequest(images, pdf);
+        clear();
+        setImageData([]);
+        if (result) {
+            messagesContainerRef.current.addMessage("Успех", "Изображение вставлено");
+            await setDocumentFromBlob(result);
+        } else {
+            messagesContainerRef.current.addError("Ошибка", "Не удалось вставить изображение");
         }
     }
 
@@ -328,7 +325,7 @@ const EditorPage = () => {
                                         <InsertImageFormContent
                                             pageCount={pdf ? pdf.numPages : 1}
                                             inputFileButton={inputFileButton}
-                                            formOnSubmit={formSubmit}
+                                            onClick={insertImage}
                                             imageData={imageData}
                                             setImageData={setImageData}
                                         />
