@@ -31,13 +31,19 @@ const DocumentPage = forwardRef((props, outRef) => {
         }).promise;
     }
 
-    function handleDataUpdated(newData) {
+    function handleCropDataUpdated(newData) {
         props.updateCropPageData({
             x: newData.x * originPageWidth,
             y: newData.y * originPageHeight,
             width: newData.width * originPageWidth,
             height: newData.height * originPageHeight,
         });
+    }
+
+    function handleInsertTextDataUpdated(newData) {
+        newData.x *= originPageWidth ?? 0;
+        newData.y *= originPageHeight ?? 0;
+        props.updateInsertTextData(newData);
     }
 
     useEffect(() => {
@@ -71,7 +77,7 @@ const DocumentPage = forwardRef((props, outRef) => {
                 <CropingField
                     pageWidth={pageWidth}
                     pageHeight={pageHeight}
-                    updateData={handleDataUpdated}
+                    updateData={handleCropDataUpdated}
                 />
             }
             { props.isInsertText &&
@@ -80,6 +86,7 @@ const DocumentPage = forwardRef((props, outRef) => {
                     pageHeight={pageHeight}
                     pageZoom={pageZoom}
                     data={props.insertTextData}
+                    updateData={handleInsertTextDataUpdated}
                 />
             }
             <canvas id={`canvas-${props.pageNum}`} className={props.isCurrent ? "current-page" : null} ref={canvas}></canvas>

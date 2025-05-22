@@ -36,7 +36,6 @@
     height: 40px;
 
     display: flex;
-    column-gap: -1px;
 }
 
 .insert-text-panel .text-styles > div {
@@ -108,4 +107,14 @@
     display: flex;
     column-gap: 8px;
     align-items: center;
+}
+
+.insert-text-panel .row > span.bold {
+    font-weight: 600;
+}
+
+.insert-text-panel .button-box {
+    padding-top: 40px;
+    display: flex;
+    justify-content: center;
 }

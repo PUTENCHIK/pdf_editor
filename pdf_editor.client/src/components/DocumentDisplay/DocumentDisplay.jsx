@@ -47,6 +47,7 @@ const DocumentDisplay = forwardRef((props, ref) => {
                             updateCropPageData={props.updateCropPageData}
                             isInsertText={props.insertTextPage == pageObject.pageNum}
                             insertTextData={props.insertTextData}
+                            updateInsertTextData={props.updateInsertTextData}
                             container={props.containerRef.current}
                             onVisible={props.updateCurrentPage}
                         />

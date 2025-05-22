@@ -5,7 +5,8 @@ import * as pdfjs from 'pdfjs-dist/build/pdf';
 import {
     startEditingRequest, deletePageRequest, rotatePagesRequest,
     swapPagesRequest, cropPageRequest, insertImageRequest,
-    rotatePageRequest
+    rotatePageRequest,
+    insertTextRequest
 } from '../../helpers/functionRequests';
 
 import Header from '../../components/Header/Header';
@@ -54,7 +55,8 @@ const EditorPage = () => {
     const [imageData, setImageData] = useState([]);
 
     const [insertTextPage, setInsertTextPage] = useState(null);
-    const [insertTextData, setInsertTextData] = useState(null);
+    const [insertTextDocumentData, setInsertTextDocumentData] = useState(null);
+    const [insertTextPanelData, setInsertTextPanelData] = useState(null);
     const messagesContainerRef = useRef(null);
 
     useEffect(() => {
@@ -150,6 +152,27 @@ const EditorPage = () => {
         }
         setCropingPage(null);
         setCropPageData(null);
+    }
+
+    async function insertTextIntoPage() {
+        let data = {...insertTextPanelData, ...insertTextDocumentData};
+        console.log("Data: ", data);
+        if (!data.text.trim().length) {
+            messagesContainerRef.current.addError("Вставка текста", "Сперва введите текст");
+            return;
+        }
+        data.x = roundNumber(data.x);
+        data.y = roundNumber(data.y);
+
+        let result = await insertTextRequest(insertTextPage, data);
+        if (result) {
+            await setDocumentFromBlob(result);
+        } else {
+            messagesContainerRef.current.addError("Вставка текста", `Не удалось вставить текст на страницу ${insertTextPage}`);
+        }
+        setInsertTextPage(null);
+        setInsertTextDocumentData(null);
+        setInsertTextPanelData(null);
     }
 
     function downloadFile() {
@@ -286,7 +309,8 @@ const EditorPage = () => {
                                             updateCropPageData={setCropPageData}
                                             insertImagePage={insertImagePage}
                                             insertTextPage={insertTextPage}
-                                            insertTextData={insertTextData}
+                                            insertTextData={insertTextPanelData}
+                                            updateInsertTextData={setInsertTextDocumentData}
                                             updateCurrentPage={setCurrentPage}
                                         />
                                     </>
@@ -312,18 +336,10 @@ const EditorPage = () => {
                                     { insertTextPage &&
                                         <>
                                             <InsertTextPanel
-                                                updateData={setInsertTextData}
+                                                documentData={insertTextDocumentData}
+                                                updateData={setInsertTextPanelData}
+                                                handleInsertText={insertTextIntoPage}
                                             />
-                                            {/* {insertTextData &&
-                                                <>
-                                                    <p>{insertTextData.font}</p>
-                                                    <p>{Number(insertTextData.isBold)}</p>
-                                                    <p>{Number(insertTextData.isItalic)}</p>
-                                                    <p>{Number(insertTextData.isUnderline)}</p>
-                                                    <p>{insertTextData.textSize}</p>
-                                                    <p>{insertTextData.textColor}</p>
-                                                </>
-                                            } */}
                                         </>
                                     }
                                 </div>

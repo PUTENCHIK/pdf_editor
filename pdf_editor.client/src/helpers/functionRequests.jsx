@@ -210,3 +210,22 @@ export async function getFontsRequest() {
     );
     return response.data
 }
+
+export async function insertTextRequest(pageNumber, data) {
+    const response = await axios.post(
+        `https://localhost:7199/api/PDF/add-text`, {
+            fileId: ssm.getFileId(),
+            pageNumber: pageNumber,
+            text: data.text,
+            x: data.x,
+            y: data.y,
+            fontSize: data.textSize,
+            font: data.font,
+            isBold: data.isBold,
+            isItalic: data.isItalic,
+            isUnderline: data.isUnderline,
+            htmlColorCode: data.textColor,
+        }, { 'responseType': 'blob' }
+    );
+    return response.data;
+}

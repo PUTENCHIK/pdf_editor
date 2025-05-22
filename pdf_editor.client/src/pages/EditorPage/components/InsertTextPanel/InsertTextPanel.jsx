@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import './InsertTextPanel.css'
 import { getFontsRequest } from '../../../../helpers/functionRequests';
+import roundNumber from '../../../../helpers/functions';
+import Button from '../../../../components/Button/Button';
 
 const InsertTextPanel = (props) => {
     const defaultFont = "Inter";
@@ -128,6 +130,24 @@ const InsertTextPanel = (props) => {
                         onChange={handleTextColorChange}
                     />
                 </div>
+                <div className="row">
+                    <span>Отступ слева</span>
+                    <span className='bold'>{roundNumber((props.documentData ?? {}).x)}px</span>
+                </div>
+
+                <div className="row">
+                    <span>Отступ снизу</span>
+                    <span className='bold'>{roundNumber((props.documentData ?? {}).y)}px</span>
+                </div>
+                { ((props.documentData ?? {}).text && (props.documentData ?? {}).text.trim().length > 0) &&
+                    <div className="button-box">
+                        <Button
+                            class="danger"
+                            text="Вставить текст"
+                            onClick={props.handleInsertText}
+                        />
+                    </div>
+                }
             </div>
         </div>
     );

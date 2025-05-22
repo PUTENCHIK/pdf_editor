@@ -8,6 +8,8 @@ const TextField = (props) => {
     const containerRef = useRef(null);
     const textBoxRef = useRef(null);
 
+    const [offsetX, setOffsetX] = useState(null);
+    const [offsetY, setOffsetY] = useState(null);
     const [x, setX] = useState(defaultPosition);
     const [y, setY] = useState(defaultPosition);
     const [isMoving, setIsMoving] = useState(false);
@@ -21,6 +23,14 @@ const TextField = (props) => {
     const [text, setText] = useState("");
 
     useEffect(() => {
+        props.updateData({
+            x: x,
+            y: y,
+            text: text
+        });
+    }, [x, y, text]);
+
+    useEffect(() => {
         if (props.data) {
             setFont(props.data.font);
             setIsBold(props.data.isBold);
@@ -32,21 +42,30 @@ const TextField = (props) => {
     }, [props.data, props.pageZoom]);
 
     useEffect(() => {
+        const clearSelection = () => {
+            if (window.getSelection) {
+                window.getSelection().removeAllRanges();
+            } else if (document.selection) {
+                document.selection.empty();
+            }
+        }
+
         const handleMouseMove = (event) => {
+            if (!isMoving) return;
+
+            clearSelection();
             const containerRect = containerRef.current.getBoundingClientRect();
             const textBoxRect = textBoxRef.current.getBoundingClientRect();
 
-            let newX = (event.clientX - containerRect.left) / props.pageWidth;
+            let newX = (event.clientX - containerRect.left - offsetX ?? 0) / props.pageWidth;
             newX = newX < 0 ? 0 : newX;
-            const maxX = 1 - (textBoxRect.width + 1) / props.pageWidth;
+            const maxX = 1 - textBoxRect.width / props.pageWidth;
             newX = newX >= maxX ? maxX : newX;
 
-            let newY = (containerRect.bottom - event.clientY) / props.pageHeight;
+            let newY = (containerRect.bottom - event.clientY - offsetY ?? 0) / props.pageHeight;
             newY = newY < 0 ? 0 : newY;
-            const maxY = 1 - (textBoxRect.height + 1) / props.pageHeight;
+            const maxY = 1 - textBoxRect.height / props.pageHeight;
             newY = newY >= maxY ? maxY : newY;
-
-            console.log(newX, newY);
             setX(newX);
             setY(newY);
         }
@@ -71,7 +90,10 @@ const TextField = (props) => {
     }
 
     function handleMouseDown(event) {
-        // event.preventDefault();
+        const textBoxRect = textBoxRef.current.getBoundingClientRect();
+        setOffsetX(event.clientX - textBoxRect.left);
+        setOffsetY(textBoxRect.bottom - event.clientY);
+        
         setIsMoving(true);
     }
 
@@ -90,7 +112,7 @@ const TextField = (props) => {
                         bottom: `${y * props.pageHeight}px`}}
             >
                 <span
-                    className='text'
+                    className="text"
                     onBlur={handleOnBlur}
                     contentEditable
                     style={{fontFamily: font,
