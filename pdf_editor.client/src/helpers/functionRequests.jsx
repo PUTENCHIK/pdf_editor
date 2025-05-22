@@ -115,12 +115,10 @@ export async function insertImageRequest(images, pdfDocument) {
         
         const imageX = offsetX / scale;
         const imageY = (offsetY / scale);
-        console.log(imageY, "Значения");
         const imageWidth = rect.width / scale;
         const imageHeight = rect.height / scale;
 
         i += 1;
-        console.log(scale, "scale", offsetY);
         const formData = new FormData();
         formData.append('imageFile', image.file);
         formData.append('fileId', ssm.getFileId()); 
@@ -132,7 +130,6 @@ export async function insertImageRequest(images, pdfDocument) {
 
         const url = "https://localhost:7199/api/PDF/insert-image";
 
-        // Выполняем POST-запрос
         response = await axios.post(url, formData, {
             headers: {
                 'Content-Type': 'multipart/form-data',
@@ -215,21 +212,34 @@ export async function getFontsRequest() {
     return response.data
 }
 
-export async function insertTextRequest(pageNumber, data) {
+export async function insertTextRequest(withBackground, pageNumber, data) {
+    let requestData = {
+        fileId: ssm.getFileId(),
+        pageNumber: pageNumber,
+        text: data.text,
+        x: data.x,
+        y: data.y,
+        fontSize: data.textSize,
+        font: data.font,
+        isBold: data.isBold,
+        isItalic: data.isItalic,
+        isUnderline: data.isUnderline,
+        
+    };
+    if (withBackground) {
+        requestData.htmlColorCodeText = data.textColor;
+        requestData.htmlColorCodeBackground = data.backgroundColor;
+    } else {
+        requestData.htmlColorCode = data.textColor;
+    }
+    const pathes = {
+        false: "add-text",
+        true: "edit-text"
+    };
     const response = await axios.post(
-        `https://localhost:7199/api/PDF/add-text`, {
-            fileId: ssm.getFileId(),
-            pageNumber: pageNumber,
-            text: data.text,
-            x: data.x,
-            y: data.y,
-            fontSize: data.textSize,
-            font: data.font,
-            isBold: data.isBold,
-            isItalic: data.isItalic,
-            isUnderline: data.isUnderline,
-            htmlColorCode: data.textColor,
-        }, { 'responseType': 'blob' }
+        `https://localhost:7199/api/PDF/${pathes[withBackground]}`,
+        requestData,
+        { 'responseType': 'blob' }
     );
     return response.data;
 }

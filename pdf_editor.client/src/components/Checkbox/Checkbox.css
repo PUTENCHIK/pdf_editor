@@ -1,0 +1,30 @@
+div.checkbox {
+    box-sizing: border-box;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 1px solid #808080;
+    user-select: none;
+    cursor: pointer;
+}
+
+div.checkbox:hover {
+    border: 1px solid #000000;
+}
+
+div.checkbox.checked {
+    border: 0;
+    background-color: rgb(35, 35, 255);
+}
+
+div.checkbox > .mark {
+    display: block;
+    box-sizing: border-box;
+    
+    position: relative;
+    
+    border: 0;
+    transform: rotate(45deg);
+}

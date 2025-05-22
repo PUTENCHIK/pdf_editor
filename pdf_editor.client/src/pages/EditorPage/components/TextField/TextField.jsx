@@ -20,6 +20,7 @@ const TextField = (props) => {
     const [isUnderline, setIsUnderline] = useState(null);
     const [textSize, setTextSize] = useState(null);
     const [textColor, setTextColor] = useState(null);
+    const [backgroudColor, setBackgroudColor] = useState(null);
     const [text, setText] = useState("");
 
     useEffect(() => {
@@ -38,6 +39,7 @@ const TextField = (props) => {
             setIsUnderline(props.data.isUnderline);
             setTextSize(props.data.textSize);
             setTextColor(props.data.textColor);
+            setBackgroudColor(props.data.backgroundColor);
         }
     }, [props.data, props.pageZoom]);
 
@@ -57,12 +59,12 @@ const TextField = (props) => {
             const containerRect = containerRef.current.getBoundingClientRect();
             const textBoxRect = textBoxRef.current.getBoundingClientRect();
 
-            let newX = (event.clientX - containerRect.left - offsetX) / props.pageWidth;
+            let newX = roundNumber(event.clientX - containerRect.left - offsetX) / props.pageWidth;
             newX = newX < 0 ? 0 : newX;
             const maxX = 1 - textBoxRect.width / props.pageWidth;
             newX = newX >= maxX ? maxX : newX;
 
-            let newY = (containerRect.bottom - event.clientY - offsetY) / props.pageHeight;
+            let newY = roundNumber(containerRect.bottom - event.clientY - offsetY) / props.pageHeight;
             newY = newY < 0 ? 0 : newY;
             const maxY = 1 - textBoxRect.height / props.pageHeight;
             newY = newY >= maxY ? maxY : newY;
@@ -120,7 +122,8 @@ const TextField = (props) => {
                             fontStyle: (isItalic ? "italic" : "normal"),
                             textDecoration: (isUnderline ? "underline" : "none"),
                             fontSize: `${textSize * props.pageZoom}px`,
-                            color: textColor}}
+                            color: textColor,
+                            backgroundColor: (backgroudColor ? backgroudColor : "transparent")}}
                 >
                     {text}
                 </span>

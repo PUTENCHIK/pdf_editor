@@ -1,11 +1,31 @@
 @font-face {
+    font-family: "Roboto";
+    src: url("/public/fonts/Roboto/Roboto-VariableFont_wdth,wght.ttf");
+}
+
+@font-face {
     font-family: "Inter";
     src: url("/public/fonts/Inter/Inter-VariableFont_opsz\,wght.ttf");
 }
 
 @font-face {
-    font-family: "Montserrat";
-    src: url("/public/fonts/Montserrat/Montserrat-VariableFont_wght.ttf");
+    font-family: "Lora";
+    src: url("/public/fonts/Lora/Lora-VariableFont_wght.ttf");
+}
+
+@font-face {
+    font-family: "OpenSans";
+    src: url("/public/fonts/OpenSans/OpenSans-VariableFont_wdth\,wght.ttf");
+}
+
+@font-face {
+    font-family: "Raleway";
+    src: url("/public/fonts/Raleway/Raleway-VariableFont_wght.ttf");
+}
+
+@font-face {
+    font-family: "Ubuntu";
+    src: url("/public/fonts/Ubuntu/Ubuntu-Regular.ttf");
 }
 
 html,

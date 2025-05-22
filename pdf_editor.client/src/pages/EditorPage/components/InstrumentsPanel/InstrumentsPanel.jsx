@@ -24,7 +24,7 @@ const InstrumentsPanel = (props) => {
                 alt="insert_image"
                 tooltip={props.insertImagePage ?
                     "Отменить вставку изображения" :
-                    `Вставить изображение на страницу ${props.currentPage}`
+                    "Вставить изображения"
                 }
                 isActive={props.insertImagePage}
                 onClick={props.onInsertImage}

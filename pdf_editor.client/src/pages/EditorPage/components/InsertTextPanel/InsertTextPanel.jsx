@@ -3,11 +3,13 @@ import './InsertTextPanel.css'
 import { getFontsRequest } from '../../../../helpers/functionRequests';
 import roundNumber from '../../../../helpers/functions';
 import Button from '../../../../components/Button/Button';
+import Checkbox from '../../../../components/Checkbox/Checkbox';
 
 const InsertTextPanel = (props) => {
     const defaultFont = "Inter";
     const defaultTextSize = 14;
     const defaultColor = "#000000";
+    const defaultBackgroundColor = "#ffffff";
 
     const [fonts, setFonts] = useState([]);
 
@@ -17,6 +19,8 @@ const InsertTextPanel = (props) => {
     const [isUnderline, setIsUnderline] = useState(false);
     const [textSize, setTextSize] = useState(defaultTextSize);
     const [textColor, setTextColor] = useState(defaultColor);
+    const [withBackground, setWithBackground] = useState(false);
+    const [backgroundColor, setBackgroundColor] = useState(defaultBackgroundColor);
 
     useEffect(() => {
         props.updateData({
@@ -26,8 +30,10 @@ const InsertTextPanel = (props) => {
             isUnderline: isUnderline,
             textSize: textSize,
             textColor: textColor,
+            backgroundColor: withBackground ? backgroundColor : null,
         });
-    }, [font, isBold, isItalic, isUnderline, textSize, textColor]);
+    }, [font, isBold, isItalic, isUnderline, textSize,
+        textColor, withBackground, backgroundColor]);
 
     useEffect(() => {
         if (fonts && fonts.length)
@@ -67,6 +73,14 @@ const InsertTextPanel = (props) => {
 
     function handleTextColorChange(event) {
         setTextColor(event.target.value)
+    }
+
+    function handleWithBackground() {
+        setWithBackground(!withBackground);
+    }
+
+    function handleBackgroundColorChange(event) {
+        setBackgroundColor(event.target.value);
     }
 
     return (
@@ -130,6 +144,30 @@ const InsertTextPanel = (props) => {
                         onChange={handleTextColorChange}
                     />
                 </div>
+                <div className="row">
+                    <span>Заливать фон</span>
+                    <Checkbox
+                        size={24}
+                        isChecked={withBackground}
+                        onClick={handleWithBackground}
+                    />
+                    {/* <input
+                        type="checkbox"
+                        value={withBackground}
+                        onChange={handleWithBackground}
+                    /> */}
+                </div>
+                { withBackground &&
+                    <div className="row">
+                        <span>Цвет фона</span>
+                        <input
+                            className='color'
+                            type="color"
+                            value={backgroundColor}
+                            onChange={handleBackgroundColorChange}
+                        />
+                    </div>
+                }
                 <div className="row">
                     <span>Отступ слева</span>
                     <span className='bold'>{roundNumber((props.documentData ?? {}).x)}px</span>

@@ -5,8 +5,7 @@ import * as pdfjs from 'pdfjs-dist/build/pdf';
 import {
     startEditingRequest, deletePageRequest, rotatePagesRequest,
     swapPagesRequest, cropPageRequest, insertImageRequest,
-    rotatePageRequest,
-    insertTextRequest
+    rotatePageRequest, insertTextRequest
 } from '../../helpers/functionRequests';
 
 import Header from '../../components/Header/Header';
@@ -161,7 +160,6 @@ const EditorPage = () => {
 
     async function insertImage() {
         const images = inputFileButton.current.getImageData();
-        console.log(images);
         if (!images || !images.length) {
             messagesContainerRef.current.addError("Вставка изображения", "Не получено одно из полей формы");
             return;
@@ -179,7 +177,6 @@ const EditorPage = () => {
 
     async function insertTextIntoPage() {
         let data = {...insertTextPanelData, ...insertTextDocumentData};
-        console.log("Data: ", data);
         if (!data.text.trim().length) {
             messagesContainerRef.current.addError("Вставка текста", "Сперва введите текст");
             return;
@@ -187,7 +184,7 @@ const EditorPage = () => {
         data.x = roundNumber(data.x);
         data.y = roundNumber(data.y);
 
-        let result = await insertTextRequest(insertTextPage, data);
+        let result = await insertTextRequest(data.backgroundColor != null, insertTextPage, data);
         if (result) {
             await setDocumentFromBlob(result);
         } else {
@@ -207,37 +204,37 @@ const EditorPage = () => {
         link.remove();
     }
 
+    function disableAllFunctions() {
+        setCropingPage(null);
+        setInsertImagePage(false);
+        setImageData([]);
+        removeImageContainers();
+        setInsertTextPage(null);
+        setInsertTextDocumentData(null)
+        setInsertTextPanelData(null);
+    }
+
     function closeFile() {
         setFileObject(null);
         setPdf(null);
         setPageState('start');
-        setCropingPage(null);
-        setInsertImagePage(false);
-        setInsertTextPage(null);
-        setInsertTextDocumentData(null)
-        setInsertTextPanelData(null);
+        disableAllFunctions();
         setIsConfirmingClosing(false);
     }
 
     function startCropPage() {
+        disableAllFunctions();
         setCropingPage(cropingPage ? null : currentPage);
-        setInsertImagePage(false);
-        setInsertTextPage(null);
     }
 
     function startInsertImage() {
+        disableAllFunctions();
         setInsertImagePage(!insertImagePage);
-        if (insertImagePage) {
-            setImageData([]);
-        }
-        setCropingPage(null);
-        setInsertTextPage(null);
     }
 
     function startInsertText() {
+        disableAllFunctions();
         setInsertTextPage(insertTextPage ? null : currentPage);
-        setCropingPage(null);
-        setInsertImagePage(false);
     }
 
     function handleCloseFormContainer() {
@@ -345,13 +342,11 @@ const EditorPage = () => {
                                         />
                                     }
                                     { insertTextPage &&
-                                        <>
-                                            <InsertTextPanel
-                                                documentData={insertTextDocumentData}
-                                                updateData={setInsertTextPanelData}
-                                                handleInsertText={insertTextIntoPage}
-                                            />
-                                        </>
+                                        <InsertTextPanel
+                                            documentData={insertTextDocumentData}
+                                            updateData={setInsertTextPanelData}
+                                            handleInsertText={insertTextIntoPage}
+                                        />
                                     }
                                 </div>
                             )}
