@@ -353,7 +353,7 @@ namespace PDF_API.Models {
                 float trueY = y + offsetY;
 
                 using (Document document = new Document(pdfDocument)) {
-                    document.ShowTextAligned(paragraph, trueX, trueY, pageNumber, TextAlignment.LEFT, VerticalAlignment.TOP, 0);
+                    document.ShowTextAligned(paragraph, trueX, trueY, pageNumber, TextAlignment.LEFT, VerticalAlignment.BOTTOM, 0);
                 }
             }
 
