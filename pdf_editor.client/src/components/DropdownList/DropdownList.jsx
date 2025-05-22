@@ -4,7 +4,7 @@ import { useRef, useEffect, useState } from 'react';
 
 import ArrowDown from '../ArrowDown/ArrowDown';
 
-const DropdownList = (props, ref) => {
+const DropdownList = (props) => {
     const dropdownList = useRef(null);
     let [isShown, setShown] = useState(props.isShown);
 

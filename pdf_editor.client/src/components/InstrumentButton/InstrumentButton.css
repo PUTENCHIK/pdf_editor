@@ -23,6 +23,10 @@
     background-color: #ffffffdd;
 }
 
+.instrument-button.danger:hover {
+    background-color: #ff1616a1;
+}
+
 .instrument-button > img {
     width: 24px;
 }

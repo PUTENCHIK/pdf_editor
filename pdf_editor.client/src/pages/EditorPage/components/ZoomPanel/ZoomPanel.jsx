@@ -4,7 +4,7 @@ import zoom_increase from '../../../../images/common/zoom_increase.svg'
 import zoom_decrease from '../../../../images/common/zoom_decrease.svg'
 
 import roundNumber from '../../../../helpers/functions';
-import InstrumentButton from '../InstrumentButton/InstrumentButton';
+import InstrumentButton from '../../../../components/InstrumentButton/InstrumentButton';
 
 const ZoomPanel = (props) => {
     const startZoom = 1, minZoom = 0.2, maxZoom = 5;

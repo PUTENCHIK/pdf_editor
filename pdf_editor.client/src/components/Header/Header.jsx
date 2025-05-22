@@ -1,9 +1,7 @@
 import './Header.css'
 import { Link } from 'react-router-dom';
 
-import HeaderLink from '../HeaderLink/HeaderLink';
 import DropdownList from '../DropdownList/DropdownList';
-
 import tools from '../../helpers/toolsList';
 
 function Header(props) {

@@ -1,0 +1,32 @@
+.forms-container {
+    width: 100vw;
+    height: 100vh;
+
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    background-color: rgba(69, 69, 69, 0.4);
+    z-index: 9;
+}
+
+.forms-container .form {
+    box-sizing: border-box;
+    padding: 40px;
+
+    display: flex;
+    flex-direction: column;
+    row-gap: 20px;
+
+    border-radius: 20px;
+    background-color: #ffffff;
+}
+
+.forms-container .form .cross-button-box {
+    display: flex;
+    justify-content: flex-end;
+}

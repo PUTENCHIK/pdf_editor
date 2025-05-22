@@ -2,7 +2,7 @@ import './ExtraPanel.css'
 
 import download_icon from '../../../../images/common/download.png';
 import close_icon from '../../../../images/common/cross.svg';
-import InstrumentButton from '../InstrumentButton/InstrumentButton';
+import InstrumentButton from '../../../../components/InstrumentButton/InstrumentButton';
 
 const ExtraPanel = (props) => {
     return (
@@ -16,6 +16,7 @@ const ExtraPanel = (props) => {
             <InstrumentButton
                 image={close_icon}
                 alt="close"
+                type="danger"
                 tooltip="Закрыть документ"
                 onClick={props.onClose}
             />

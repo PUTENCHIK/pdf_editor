@@ -26,6 +26,7 @@ import ExtraPanel from './components/ExtraPanel/ExtraPanel';
 import CropPageInfo from './components/CropPageInfo/CropPageInfo';
 import roundNumber from '../../helpers/functions';
 import InsertTextPanel from './components/InsertTextPanel/InsertTextPanel';
+import FormsContainer from '../../components/FormsContainer/FormsContainer';
 
 GlobalWorkerOptions.workerSrc = './node_modules/pdfjs-dist/build/pdf.worker.mjs';
 
@@ -40,6 +41,9 @@ const EditorPage = () => {
     const minimapDisplay = useRef(null);
     const minimapSegment = useRef(null);
     const documentSegment = useRef(null);
+
+    const messagesContainerRef = useRef(null);
+    const formsContainerRef = useRef(null);
 
     const [fileObject, setFileObject] = useState(null);
     const [pdf, setPdf] = useState(null);
@@ -57,7 +61,8 @@ const EditorPage = () => {
     const [insertTextPage, setInsertTextPage] = useState(null);
     const [insertTextDocumentData, setInsertTextDocumentData] = useState(null);
     const [insertTextPanelData, setInsertTextPanelData] = useState(null);
-    const messagesContainerRef = useRef(null);
+
+    const [isConfirmingClosing, setIsConfirmingClosing] = useState(false);
 
     useEffect(() => {
         if (documentDisplay.current && pdf && zoom) {
@@ -154,6 +159,24 @@ const EditorPage = () => {
         setCropPageData(null);
     }
 
+    async function insertImage() {
+        const images = inputFileButton.current.getImageData();
+        console.log(images);
+        if (!images || !images.length) {
+            messagesContainerRef.current.addError("Вставка изображения", "Не получено одно из полей формы");
+            return;
+        }
+        let result = await insertImageRequest(images, pdf);
+        removeImageContainers();
+        setImageData([]);
+        if (result) {
+            messagesContainerRef.current.addMessage("Успех", "Изображение вставлено");
+            await setDocumentFromBlob(result);
+        } else {
+            messagesContainerRef.current.addError("Ошибка", "Не удалось вставить изображение");
+        }
+    }
+
     async function insertTextIntoPage() {
         let data = {...insertTextPanelData, ...insertTextDocumentData};
         console.log("Data: ", data);
@@ -191,6 +214,9 @@ const EditorPage = () => {
         setCropingPage(null);
         setInsertImagePage(false);
         setInsertTextPage(null);
+        setInsertTextDocumentData(null)
+        setInsertTextPanelData(null);
+        setIsConfirmingClosing(false);
     }
 
     function startCropPage() {
@@ -213,37 +239,25 @@ const EditorPage = () => {
         setCropingPage(null);
         setInsertImagePage(false);
     }
-    function clear() {
+
+    function handleCloseFormContainer() {
+        setIsConfirmingClosing(false);
+    }
+
+    function removeImageContainers() {
         const elements = document.querySelectorAll('.image-container');
         elements.forEach(element => {
-            const parentElement = element.parentNode; // Получаем родительский элемент
+            const parentElement = element.parentNode;
             if (parentElement) {
-                parentElement.remove(); // Удаляем родительский элемент из DOM
+                parentElement.remove();
             }
         });
-    }
-    async function insertImage() {
-        const images = inputFileButton.current.getImageData();
-        console.log(images);
-        if (!images || !images.length) {
-            messagesContainerRef.current.addError("Вставка изображения", "Не получено одно из полей формы");
-            return;
-        }
-        let result = await insertImageRequest(images, pdf);
-        clear();
-        setImageData([]);
-        if (result) {
-            messagesContainerRef.current.addMessage("Успех", "Изображение вставлено");
-            await setDocumentFromBlob(result);
-        } else {
-            messagesContainerRef.current.addError("Ошибка", "Не удалось вставить изображение");
-        }
     }
 
     return (
         <>
             <div className="page-content">
-                <Header linkRootExists={false} />
+                <Header />
                 <main className={"section editor-page" + (pageState === "display" ? " full" : "")}>
                     {pageState === "start" && (
                         <div className='start-state'>
@@ -292,7 +306,7 @@ const EditorPage = () => {
                                                 <CurrentPagePanel current={currentPage} pages={pdf.numPages} />
                                                 <ExtraPanel
                                                     onDownload={downloadFile}
-                                                    onClose={closeFile}
+                                                    onClose={() => setIsConfirmingClosing(true)}
                                                 />
                                             </div>
                                         </div>
@@ -345,6 +359,14 @@ const EditorPage = () => {
                     )}
                 </main>
                 <MessageBlocksContainer ref={messagesContainerRef} />
+                { isConfirmingClosing &&
+                    <FormsContainer
+                        isConfirmingClosing={isConfirmingClosing}
+                        onCloseContainer={handleCloseFormContainer}
+                        onConfirmClosingFile={closeFile}
+                        ref={formsContainerRef}
+                    />
+                }
             </div>
         </>
     );

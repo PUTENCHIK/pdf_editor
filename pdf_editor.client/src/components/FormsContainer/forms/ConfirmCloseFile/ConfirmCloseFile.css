@@ -1,0 +1,16 @@
+.confirm-close-file .content {
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    row-gap: 30px;
+}
+
+.confirm-close-file .buttons-box {
+    width: 100%;
+    display: flex;
+    column-gap: 30px;
+}
+
+.confirm-close-file .buttons-box > button {
+    width: 100%;
+}

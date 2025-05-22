@@ -4,7 +4,7 @@ import crop_icon from '../../../../images/common/clip_icon_active.svg';
 import insert_image_icon from '../../../../images/common/insert_image_icon_active.svg';
 import insert_text_icon from '../../../../images/common/insert_text_icon.svg';
 import cross_icon from '../../../../images/common/cross.svg';
-import InstrumentButton from '../InstrumentButton/InstrumentButton';
+import InstrumentButton from '../../../../components/InstrumentButton/InstrumentButton';
 
 const InstrumentsPanel = (props) => {
     return (

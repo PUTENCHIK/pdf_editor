@@ -41,8 +41,8 @@ const DocumentPage = forwardRef((props, outRef) => {
     }
 
     function handleInsertTextDataUpdated(newData) {
-        newData.x *= originPageWidth ?? 0;
-        newData.y *= originPageHeight ?? 0;
+        newData.x *= originPageWidth;
+        newData.y *= originPageHeight;
         props.updateInsertTextData(newData);
     }
 

@@ -11,7 +11,7 @@ const TextField = (props) => {
     const [offsetX, setOffsetX] = useState(null);
     const [offsetY, setOffsetY] = useState(null);
     const [x, setX] = useState(defaultPosition);
-    const [y, setY] = useState(defaultPosition);
+    const [y, setY] = useState(1 - defaultPosition);
     const [isMoving, setIsMoving] = useState(false);
 
     const [font, setFont] = useState(null);
@@ -57,12 +57,12 @@ const TextField = (props) => {
             const containerRect = containerRef.current.getBoundingClientRect();
             const textBoxRect = textBoxRef.current.getBoundingClientRect();
 
-            let newX = (event.clientX - containerRect.left - offsetX ?? 0) / props.pageWidth;
+            let newX = (event.clientX - containerRect.left - offsetX) / props.pageWidth;
             newX = newX < 0 ? 0 : newX;
             const maxX = 1 - textBoxRect.width / props.pageWidth;
             newX = newX >= maxX ? maxX : newX;
 
-            let newY = (containerRect.bottom - event.clientY - offsetY ?? 0) / props.pageHeight;
+            let newY = (containerRect.bottom - event.clientY - offsetY) / props.pageHeight;
             newY = newY < 0 ? 0 : newY;
             const maxY = 1 - textBoxRect.height / props.pageHeight;
             newY = newY >= maxY ? maxY : newY;
