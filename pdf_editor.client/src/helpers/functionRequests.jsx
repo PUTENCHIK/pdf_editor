@@ -1,8 +1,6 @@
 import axios from 'axios';
 import ssm from '../utils/SessionStorageManager';
 
-const commonError = "Ошибка сервера! Статус ответа:"
-
 export async function startEditingRequest(file) {
     const formData = new FormData();
     formData.append('file', file);
@@ -22,9 +20,7 @@ export async function deletePageRequest(pageNumber) {
         "https://localhost:7199/api/PDF/delete-page", {
             fileId: ssm.getFileId(),
             pageNumber: pageNumber,
-        }, {
-            'responseType': 'blob'
-        }
+        }, { 'responseType': 'blob' }
     );
     return response.data;
 }
@@ -35,9 +31,7 @@ export async function swapPagesRequest(pageFrom, pageTo) {
             fileId: ssm.getFileId(),
             pageFrom: pageFrom,
             pageTo: pageTo,
-        }, {
-            'responseType': 'blob'
-        }
+        }, { 'responseType': 'blob' }
     );
     return response.data;
 }
@@ -64,9 +58,7 @@ export async function cropPageRequest(pageNumber, x, y, width, height) {
             height: height,
             x: x,
             y: y,
-        }, {
-            'responseType': 'blob'
-        }
+        }, { 'responseType': 'blob' }
     );
     return response.data;
 }
@@ -198,9 +190,7 @@ export async function rotatePageRequest(pageNumber, isClockwise) {
         `https://localhost:7199/api/PDF/${pathes[isClockwise]}`, {
             fileId: ssm.getFileId(),
             pageNumber: pageNumber
-        }, {
-            'responseType': 'blob'
-        }
+        }, { 'responseType': 'blob' }
     );
     return response.data;
 }

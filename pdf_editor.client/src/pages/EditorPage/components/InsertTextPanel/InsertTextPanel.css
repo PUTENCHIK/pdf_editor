@@ -118,3 +118,7 @@
     display: flex;
     justify-content: center;
 }
+
+p.minor {
+    font-size: 16px;
+}

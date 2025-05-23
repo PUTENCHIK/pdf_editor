@@ -7,6 +7,7 @@ import {
     swapPagesRequest, cropPageRequest, insertImageRequest,
     rotatePageRequest, insertTextRequest
 } from '../../helpers/functionRequests';
+import {downloadFile, roundNumber} from '../../helpers/functions';
 
 import Header from '../../components/Header/Header';
 import AddFile from '../../components/AddFile/AddFile';
@@ -23,9 +24,9 @@ import CurrentPagePanel from './components/CurrentPagePanel/CurrentPagePanel';
 import InstrumentsPanel from './components/InstrumentsPanel/InstrumentsPanel';
 import ExtraPanel from './components/ExtraPanel/ExtraPanel';
 import CropPageInfo from './components/CropPageInfo/CropPageInfo';
-import {downloadFile, roundNumber} from '../../helpers/functions';
 import InsertTextPanel from './components/InsertTextPanel/InsertTextPanel';
 import FormsContainer from '../../components/FormsContainer/FormsContainer';
+import SwapPagesPanel from './components/SwapPagesPanel/SwapPagesPanel';
 
 GlobalWorkerOptions.workerSrc = './node_modules/pdfjs-dist/build/pdf.worker.mjs';
 
@@ -33,7 +34,6 @@ const EditorPage = () => {
     const minimapWidthPercent = 0.5;
 
     const [pageState, setPageState] = useState("start");
-    const [activeTool, setActiveTool] = useState("delete_page");
 
     const inputFileButton = useRef(null);
     const documentDisplay = useRef(null);
@@ -60,6 +60,9 @@ const EditorPage = () => {
     const [insertTextPage, setInsertTextPage] = useState(null);
     const [insertTextDocumentData, setInsertTextDocumentData] = useState(null);
     const [insertTextPanelData, setInsertTextPanelData] = useState(null);
+
+    const [isSwapingPages, setIsSwapingPages] = useState(false);
+    const [swapPagesData, setSwapPagesData] = useState(null);
 
     const [isConfirmingClosing, setIsConfirmingClosing] = useState(false);
 
@@ -168,7 +171,6 @@ const EditorPage = () => {
         removeImageContainers();
         setImageData([]);
         if (result) {
-            messagesContainerRef.current.addMessage("Успех", "Изображение вставлено");
             await setDocumentFromBlob(result);
         } else {
             messagesContainerRef.current.addError("Ошибка", "Не удалось вставить изображение");
@@ -190,9 +192,18 @@ const EditorPage = () => {
         } else {
             messagesContainerRef.current.addError("Вставка текста", `Не удалось вставить текст на страницу ${insertTextPage}`);
         }
-        setInsertTextPage(null);
-        setInsertTextDocumentData(null);
-        setInsertTextPanelData(null);
+        disableAllFunctions();
+    }
+
+    async function swapPages() {
+        let pf = swapPagesData.pageFrom, pt = swapPagesData.pageTo;
+        let result = await swapPagesRequest(Number(pf), Number(pt));
+        if (result) {
+            await setDocumentFromBlob(result);
+        } else {
+            messagesContainerRef.current.addError("Перемещение страниц", `Не удалось поменять местами ${pf} и ${pt} страницы`);
+        }
+        disableAllFunctions();
     }
 
     function handleDownloadFile() {
@@ -207,6 +218,9 @@ const EditorPage = () => {
         setInsertTextPage(null);
         setInsertTextDocumentData(null)
         setInsertTextPanelData(null);
+        setIsConfirmingClosing(false);
+        setIsSwapingPages(false);
+        setSwapPagesData(null);
     }
 
     function closeFile() {
@@ -232,8 +246,9 @@ const EditorPage = () => {
         setInsertTextPage(insertTextPage ? null : currentPage);
     }
 
-    function handleCloseFormContainer() {
-        setIsConfirmingClosing(false);
+    function startSwapPages() {
+        disableAllFunctions();
+        setIsSwapingPages(!isSwapingPages);
     }
 
     function removeImageContainers() {
@@ -285,9 +300,11 @@ const EditorPage = () => {
                                                     cropingPage={cropingPage}
                                                     insertImagePage={insertImagePage}
                                                     insertTextPage={insertTextPage}
+                                                    isSwapingPages={isSwapingPages}
                                                     onCropPage={startCropPage}
                                                     onInsertImage={startInsertImage}
                                                     onInsertText={startInsertText}
+                                                    onSwapPages={startSwapPages}
                                                 />
                                                 <RotateDocumentPanel rotateDocument={rotateDocument} />
                                             </div>
@@ -319,10 +336,11 @@ const EditorPage = () => {
                                     </>
                                 )}
                             </div>
-                            { (cropingPage || insertImagePage || insertTextPage) && (
+                            { (cropingPage || insertImagePage || insertTextPage || isSwapingPages) && (
                                 <div className="interaction-segment">
                                     { (cropingPage && cropPageData) && 
                                         <CropPageInfo
+                                            page={cropingPage}
                                             data={cropPageData}
                                             onClick={cropPage}
                                         />
@@ -331,16 +349,24 @@ const EditorPage = () => {
                                         <InsertImageFormContent
                                             pageCount={pdf ? pdf.numPages : 1}
                                             inputFileButton={inputFileButton}
-                                            onClick={insertImage}
                                             imageData={imageData}
                                             setImageData={setImageData}
+                                            onClick={insertImage}
                                         />
                                     }
                                     { insertTextPage &&
                                         <InsertTextPanel
+                                            page={insertTextPage}
                                             documentData={insertTextDocumentData}
                                             updateData={setInsertTextPanelData}
-                                            handleInsertText={insertTextIntoPage}
+                                            onClick={insertTextIntoPage}
+                                        />
+                                    }
+                                    { isSwapingPages &&
+                                        <SwapPagesPanel
+                                            pages={pdf.numPages}
+                                            updateData={setSwapPagesData}
+                                            onClick={swapPages}
                                         />
                                     }
                                 </div>
@@ -352,7 +378,7 @@ const EditorPage = () => {
                 { isConfirmingClosing &&
                     <FormsContainer
                         isConfirmingClosing={isConfirmingClosing}
-                        onCloseContainer={handleCloseFormContainer}
+                        onCloseContainer={disableAllFunctions}
                         onConfirmClosingFile={closeFile}
                         ref={formsContainerRef}
                     />

@@ -1,0 +1,45 @@
+.swap-pages-panel {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    row-gap: 20px;
+
+    font-size: 18px;
+}
+
+.swap-pages-panel > .content {
+    display: flex;
+    flex-direction: column;
+    row-gap: 50px;
+}
+
+.swap-pages-panel .input-pages-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    column-gap: 15px;
+}
+
+.swap-pages-panel .input-pages-container img {
+    transform: rotate(90deg);
+}
+
+.swap-pages-panel input.span {
+    background-color: #e2e2e2;
+}
+
+.swap-pages-panel .input-box {
+    display: flex;
+    align-items: center;
+    column-gap: 4px;
+}
+
+.swap-pages-panel .button-box {
+    display: flex;
+    justify-content: center;
+}
+
+.swap-pages-panel .button-box p.error {
+    font-size: 16px;
+    color: red;
+}

@@ -1,4 +1,4 @@
-import React, { useRef, forwardRef, useEffect, useImperativeHandle, useState } from "react";
+import React, { forwardRef, useImperativeHandle, useState } from "react";
 import './MinimapDisplay.css'
 import MinimapPage from "../MinimapPage/MinimapPage";
 
@@ -7,7 +7,6 @@ const MinimapDisplay = forwardRef((props, ref) => {
     const [pageObjects, setPageObjects] = useState([]);
 
     async function loadPdf() {
-        // setChildren([]);
         try {
             const pdf = props.document;
             setNumPages(pdf.numPages);
@@ -49,6 +48,7 @@ const MinimapDisplay = forwardRef((props, ref) => {
                     ))}
                 </>
             }
+            
         </div>
     );
 });

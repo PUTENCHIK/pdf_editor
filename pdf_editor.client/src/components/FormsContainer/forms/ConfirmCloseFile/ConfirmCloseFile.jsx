@@ -1,25 +1,10 @@
 import './ConfirmCloseFile.css'
 import Button from '../../../Button/Button';
-import { useEffect, useRef } from 'react';
+import { forwardRef } from 'react';
 
-const ConfirmCloseFile = (props) => {
-    const formRef = useRef(null);
-
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (formRef.current && !formRef.current.contains(event.target)) {
-                props.onCloseForm();
-            }
-        }
-
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside)
-        }
-    }, []);
-
+const ConfirmCloseFile = forwardRef((props, ref) => {
     return (
-        <div className='form confirm-close-file' ref={formRef}>
+        <div className='form confirm-close-file' ref={ref}>
             <div className="content">
                 <p>Перед закрытием скачайте документ, чтобы сохранить изменения.</p>
                 <div className="buttons-box">
@@ -36,6 +21,6 @@ const ConfirmCloseFile = (props) => {
             </div>
         </div>
     )
-}
+});
 
 export default ConfirmCloseFile;

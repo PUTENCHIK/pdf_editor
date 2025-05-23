@@ -5,7 +5,7 @@ import './CropPageInfo.css'
 const CropPageInfo = (props) => {
     return (
         <div className="crop-page-info">
-            <h3>Обрезание страницы</h3>
+            <h3>Обрезание страницы {props.page}</h3>
             <div className='content'>
                 <div className="column">
                     <span>Отступ слева</span>

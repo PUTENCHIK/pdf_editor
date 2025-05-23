@@ -85,7 +85,7 @@ const InsertTextPanel = (props) => {
 
     return (
         <div className="insert-text-panel">
-            <h3>Вставка текста</h3>
+            <h3>Вставка текста на страницу {props.page}</h3>
             <div className="content">
                 <div className="row">
                     <span>Шрифт</span>
@@ -151,11 +151,6 @@ const InsertTextPanel = (props) => {
                         isChecked={withBackground}
                         onClick={handleWithBackground}
                     />
-                    {/* <input
-                        type="checkbox"
-                        value={withBackground}
-                        onChange={handleWithBackground}
-                    /> */}
                 </div>
                 { withBackground &&
                     <div className="row">
@@ -172,20 +167,23 @@ const InsertTextPanel = (props) => {
                     <span>Отступ слева</span>
                     <span className='bold'>{roundNumber((props.documentData ?? {}).x)}px</span>
                 </div>
-
                 <div className="row">
                     <span>Отступ снизу</span>
                     <span className='bold'>{roundNumber((props.documentData ?? {}).y)}px</span>
                 </div>
-                { ((props.documentData ?? {}).text && (props.documentData ?? {}).text.trim().length > 0) &&
-                    <div className="button-box">
-                        <Button
-                            class="danger"
-                            text="Вставить текст"
-                            onClick={props.handleInsertText}
-                        />
-                    </div>
-                }
+                <div className="button-box">
+                    { ((props.documentData ?? {}).text && (props.documentData ?? {}).text.trim().length > 0) ?
+                        (
+                            <Button
+                                class="danger"
+                                text="Вставить текст"
+                                onClick={props.onClick}
+                            />
+                        ) : (
+                            <p className='minor'>Для вставки введите текст</p>
+                        )
+                    }
+                </div>
             </div>
         </div>
     );

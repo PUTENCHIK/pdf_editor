@@ -4,6 +4,7 @@ import crop_icon from '../../../../images/common/clip_icon_active.svg';
 import insert_image_icon from '../../../../images/common/insert_image_icon_active.svg';
 import insert_text_icon from '../../../../images/common/insert_text_icon.svg';
 import cross_icon from '../../../../images/common/cross.svg';
+import swap_icon from '../../../../images/common/swap_icon_active.svg';
 import InstrumentButton from '../../../../components/InstrumentButton/InstrumentButton';
 
 const InstrumentsPanel = (props) => {
@@ -38,6 +39,13 @@ const InstrumentsPanel = (props) => {
                 }
                 isActive={props.insertTextPage}
                 onClick={props.onInsertText}
+            />
+            <InstrumentButton
+                image={props.isSwapingPages ? cross_icon : swap_icon}
+                alt="swap"
+                tooltip="Поменять страницы местами"
+                isActive={props.isSwapingPages}
+                onClick={props.onSwapPages}
             />
         </div>
     );
