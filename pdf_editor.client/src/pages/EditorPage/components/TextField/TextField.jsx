@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import './TextField.css'
-import roundNumber from '../../../../helpers/functions';
+import {roundNumber} from '../../../../helpers/functions';
 
 const TextField = (props) => {
     const defaultPosition = 0.05;

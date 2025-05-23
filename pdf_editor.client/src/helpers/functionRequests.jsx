@@ -243,3 +243,16 @@ export async function insertTextRequest(withBackground, pageNumber, data) {
     );
     return response.data;
 }
+
+export async function convertWordToPdfRequest(file) {
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await axios.post(
+        `https://localhost:7199/api/PDF/сonvert-word-to-pdf`,
+        formData, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+            'responseType': 'blob',
+        }
+    );
+    return response.data;
+}

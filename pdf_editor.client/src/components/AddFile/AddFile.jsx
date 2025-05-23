@@ -7,7 +7,13 @@ import file_icon1 from '../../images/common/mdi_files.png'
 import file_icon2 from '../../images/common/file.png'
 import CrossButton from '../CrossButton/CrossButton';
 
-const AddFile = forwardRef((props, ref) =>{
+const AddFile = forwardRef((props, ref) => {
+    const acceptTypes = {
+        "images": ".png,.jpg,.jpeg",
+        "pdf": ".pdf",
+        "word": ".doc,.docx,.docm",
+    };
+
     const inputFile = useRef(null);
     const [state, changeState] = useState(1);
 
@@ -58,7 +64,7 @@ const AddFile = forwardRef((props, ref) =>{
         <div className={'add-file-block' + (state == 1 ? ' clickable' : '')} onClick={buttonOnClick}>
             <input
                 type="file"
-                accept={props.accept_types == "images" ? ".png,.jpg,.jpeg" : ".pdf"}
+                accept={acceptTypes[props.accept_types] ?? acceptTypes["pdf"]}
                 ref={inputFile}
                 className='hidden'
                 name={props.inputName ? props.inputName : "file"}

@@ -6,6 +6,7 @@ import InputWithLabel from "../../components/InputWithLabel/InputWithLabel";
 import Button from "../../components/Button/Button";
 import MessageBlocksContainer from "../../components/MessageBlocksContainer/MessageBlocksContainer";
 import { compressFileRequest } from "../../helpers/functionRequests";
+import { downloadFile } from '../../helpers/functions';
 
 const CompressPage = () => {
     const addFileButton = useRef(null);
@@ -42,21 +43,7 @@ const CompressPage = () => {
     }
 
     function downloadResultFile() {
-        const fileName = "compressed.pdf";
-        const newFile = new File(
-            [resultFile],
-            fileName,
-            {
-                type: "application/pdf"
-            }
-        );
-        const fileURL = URL.createObjectURL(newFile);
-        const link = document.createElement('a');
-        link.href = fileURL;
-        link.download = fileName;
-        link.click();
-
-        link.remove();
+        downloadFile(resultFile, "compressed.pdf");
     }
 
     function compressAgain() {
@@ -74,8 +61,7 @@ const CompressPage = () => {
                             <h1>Сжать PDF файл</h1>
                             <p className='description'>Добавьте свой PDF документ и укажите степень сжатия, чтобы приложение можно уменьшить размер файла</p>
                         </div>
-                        {
-                            resultFile == null &&
+                        { resultFile == null &&
                             <div className="files-container">
                                 <form name='compress-file' method="POST" onSubmit={handleCompressForm}>
                                     <div className="inputs-box">
@@ -84,8 +70,7 @@ const CompressPage = () => {
                                             ref={addFileButton}
                                         />
                                     </div>
-                                    {
-                                        fileExists &&
+                                    { fileExists &&
                                         <>
                                             <InputWithLabel
                                                 labelType="horizontal"
@@ -106,8 +91,7 @@ const CompressPage = () => {
                                 </form>
                             </div>
                         }
-                        {
-                            resultFile != null &&
+                        { resultFile != null &&
                             <>
                                 <div className="result-container">
                                     <p>Готово! Можете скачать сжатый файл:</p>

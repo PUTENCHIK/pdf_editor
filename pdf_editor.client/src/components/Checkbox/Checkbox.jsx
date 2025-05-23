@@ -1,4 +1,4 @@
-import roundNumber from '../../helpers/functions';
+import {roundNumber} from '../../helpers/functions';
 import './Checkbox.css';
 
 const Checkbox = (props) => {

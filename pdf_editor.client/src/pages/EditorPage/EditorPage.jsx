@@ -23,7 +23,7 @@ import CurrentPagePanel from './components/CurrentPagePanel/CurrentPagePanel';
 import InstrumentsPanel from './components/InstrumentsPanel/InstrumentsPanel';
 import ExtraPanel from './components/ExtraPanel/ExtraPanel';
 import CropPageInfo from './components/CropPageInfo/CropPageInfo';
-import roundNumber from '../../helpers/functions';
+import {downloadFile, roundNumber} from '../../helpers/functions';
 import InsertTextPanel from './components/InsertTextPanel/InsertTextPanel';
 import FormsContainer from '../../components/FormsContainer/FormsContainer';
 
@@ -195,13 +195,8 @@ const EditorPage = () => {
         setInsertTextPanelData(null);
     }
 
-    function downloadFile() {
-        const fileURL = URL.createObjectURL(fileObject);
-        const link = document.createElement('a');
-        link.href = fileURL;
-        link.download = 'returned.pdf';
-        link.click();
-        link.remove();
+    function handleDownloadFile() {
+        downloadFile(fileObject, "editted.pdf", true);
     }
 
     function disableAllFunctions() {
@@ -302,7 +297,7 @@ const EditorPage = () => {
                                             <div className="side-block">
                                                 <CurrentPagePanel current={currentPage} pages={pdf.numPages} />
                                                 <ExtraPanel
-                                                    onDownload={downloadFile}
+                                                    onDownload={handleDownloadFile}
                                                     onClose={() => setIsConfirmingClosing(true)}
                                                 />
                                             </div>

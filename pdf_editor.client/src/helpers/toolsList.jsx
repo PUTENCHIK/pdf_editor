@@ -13,7 +13,7 @@ const tools = [
             link: '/compress'
         },
         {
-            title: 'Конвертировать PDF',
+            title: 'Конвертировать в PDF',
             link: '/convert'
         },
         {

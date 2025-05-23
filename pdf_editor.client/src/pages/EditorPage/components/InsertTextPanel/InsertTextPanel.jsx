@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import './InsertTextPanel.css'
 import { getFontsRequest } from '../../../../helpers/functionRequests';
-import roundNumber from '../../../../helpers/functions';
+import {roundNumber} from '../../../../helpers/functions';
 import Button from '../../../../components/Button/Button';
 import Checkbox from '../../../../components/Checkbox/Checkbox';
 

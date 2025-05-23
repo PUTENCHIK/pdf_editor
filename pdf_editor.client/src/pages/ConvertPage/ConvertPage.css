@@ -1,15 +1,33 @@
-.file-additors-block {
+main.section.convert-page {
+    box-sizing: border-box;
+
+    display: flex;
+    flex-direction: column;
+    height: calc(100% - 80px);
+    justify-content: space-between;
+
+    background-color: #DDEED9;
+}
+
+main.section.compress-page h1 {
+    text-align: center;
+}
+
+p.description {
+    width: 600px;
+    text-align: center;
+}
+
+.center-block {
     display: inline-flex;
-    justify-content: center;
+    flex-direction: column;
+    row-gap: 90px;
     align-items: center;
-    column-gap: 36px;
-    width: 100%;
 }
 
-.choose-files-container {
-    margin-top: 100px;
+.center-block > .texts {
+    display: flex;
+    flex-direction: column;
+    row-gap: 8px;
+    align-items: center;
 }
-
-/* .add-files-block.id-convert-page .background {
-    left: 35%;
-} */

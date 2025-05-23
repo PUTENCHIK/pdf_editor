@@ -1,15 +1,22 @@
 import './Header.css'
 import { Link } from 'react-router-dom';
 
+import logo_icon from '../../images/common/logo.png';
 import DropdownList from '../DropdownList/DropdownList';
 import tools from '../../helpers/toolsList';
 
-function Header(props) {
+function Header() {
     return (
         <header>
             <Link to={"/"}>
                 <div className="logo-container">
-                    <div className='logo'></div>
+                    <div className='logo'>
+                        <img
+                            className='logo'
+                            src={logo_icon}
+                            alt="logo"
+                        />
+                    </div>
                 </div>
             </Link>
             <div className="content">

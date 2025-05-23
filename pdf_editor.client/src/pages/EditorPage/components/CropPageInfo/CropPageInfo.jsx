@@ -1,5 +1,5 @@
 import Button from '../../../../components/Button/Button';
-import roundNumber from '../../../../helpers/functions';
+import {roundNumber} from '../../../../helpers/functions';
 import './CropPageInfo.css'
 
 const CropPageInfo = (props) => {

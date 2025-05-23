@@ -7,6 +7,7 @@ import Button from '../../components/Button/Button';
 
 import { splitFileRequest } from '../../helpers/functionRequests';
 import { useRef, useState } from 'react';
+import { downloadFile } from '../../helpers/functions';
 
 const SplitPage = () => {
     const addFileButton = useRef(null);
@@ -47,21 +48,22 @@ const SplitPage = () => {
     }
 
     function downloadResultFile() {
-        const fileName = "splitted.zip";
-        const newFile = new File(
-            [resultFile],
-            fileName,
-            {
-                type: "application/zip"
-            }
-        );
-        const fileURL = URL.createObjectURL(newFile);
-        const link = document.createElement('a');
-        link.href = fileURL;
-        link.download = fileName;
-        link.click();
+        downloadFile(resultFile, "splitted.zip");
+        // const fileName = "splitted.zip";
+        // const newFile = new File(
+        //     [resultFile],
+        //     fileName,
+        //     {
+        //         type: "application/zip"
+        //     }
+        // );
+        // const fileURL = URL.createObjectURL(newFile);
+        // const link = document.createElement('a');
+        // link.href = fileURL;
+        // link.download = fileName;
+        // link.click();
 
-        link.remove();
+        // link.remove();
     }
 
     function splitAgain() {

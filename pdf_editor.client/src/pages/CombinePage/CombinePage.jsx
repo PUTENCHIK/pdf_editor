@@ -5,6 +5,7 @@ import Button from '../../components/Button/Button';
 import MessageBlocksContainer from '../../components/MessageBlocksContainer/MessageBlocksContainer';
 import { combineFilesRequest } from '../../helpers/functionRequests';
 import { useRef, useState } from 'react';
+import { downloadFile } from '../../helpers/functions';
 
 const CombinePage = () => {
     const addFileButton1 = useRef(null);
@@ -43,20 +44,7 @@ const CombinePage = () => {
     }
 
     function downloadResultFile() {
-        const newFile = new File(
-            [resultFile],
-            `returned.pdf`,
-            {
-                type: "application/pdf"
-            }
-        );
-        const fileURL = URL.createObjectURL(newFile);
-        const link = document.createElement('a');
-        link.href = fileURL;
-        link.download = 'combined.pdf';
-        link.click();
-
-        link.remove();
+        downloadFile(resultFile, "combined.pdf");
     }
 
     function combineAgain() {
